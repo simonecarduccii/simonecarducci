@@ -207,3 +207,9 @@ le foto e un link YouTube per ogni DJ set (4 DJ = 4 link). Quello che è vuoto n
   a caso tra tutti quelli delle serate e del pannello Video, a tutta larghezza su banda nera) e infine la "Galleria":
   5 × 2 foto prese a caso da tutte le serate e da "Foto della pagina"; la freccia → in alto a destra ne pesca altre
   dieci, ← torna alle precedenti, i pulsanti sopra mostrano una sola serata.
+
+## Comprimere pannelli e blocchi
+
+Ogni pannello (il suo titolo) e ogni blocco delle Pagine ha un pulsante ▾ / ▸ che lo chiude o lo riapre. In cima a ogni pagina dell'admin **Comprimi tutto** / **Espandi tutto** li chiude o riapre tutti, insieme alle categorie, serate e sezioni che hanno già il loro ▾. Quello che chiudi resta chiuso in questo browser.
+
+Nella **Griglia di post** l'interruttore *Automatica* prende ogni giorno gli ultimi post da Instagram: si scelgono solo titolo, quanti post e colonne; le foto caricate a mano restano come *Foto di riserva*.
