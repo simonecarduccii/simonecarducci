@@ -1388,15 +1388,19 @@ def auto_pick(raw):
 
 def ofo_caption(text):
     """Quote, interviewed artist and issue number of an Osservatorio post, read from its caption:
-    the first paragraph (without the "read it on www..." sentence), the first @name that is not Francesca or
-    Bohème, "#49" after Osservatorio/OFO. Whatever is not found stays empty and the hand-written text is used."""
+    the first sentence (without the "read it on www..." sentence), the "Osservatore: @name" of the caption,
+    "#49" after Osservatorio/OFO. Whatever is not found stays empty and the hand-written text is used."""
     text = _str(text)
     lede = re.split(r"\n\s*[-–—]?\s*\n", text, maxsplit=1)[0]
     sentences = re.split(r"(?<=[.!?…])\s+", lede.strip())
     lede = " ".join(x for x in sentences if not re.search(r"www\.|https?://|osservatoriofo|link in bio", x, re.I)).strip()
+    # the quote is the first sentence (the rest of the paragraph explains it)
+    lede = (re.split(r"(?<=[.!?…])\s+", lede, maxsplit=1) or [""])[0]
     num = re.search(r"(?:osservator\w*|ofo)\s*(?:n\.?\s*|#\s*)(\d{1,4})", text, re.I)
-    who = next((h for h in re.findall(r"@([A-Za-z0-9._]{2,30})", text)
-                if h.lower().rstrip(".") not in ("francesca_occhi", "francescaocchi", "bohememag")), "")
+    # every OFO caption ends with "Osservatore: @name"; otherwise the first @name that is not the column's own
+    who = re.search(r"osservator[ei]\s*:\s*@([A-Za-z0-9._]{2,30})", text, re.I)
+    who = who.group(1) if who else next((h for h in re.findall(r"@([A-Za-z0-9._]{2,30})", text) if h.lower().rstrip(".")
+                                         not in ("francesca_occhi", "francescaocchi", "bohememag", "osservatoriofo")), "")
     return {"citazione": lede, "numero": num.group(1) if num else "", "artista": who.rstrip(".")}
 
 
@@ -1604,7 +1608,7 @@ def block_html(b, p, i):
             c = ofo_caption(a["testo"])
             if c["citazione"]:
                 q = f"«{c['citazione'].strip('«»\"“” ')}»"
-            txt = (f'Intervista di Francesca Occhi a [@{c["artista"]}](https://www.instagram.com/{c["artista"]}/).'
+            txt = (f'Osservatore: [@{c["artista"]}](https://www.instagram.com/{c["artista"]}/). Rubrica a cura di Francesca Occhi.'
                    if c["artista"] else "Rubrica a cura di Francesca Occhi.")
             base = re.sub(r"\s*#\s*\d+\s*$", "", lab)
             lab = f"{base} #{c['numero']}" if c["numero"] else base
