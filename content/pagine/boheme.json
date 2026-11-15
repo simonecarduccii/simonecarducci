@@ -179,17 +179,12 @@
       ],
       "automatico": {
         "attivo": true,
-        "parole": [
-          "francesca occhi",
-          "@francescaocchi",
-          "osservatorio",
-          "ofo"
-        ],
+        "parole": [],
         "escludi": [],
         "colore": "nero",
         "soglia": 0,
         "slide": "tutte",
-        "salta": 2
+        "salta": 1
       },
       "link": {
         "testo": "Leggi l’intervista di Francesca su osservatoriofo.com.",
