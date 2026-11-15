@@ -469,3 +469,4 @@ body.no-preview .preview { display: none; }
 .chip button { border: 0; background: none; cursor: pointer; font-size: 14px; line-height: 1; padding: 0 4px; }
 .ig-search { width: 100%; margin: 0 0 12px; padding: 7px 10px; border: 1px solid var(--rule); border-radius: 8px; }
 .ig-grid li[hidden] { display: none; }
+.auto-box .inline-fields input[type=text], .auto-box .inline-fields input[type=number] { width: 80px; }

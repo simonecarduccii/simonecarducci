@@ -215,3 +215,5 @@ Ogni pannello (il suo titolo) e ogni blocco delle Pagine ha un pulsante ▾ / �
 Nella **Griglia di post** l'interruttore *Automatica* prende ogni giorno gli ultimi post da Instagram: si scelgono solo titolo, quanti post e colonne; le foto caricate a mano restano come *Foto di riserva*.
 
 **Post Instagram nei blocchi**: nelle schede dei Formati, nel Focus e nella Griglia il pulsante **Da Instagram** apre gli ultimi post di Bohème (da `content/instagram/post-boheme.json`, aggiornato dal sito): un clic sceglie il post; per un carosello si indica prima il numero della slide. Si può anche incollare il link di qualsiasi post. Nel file resta il link del post; l'immagine la scarica il sito al prossimo aggiornamento.
+
+**Scelta automatica**: ogni scheda dei Formati e il Focus hanno l'interruttore *Automatico*. Acceso, il sito prende ogni giorno l'ultimo post che contiene una delle *parole* (e nessuna di quelle da *escludere*), con il *bordo* bianco o nero se richiesto, e la *slide* indicata (nel Focus anche più slide, es. `1, 2`). Spento, si usa la foto scelta a mano. Nel selettore dei post si può cercare nel testo dei post.
