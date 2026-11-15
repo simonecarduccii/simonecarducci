@@ -1354,8 +1354,22 @@ def paras(text):
     return "\n".join(f"<p>{inline(x.strip())}</p>" for x in re.split(r"\n\s*\n", text) if x.strip())
 
 
+# An Instagram post link can stand for a photo in a block: tools/instagram_feed.py downloads it
+# (the slide of a carousel from the link's ?img_index=n) and the photo links to the post.
+IG_DIR = "boheme"
+_IG_POST = re.compile(r"https?://(?:www\.)?instagram\.com/(?:[\w.]+/)?(?:p|reel|tv)/([\w-]+)/?(?:\?\S*?img_index=(\d+))?")
+
+
+def ig_photo(v):
+    m = _IG_POST.match(_str(v))
+    return f"img/{IG_DIR}/instagram/scelti/{m.group(1)}-{max(1, int(m.group(2) or 1))}.jpg" if m else ""
+
+
 def ph(src, alt, folder, eager=False):
     """Photo of a block, or an empty grey box of the same size when it is not uploaded yet."""
+    ig = ig_photo(src)
+    if ig:
+        return img(ig, alt, eager=eager) if exists(ig) else '<div class="media empty is-slot"></div>'
     if _photo(src, folder) and exists(src):
         return img(src, alt, eager=eager)
     return '<div class="media empty is-slot"></div>'
@@ -1452,7 +1466,7 @@ def block_html(b, p, i):
             col = _str(v.get("colore"))
             dot = f'<i class="dot" style="--dot: {col}" aria-hidden="true"></i>' if re.fullmatch(r"#[0-9a-fA-F]{3,8}", col) else ""
             media = ph(v.get("foto"), t or p["title"], s)
-            la = link_attrs(v.get("link"))
+            la = link_attrs(v.get("link")) or (link_attrs(v.get("foto")) if ig_photo(v.get("foto")) else "")
             if la:
                 media = f'<a{la}>{media}</a>'
             cards += (f'<li>{media}<h3 class="bv-format-title">{dot}{html.escape(t)}</h3>'
@@ -1486,7 +1500,7 @@ def block_html(b, p, i):
         cells = ""
         for k, v in enumerate(items, 1):
             media = ph(v.get("foto"), f'{p["title"]}, post {k}', s)
-            la = link_attrs(v.get("link"))
+            la = link_attrs(v.get("link")) or (link_attrs(v.get("foto")) if ig_photo(v.get("foto")) else "")
             cells += f'<li>{f"<a{la}>{media}</a>" if la else media}</li>'
         if not cells:
             return ""
