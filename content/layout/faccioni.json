@@ -12,5 +12,10 @@
       "blocco": "crediti"
     }
   ],
-  "nascoste": [11, 12]
+  "nascoste": [
+    11,
+    12,
+    38,
+    39
+  ]
 }
