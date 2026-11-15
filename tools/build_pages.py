@@ -1530,13 +1530,19 @@ def block_html(b, p, i):
         for k, v in enumerate(items, 1):
             a = auto_pick(v.get("automatico"))
             media = img(a["foto"][0], f'{p["title"]}, post {k}') if a else ph(v.get("foto"), f'{p["title"]}, post {k}', s)
-            la = link_attrs(v.get("link")) or (link_attrs(a["link"]) if a else link_attrs(v.get("foto")) if ig_photo(v.get("foto")) else "")
-            cells += f'<li>{f"<a{la}>{media}</a>" if la else media}</li>'
+            # a click opens the photo large (assets/main.js), with "Visualizza su Instagram" when it is a post
+            url = _str(v.get("link")) or (a["link"] if a else _str(v.get("foto")) if ig_photo(v.get("foto")) else "")
+            if url.startswith("https://"):
+                media = media.replace("<img ", f'<img data-ig="{html.escape(url)}" ', 1)
+            cells += f'<li>{media}</li>'
         if not cells:
             return ""
         t = _str(b.get("titolo"))
         head = f'<h2 class="bv-feed-title">{html.escape(t)}</h2>' if t else ""
-        return f'  <section class="bv-feed-wrap">{head}<ul class="bv-feed" style="--cols: {cols}">{cells}</ul></section>'
+        nav = ('<div class="bv-slides-nav" hidden><button type="button" data-step="-1" aria-label="Post precedenti">&larr;</button>'
+               '<button type="button" data-step="1" aria-label="Post successivi">&rarr;</button></div>')
+        return (f'  <section class="bv-feed-wrap">{head}<div class="bv-carousel">'
+                f'<ul class="bv-feed" style="--cols: {cols}">{cells}</ul>{nav}</div></section>')
     if kind == "link":
         lab, t, la = _str(b.get("etichetta")), _str(b.get("testo")), link_attrs(b.get("link"))
         if not t:

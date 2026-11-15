@@ -697,9 +697,27 @@ a.bv-big-link:hover, a.bv-big-link:focus-visible { text-decoration: underline; t
 .bv-focus-more a { font-size: 16px; color: var(--ink); text-decoration: underline; text-underline-offset: 3px; }
 .bv-focus-more a:hover { text-decoration: none; }
 
-/* Bohème blocks: a little more room at the edges, centred within a maximum width */
-.bv-numbers, .bv-formats, .bv-focus, .bv-feed-wrap, .bv-link, .bv-page .p-title-row, .bv-page .p-facts-wrap {
-  --bv-side: clamp(20px, 5vw, 80px);
-  box-sizing: border-box; max-width: calc(1240px + 2 * var(--bv-side)); margin-inline: auto;
-  padding-left: var(--bv-side); padding-right: var(--bv-side);
-}
+/* Bohème formats: a little more room at the edges, centred within a maximum width (only this block, Simone 15 Nov) */
+.bv-formats { --bv-side: clamp(20px, 5vw, 80px); box-sizing: border-box; max-width: calc(1240px + 2 * var(--bv-side));
+  margin-inline: auto; padding-left: var(--bv-side); padding-right: var(--bv-side); }
+
+/* Feed di Instagram: one row that scrolls with the arrows; a click opens the post large */
+.bv-carousel .bv-feed { grid-template-columns: none; grid-auto-flow: column;
+  grid-auto-columns: calc((100% - (var(--cols) - 1) * 4px) / var(--cols)); overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; }
+.bv-carousel .bv-feed::-webkit-scrollbar { display: none; }
+.bv-carousel .bv-feed li { scroll-snap-align: start; }
+.bv-feed img { cursor: zoom-in; }
+@media (max-width: 900px) { .bv-carousel .bv-feed { grid-auto-columns: calc((100% - 8px) / 3); } }
+@media (max-width: 640px) { .bv-carousel .bv-feed { grid-auto-columns: calc((100% - 4px) / 2); } }
+.lightbox .lb-ig { position: absolute; bottom: 14px; right: var(--pad); font-size: 13px; color: #fff; text-decoration: underline; text-underline-offset: 3px; }
+.lightbox .lb-ig[hidden] { display: none; }
+
+/* Osservatorio: a full-width black band, the same black as the OFO posts */
+.bv-focus { --ofo: #0b0801; background: var(--ofo); color: #fff; margin-top: clamp(72px, 10.25vw, 140px);
+  padding: clamp(56px, 7vw, 96px) var(--pad); }
+.bv-focus .label { color: #b9b4ab; }
+.bv-focus blockquote p { color: #fff; }
+.bv-focus-note { color: #d9d5cd; }
+.bv-focus-more a, .bv-focus .bv-slides-nav button { color: #fff; }
+.bv-focus .bv-slides-nav button:disabled { color: rgba(255,255,255,.3); }
+.bv-focus a:focus-visible, .bv-focus button:focus-visible { outline-color: #fff; }
