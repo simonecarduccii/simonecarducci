@@ -16,7 +16,11 @@ Output:
   img/<folder>/instagram/scelti/<code>-<n>.jpg, where n is the slide of a carousel (the link's
   ?img_index=n, 1 when missing). The page then shows that image and links to the post;
 - for the /admin picker: small previews of the latest posts in img/<folder>/instagram/mini/<code>.jpg and
-  their list in content/instagram/post-<folder>.json [{"codice", "link", "data", "tipo", "mini"}].
+  their list in content/instagram/post-<folder>.json [{"codice", "link", "data", "tipo", "mini", "testo"}];
+- automatic photos: a block item with "automatico": {"attivo": true, "parole": [...], "escludi": [...],
+  "colore": "bianco"|"nero"|"", "soglia": n, "slide": n or [n, ...]} gets, every day, the latest post whose
+  caption contains one of the words (hashtags and @tags included) and whose image is mostly white or black
+  when asked. Result in content/instagram/auto-<folder>.json {rule key: {"link", "foto": [...]}}.
 """
 import datetime
 import io
@@ -34,7 +38,7 @@ FOLDER = os.environ.get("IG_FOLDER", "boheme")
 LIMIT = 24          # posts kept for the automatic feed
 SCAN = 150          # posts read to find the ones chosen by hand
 PICKER = 60         # posts shown in the /admin picker
-FIELDS = "id,media_type,media_url,thumbnail_url,permalink,timestamp"
+FIELDS = "id,media_type,media_url,thumbnail_url,permalink,timestamp,caption"
 IG_LINK = re.compile(r"instagram\.com/(?:[\w.]+/)?(?:p|reel|tv)/([\w-]+)/?(?:\?[^\s\"]*?img_index=(\d+))?")
 
 
@@ -117,14 +121,123 @@ def image_url(it):
     return it.get("thumbnail_url") if it.get("media_type") == "VIDEO" else it.get("media_url")
 
 
-def chosen(items, base, token, out_dir):
+def download_slide(it, n, base, token, dest):
+    """Image n (1 = first) of a post: the slide of a carousel, the cover of a video."""
+    if it.get("media_type") == "CAROUSEL_ALBUM":
+        kids = get(f"{base}/{it['id']}/children", fields="media_type,media_url,thumbnail_url", access_token=token).get("data", [])
+        it = kids[min(n, len(kids)) - 1] if kids else it
+    save_jpg(image_url(it), dest)
+
+
+def rule_of(raw):
+    """The automatic rule of a block item, normalised; None when it is off. Shared with build_pages.py."""
+    if not isinstance(raw, dict) or not raw.get("attivo"):
+        return None
+    words = lambda k: sorted({str(w).strip().lower() for w in raw.get(k) or [] if str(w).strip()})
+    colour = raw.get("colore") if raw.get("colore") in ("bianco", "nero") else ""
+    sl = raw.get("slide")
+    slides = [int(x) for x in (sl if isinstance(sl, list) else [sl]) if isinstance(x, int) and 1 <= x <= 20] or [1]
+    soglia = raw.get("soglia") if isinstance(raw.get("soglia"), int) and 0 < raw.get("soglia") < 255 else 0
+    if not (words("parole") or colour):
+        return None
+    return {"parole": words("parole"), "escludi": words("escludi"), "colore": colour, "soglia": soglia, "slide": slides}
+
+
+def rule_key(rule):
+    import hashlib
+    return hashlib.sha1(json.dumps(rule, sort_keys=True, ensure_ascii=False).encode()).hexdigest()[:12]
+
+
+def find_rules(node, out):
+    if isinstance(node, dict):
+        r = rule_of(node.get("automatico"))
+        if r:
+            out[rule_key(r)] = r
+        for v in node.values():
+            find_rules(v, out)
+    elif isinstance(node, list):
+        for v in node:
+            find_rules(v, out)
+    return out
+
+
+def colour_of(it, cache):
+    """Mean brightness of the outer border of the post's first image (0 black - 255 white), cached by post."""
+    code = code_of(it)
+    if code in cache:
+        return cache[code]
+    from PIL import Image, ImageStat
+    try:
+        with urllib.request.urlopen(image_url(it), timeout=60) as r:
+            im = Image.open(io.BytesIO(r.read())).convert("L")
+    except Exception:
+        return None
+    im.thumbnail((200, 250))
+    w, h = im.size
+    b = max(4, int(min(w, h) * 0.08))
+    strips = [im.crop((0, 0, w, b)), im.crop((0, h - b, w, h)), im.crop((0, 0, b, h)), im.crop((w - b, 0, w, h))]
+    cache[code] = round(sum(ImageStat.Stat(x).mean[0] for x in strips) / 4)
+    return cache[code]
+
+
+def auto(items, base, token, out_dir):
+    """Latest post matching each automatic rule written in content/pagine/."""
+    rules = {}
+    for f in (ROOT / "content" / "pagine").glob("*.json"):
+        try:
+            find_rules(json.loads(f.read_text(encoding="utf-8")), rules)
+        except ValueError:
+            pass
+    cache_f = ROOT / "content" / "instagram" / f"colori-{FOLDER}.json"
+    cache = json.loads(cache_f.read_text(encoding="utf-8")) if cache_f.is_file() else {}
+    result, keep = {}, set()
+    for key, r in rules.items():
+        for it in items:  # newest first
+            text = (it.get("caption") or "").lower()
+            if r["parole"] and not any(w in text for w in r["parole"]):
+                continue
+            if any(w in text for w in r["escludi"]):
+                continue
+            if r["colore"]:
+                c = colour_of(it, cache)
+                if c is None:
+                    continue
+                if r["colore"] == "bianco" and c < (r["soglia"] or 225):
+                    continue
+                if r["colore"] == "nero" and c > (r["soglia"] or 40):
+                    continue
+            code, photos = code_of(it), []
+            for n in r["slide"]:
+                dest = out_dir / "scelti" / f"{code}-{n}.jpg"
+                if not dest.is_file():
+                    try:
+                        download_slide(it, n, base, token, dest)
+                    except Exception as e:
+                        print("automatic post", code, "skipped:", e)
+                        continue
+                keep.add(dest.name)
+                photos.append(dest.relative_to(ROOT).as_posix())
+            if photos:
+                result[key] = {"link": it["permalink"], "data": it.get("timestamp", ""), "foto": photos}
+                print(f"automatic {key}: {code}")
+                break
+        else:
+            print(f"automatic {key}: no matching post among the latest {SCAN}")
+    cache_f.parent.mkdir(parents=True, exist_ok=True)
+    cache_f.write_text(json.dumps(cache, sort_keys=True) + "\n", encoding="utf-8")
+    (ROOT / "content" / "instagram" / f"auto-{FOLDER}.json").write_text(
+        json.dumps(result, ensure_ascii=False, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    return keep
+
+
+def chosen(items, base, token, out_dir, keep=frozenset()):
     """Download the posts whose link is written in a page of content/pagine/."""
     refs = set()
     for f in (ROOT / "content" / "pagine").glob("*.json"):
         for m in IG_LINK.finditer(f.read_text(encoding="utf-8")):
             refs.add((m.group(1), max(1, int(m.group(2) or 1))))
     by_code = {code_of(it): it for it in items}
-    keep = set()
+    keep = set(keep)
     for code, n in sorted(refs):
         dest = out_dir / "scelti" / f"{code}-{n}.jpg"
         keep.add(dest.name)
@@ -135,10 +248,7 @@ def chosen(items, base, token, out_dir):
             print(f"chosen post {code} not among the latest {SCAN}: skipped")
             continue
         try:
-            if it.get("media_type") == "CAROUSEL_ALBUM":
-                kids = get(f"{base}/{it['id']}/children", fields="media_type,media_url,thumbnail_url", access_token=token).get("data", [])
-                it = kids[min(n, len(kids)) - 1] if kids else it
-            save_jpg(image_url(it), dest)
+            download_slide(it, n, base, token, dest)
             print("chosen post downloaded:", dest.name)
         except Exception as e:
             print("chosen post", code, "skipped:", e)
@@ -162,7 +272,8 @@ def picker(items, out_dir):
                 print("preview", code, "skipped:", e)
                 continue
         rows.append({"codice": code, "link": it["permalink"], "data": it.get("timestamp", ""),
-                     "tipo": it.get("media_type", ""), "mini": dest.relative_to(ROOT).as_posix()})
+                     "tipo": it.get("media_type", ""), "mini": dest.relative_to(ROOT).as_posix(),
+                     "testo": (it.get("caption") or "")[:300]})
     if not rows:
         return
     keep = {r["mini"] for r in rows}
@@ -190,7 +301,7 @@ def main():
         print("Instagram feed not updated:", "; ".join(errors))
         return 0
     out_dir = ROOT / "img" / FOLDER / "instagram"
-    chosen(items, base, token, out_dir)
+    chosen(items, base, token, out_dir, auto(items, base, token, out_dir))
     picker(items, out_dir)
     posts = []
     for it in items[:LIMIT]:
