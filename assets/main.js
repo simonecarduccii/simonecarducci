@@ -674,39 +674,3 @@ window.addEventListener('message', function (e) {
     update();
   });
 })();
-
-/* Collabora cards: "Scrivici" is a mailto link, which does nothing on a computer with no mail app set up
-   (who reads mail on the web). So a line under the cards always offers Gmail and copying the address;
-   after a card is clicked, its Gmail link carries that card's subject and text. */
-(function () {
-  document.querySelectorAll('.bv-collab').forEach(function (box) {
-    var list = box.querySelector('.bv-collab-list');
-    var links = box.querySelectorAll('a.bv-collab-cta[href^="mailto:"]');
-    if (!list || !links.length) return;
-    function gmail(a, plain) {
-      var u = new URL(a.href), to = decodeURIComponent(u.pathname);
-      var q = 'https://mail.google.com/mail/?view=cm&fs=1&to=' + encodeURIComponent(to);
-      if (!plain) q += '&su=' + encodeURIComponent(u.searchParams.get('subject') || '') +
-        '&body=' + encodeURIComponent(u.searchParams.get('body') || '');
-      return { to: to, url: q };
-    }
-    var first = gmail(links[0], true);
-    var note = document.createElement('p');
-    note.className = 'bv-collab-fallback';
-    note.append('Non si apre la posta? ');
-    var g = document.createElement('a');
-    g.href = first.url; g.target = '_blank'; g.rel = 'noopener'; g.textContent = 'Scrivi da Gmail ↗';
-    var c = document.createElement('button');
-    c.type = 'button'; c.textContent = 'Copia l’indirizzo ' + first.to;
-    c.addEventListener('click', function () {
-      (navigator.clipboard ? navigator.clipboard.writeText(first.to) : Promise.reject()).then(
-        function () { c.textContent = 'Indirizzo copiato: ' + first.to; },
-        function () { c.textContent = first.to; });
-    });
-    note.append(g, ' · ', c);
-    list.after(note);
-    links.forEach(function (a) {
-      a.addEventListener('click', function () { g.href = gmail(a).url; });
-    });
-  });
-})();
