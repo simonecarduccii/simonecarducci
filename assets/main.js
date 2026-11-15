@@ -204,7 +204,7 @@
 // Click the right or left half of the photo (an arrow appears on hover) to move, ✕ or a click outside to close.
 (function () {
   if (!window.HTMLDialogElement) return;
-  var SEL = '.photo-seq img, .photo-first img, .gallery img, .p-hero img, .about-intro img, .bv-feed img, .bv-seq-list img';
+  var SEL = '.photo-seq img, .photo-first img, .gallery img, .p-hero img, .about-intro img, .bv-feed img, .bv-seq-list img, .bv-zoom img';
   function photos() {
     return Array.prototype.slice.call(document.querySelectorAll(SEL))
       .filter(function (img) { return !img.closest('a') && img.isConnected; });
@@ -244,8 +244,9 @@
     if (!img || box.contains(img)) return;
     list = photos();
     // the Instagram feed and each sequence browse only their own photos
-    var group = img.closest('.bv-feed, .bv-seq-list');
-    list = list.filter(function (x) { return x.closest('.bv-feed, .bv-seq-list') === group; });
+    var GROUPS = '.bv-feed, .bv-seq-list, .bv-zoom';
+    var group = img.closest(GROUPS);
+    list = list.filter(function (x) { return x.closest(GROUPS) === group; });
     var i = list.indexOf(img);
     if (i < 0) return;
     show(i);

@@ -1389,6 +1389,11 @@ def edges(b):
     return " has-edges" if b.get("bordi") else ""
 
 
+def zoom(b):
+    """ "zoom": true on a block = its photos open in the lightbox of the photo projects (assets/main.js .bv-zoom)."""
+    return " bv-zoom" if b.get("zoom") else ""
+
+
 def ph(src, alt, folder, eager=False):
     """Photo of a block, or an empty grey box of the same size when it is not uploaded yet."""
     ig = ig_photo(src)
@@ -1492,12 +1497,14 @@ def block_html(b, p, i):
             a = auto_pick(v.get("automatico"))
             src = a["foto"][0] if a else v.get("foto")
             media = ph(src, t or p["title"], s) if not a else img(src, t or p["title"])
-            la = link_attrs(v.get("link")) or (link_attrs(a["link"]) if a else link_attrs(v.get("foto")) if ig_photo(v.get("foto")) else "")
-            if la:
-                media = f'<a{la}>{media}</a>'
+            url = _str(v.get("link")) or (a["link"] if a else _str(v.get("foto")) if ig_photo(v.get("foto")) else "")
+            if b.get("zoom") and url.startswith("https://"):  # opens in the lightbox, with "Visualizza su Instagram"
+                media = media.replace("<img ", f'<img data-ig="{html.escape(url)}" ', 1)
+            elif link_attrs(url):
+                media = f'<a{link_attrs(url)}>{media}</a>'
             cards += (f'<li>{media}<h3 class="bv-format-title">{dot}{html.escape(t)}</h3>'
                       f'{f"<p>{inline(txt)}</p>" if txt else ""}</li>')
-        return f'  <ul class="bv-formats{edges(b)}">{cards}</ul>' if cards else ""
+        return f'  <ul class="bv-formats{edges(b)}{zoom(b)}">{cards}</ul>' if cards else ""
     if kind == "passi":
         # Numbered steps or formats (Figma "Bohème · Studio identità"): label, title, text, then one card per item.
         # Each card: photo (or a block of its "colore" while the photo is missing), number, title, text.
@@ -1566,13 +1573,15 @@ def block_html(b, p, i):
         n = len(photos)
         slides = "".join(f'<li>{ph(f, f"{lab or p["title"]}, slide {k} di {n}", s)}</li>'
                          for k, f in enumerate(photos, 1))
+        if b.get("zoom") and a and a["link"].startswith("https://"):
+            slides = slides.replace("<img ", f'<img data-ig="{html.escape(a["link"])}" ')
         # more than two slides: a row that scrolls two at a time with arrows (assets/main.js)
         nav = ('<div class="bv-slides-nav" hidden><button type="button" data-step="-1" aria-label="Slide precedenti">&larr;</button>'
                '<button type="button" data-step="1" aria-label="Slide successive">&rarr;</button></div>') if n > 2 else ""
         fl = b.get("link") if isinstance(b.get("link"), dict) else {}
         fla, flt = link_attrs(fl.get("url")), _str(fl.get("testo"))
         more = f'<p class="bv-focus-more"><a{fla}>{html.escape(flt or _str(fl.get("url")))} &rarr;</a></p>' if fla else ""
-        return (f'  <section class="bv-focus{edges(b)}">\n    <div class="bv-focus-text">'
+        return (f'  <section class="bv-focus{edges(b)}{zoom(b)}">\n    <div class="bv-focus-text">'
                 f'{f"<p class=\"label\">{html.escape(lab)}</p>" if lab else ""}'
                 f'{f"<blockquote><p>{inline(q)}</p></blockquote>" if q else ""}'
                 f'{f"<p class=\"bv-focus-note\">{inline(txt)}</p>" if txt else ""}{more}</div>\n'
