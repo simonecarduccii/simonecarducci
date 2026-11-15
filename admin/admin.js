@@ -742,6 +742,11 @@ Testo da scrivere.
     { tipo: "passi", name: "Passi", note: "titolo e testo, poi schede in fila (foto, colore, titolo, testo) e regole", make: () => ({ etichetta: "", titolo: "", testo: "", affiancato: false, formato: "", voci: [{ titolo: "", testo: "", foto: null, colore: "#ffffff", link: "" }], regole: [] }) },
     { tipo: "collabora", name: "Collabora", note: "invito a scriverci: strade diverse, ognuna apre una mail con il suo oggetto", make: () => ({ etichetta: "", titolo: "", testo: "", email: "", pulsante: "Scrivici", dopo: "", instagram: "", voci: [{ titolo: "", testo: "", cosa: "", oggetto: "" }] }) },
     { tipo: "link", name: "Link grande", note: "una riga piccola e un link in grande", make: () => ({ etichetta: "", testo: "", link: "" }) },
+    // data blocks: they only place on the page what is edited in the page's own panels (events, video, Instagram, photos)
+    { tipo: "eventi", name: "Eventi", note: "le locandine per categoria, dal riquadro “Eventi per categoria”", make: () => ({ titolo: "" }) },
+    { tipo: "video_serate", name: "Video delle serate", note: "la fascia video, dal riquadro “Sezione video”", make: () => ({ titolo: "" }) },
+    { tipo: "reel", name: "Post di Instagram", note: "i post e reel, dal riquadro “Post di Instagram”", make: () => ({ titolo: "" }) },
+    { tipo: "galleria", name: "Galleria", note: "foto a caso della pagina e delle serate", make: () => ({ titolo: "" }) },
   ];
   const newId = () => Math.random().toString(36).slice(2, 8);
   const pageSlugs = () => Object.keys(tree).map((p) => (p.match(/^content\/pagine\/([a-z0-9][a-z0-9-]*)\.json$/) || [])[1]).filter(Boolean).sort();
@@ -847,7 +852,7 @@ Testo da scrivere.
     try { data = JSON.parse(await readText(hasDraft ? bozza : file, true) || "{}"); } catch (e) { data = {}; }
     await loadMine();
     const state = { titolo: data.titolo || slug, descrizione: data.descrizione || "",
-      blocchi: (Array.isArray(data.blocchi) ? data.blocchi : []).filter((b) => b && BLOCKS.some((t) => t.tipo === b.tipo))
+      blocchi: (Array.isArray(data.blocchi) ? data.blocchi : []).filter((b) => b && typeof b === "object" && b.tipo)
         .map((b) => ({ ...JSON.parse(JSON.stringify(b)), id: b.id || newId() })) };
     draft.builder = { node, state, file, bozza, hasDraft, target: "bozza", extra: Object.fromEntries(Object.entries(data).filter(([k]) => !["titolo", "descrizione", "blocchi"].includes(k))) };
     const extra = draft.builder.extra;
@@ -1200,7 +1205,11 @@ Testo da scrivere.
         case "successivo": return [select("Porta a", b.pagina || "", [["", "- scegli una pagina -"], ...linkTargets(slug)], (v) => { b.pagina = v; }),
           field("Scritta a sinistra", b.testo, (v) => { b.testo = v; }, { placeholder: "Progetto successivo" })];
         case "fascia": return [select("Quale", b.variante || "archivio", [["pellicole", "Pellicole (a colori)"], ["archivio", "Archivio (bianco e nero)"]], (v) => { b.variante = v; })];
-        default: return [];
+        case "eventi": case "video_serate": case "reel": case "galleria":
+          return [field("Titolo sopra (facoltativo)", b.titolo, (v) => { b.titolo = v; }),
+            h("p", { class: "hint" }, b.tipo === "galleria" ? "Si riempie da solo con le foto della pagina. Se non ci sono foto, il blocco non compare."
+              : "Il contenuto si modifica nel suo riquadro, qui sopra nella pagina. Se è vuoto, il blocco non compare.")];
+        default: return [h("p", { class: "hint" }, "Questo blocco si sposta o si toglie da qui, ma non ha campi da modificare.")];
       }
     };
 
@@ -1220,7 +1229,7 @@ Testo da scrivere.
     function draw() {
       const out = [];
       state.blocchi.forEach((b, i) => {
-        const t = BLOCKS.find((x) => x.tipo === b.tipo);
+        const t = BLOCKS.find((x) => x.tipo === b.tipo) || { name: b.tipo, note: "blocco del sito" };
         out.push(adder(i), h("section", { class: "block", "data-fold-key": "blocco-" + b.id },
           h("header", {}, h("b", {}, t.name), h("small", {}, t.note),
             h("span", { class: "tools" },
