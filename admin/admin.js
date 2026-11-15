@@ -753,9 +753,13 @@ Testo da scrivere.
     // opens the block editor; the old project sheet only keeps the short text used by the home cards
     const culture = ALL.filter((n) => n.facts && n.facts.slug === n.id);
     culture.forEach((n) => {
-      if (!tree[`${PAGE_DIR}${n.id}.json`]) return;
+      if (!tree[`${PAGE_DIR}${n.id}.json`] && !tree[`${DRAFT_DIR}${n.id}.json`]) return;
       n.freePage = n.id;
-      ["facts", "instagram", "videos", "posters", "photos"].forEach((k) => delete n[k]);
+      ["facts", "photos"].forEach((k) => delete n[k]);
+      // events, video band and reels keep their own panels (the page shows them with a block): only when there is data
+      if (n.instagram && !tree[`content/instagram/${n.instagram}.json`]) delete n.instagram;
+      if (n.videos && !tree[`content/video/${n.videos}.json`]) delete n.videos;
+      if (n.posters && !tree[`content/locandine/${n.posters}.json`]) delete n.posters;
       n.texts = (n.texts || []).filter((t) => t.section === "## In breve");
       n.note = "La pagina è fatta a blocchi: aggiungili, riordinali con ↑ ↓, toglili con ×. La foto del primo blocco è anche lo sfondo in home.";
     });
