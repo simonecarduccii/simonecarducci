@@ -439,3 +439,12 @@ body.no-preview .preview { display: none; }
 .inline-fields { display: flex; gap: 16px; flex-wrap: wrap; }
 .reserve { margin-top: 8px; border: 1px solid var(--rule); border-radius: 8px; padding: 8px 10px; }
 .reserve summary { cursor: pointer; font-size: 13px; }
+/* folding: every panel and block */
+.fold-all { display: flex; gap: 8px; justify-content: flex-end; margin: 0 0 6px; }
+.fold-all[hidden] { display: none; }
+.fold-btn { flex: none; width: 24px; height: 24px; margin-right: 8px; padding: 0; border: 1px solid var(--rule); background: #fff; border-radius: 6px; cursor: pointer; font-size: 12px; line-height: 1; color: var(--ink); vertical-align: middle; }
+.panel.folded > :not(h2) { display: none !important; }
+.panel.folded { padding-bottom: 8px; }
+.panel.folded > h2 { margin-bottom: 0; }
+.block.folded > :not(header) { display: none !important; }
+.block.folded > header { border-bottom: 0; }

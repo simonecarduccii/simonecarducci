@@ -337,12 +337,78 @@
       draft = { dirty: false, texts: {}, photos: null, cartella: null, switches: {} };
       const view = await renderElement(node);
       main.replaceChildren(view);
+      folds(main);
       setPreview(node.page);
       main.querySelectorAll("[data-live]").forEach((el) => livePreview(el.dataset.live, el.value));
       linkPreview();
     } catch (e) {
       main.replaceChildren(h("p", { class: "error" }, "Non riesco a caricare: " + e.message));
     }
+  }
+
+  // ---------------------------------------------------------------- folding
+  // Every panel (its h2) and every block (its header) gets a ▾ / ▸ button; "Comprimi tutto" / "Espandi tutto"
+  // at the top folds them all, plus the folds the editors already have (.pc-fold). Remembered in this browser.
+  let FOLDED = {};
+  try { FOLDED = JSON.parse(localStorage.getItem("fold") || "{}") || {}; } catch (e) { FOLDED = {}; }
+  const saveFolds = () => { try { localStorage.setItem("fold", JSON.stringify(FOLDED)); } catch (e) { /* private mode */ } };
+  const FOLDABLE = [[".panel", ":scope > h2"], [".block", ":scope > header"]];
+  const foldLabel = (head) => [...head.childNodes].filter((n) => !(n.classList && n.classList.contains("fold-btn")))
+    .map((n) => n.textContent).join(" ").replace(/\s+/g, " ").trim().slice(0, 60);
+  function setFold(box, folded) {
+    box.classList.toggle("folded", folded);
+    const b = box.querySelector(":scope > h2 > .fold-btn, :scope > header > .fold-btn");
+    if (b) { b.textContent = folded ? "▸" : "▾"; b.title = folded ? "Apri" : "Chiudi"; b.setAttribute("aria-expanded", folded ? "false" : "true"); }
+  }
+  function foldKey(box, head) {
+    const label = box.dataset.foldKey || foldLabel(head);
+    box.dataset.foldLabel = label;
+    // two panels with the same title: the second one is "|1", and so on
+    const before = [...document.querySelectorAll("#main .fold-box")].filter((x) => x !== box && x.dataset.foldLabel === label
+      && (x.compareDocumentPosition(box) & Node.DOCUMENT_POSITION_FOLLOWING)).length;
+    return `${current ? current.id : ""}|${label}|${box.dataset.foldKey ? 0 : before}`;
+  }
+  function addFolds(root) {
+    for (const [sel, headSel] of FOLDABLE) root.querySelectorAll(sel).forEach((box) => {
+      const head = box.querySelector(headSel);
+      if (!head || head.querySelector(":scope > .fold-btn") || box.children.length < 2) return;
+      box.classList.add("fold-box");
+      const key = foldKey(box, head);
+      box.dataset.fold = key;
+      const btn = h("button", { type: "button", class: "fold-btn", onclick: (e) => {
+        e.stopPropagation();
+        const f = !box.classList.contains("folded");
+        if (f) FOLDED[key] = true; else delete FOLDED[key];
+        saveFolds(); setFold(box, f);
+      } });
+      head.prepend(btn);
+      setFold(box, !!FOLDED[key]);
+    });
+    const bar = root.querySelector(".fold-all");
+    if (bar) bar.hidden = root.querySelectorAll(".fold-box").length < 2;
+  }
+  async function foldAll(root, folded) {
+    root.querySelectorAll(".fold-box").forEach((box) => { if (folded) FOLDED[box.dataset.fold] = true; else delete FOLDED[box.dataset.fold]; setFold(box, folded); });
+    saveFolds();
+    // the editors' own folds (evenings, categories, page sections) redraw on click: one at a time
+    for (let k = 0; k < 200; k++) {
+      const b = root.querySelector(`.pc-fold[aria-expanded="${folded ? "true" : "false"}"]`);
+      if (!b) break;
+      b.click();
+      await new Promise((r) => setTimeout(r, 0));
+    }
+  }
+  let foldObserver = null;
+  function folds(main) {
+    const body = main.querySelector(".el-body");
+    if (body) body.prepend(h("div", { class: "fold-all", hidden: "" },
+      h("button", { type: "button", class: "btn small", onclick: () => foldAll(main, true) }, "▸ Comprimi tutto"),
+      h("button", { type: "button", class: "btn small", onclick: () => foldAll(main, false) }, "▾ Espandi tutto")));
+    addFolds(main);
+    if (foldObserver) foldObserver.disconnect();
+    let queued = false;
+    foldObserver = new MutationObserver(() => { if (queued) return; queued = true; requestAnimationFrame(() => { queued = false; addFolds(main); }); });
+    foldObserver.observe(main, { childList: true, subtree: true });
   }
 
   function markDirty() {
@@ -954,7 +1020,7 @@ Testo da scrivere.
       const out = [];
       state.blocchi.forEach((b, i) => {
         const t = BLOCKS.find((x) => x.tipo === b.tipo);
-        out.push(adder(i), h("section", { class: "block" },
+        out.push(adder(i), h("section", { class: "block", "data-fold-key": "blocco-" + b.id },
           h("header", {}, h("b", {}, t.name), h("small", {}, t.note),
             h("span", { class: "tools" },
               h("button", { type: "button", title: "Su", "aria-label": "Sposta su", onclick: () => move(i, i - 1) }, "↑"),
