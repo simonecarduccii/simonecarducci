@@ -642,3 +642,42 @@ body.no-scroll { overflow: hidden; }
 .tx-margini-grandi { padding-left: clamp(24px, 12vw, 200px); padding-right: clamp(24px, 12vw, 200px); }
 .tx-spazio-poco { margin-top: clamp(16px, 2vw, 24px); }
 .tx-spazio-tanto { margin-top: clamp(96px, 12vw, 200px); }
+
+/* Block pages: blocks from the Figma page "Bohème" (numbers, formats, focus, feed grid, big link). */
+.p-hero.fixed-ratio { height: auto; max-height: 100svh; }
+.media.empty.is-slot { background: #d9d9d6; }
+.bv-numbers { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); padding: 22px clamp(16px, 4.69vw, 64px) 0; text-align: center; }
+.bv-numbers li { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.bv-numbers .num { font-weight: 600; font-size: clamp(44px, 6.15vw, 84px); line-height: 1.3; letter-spacing: -.04em; color: var(--ink); white-space: nowrap; }
+.bv-numbers .what { font-size: 15px; color: var(--ink-2); }
+.bv-formats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; padding: clamp(56px, 8.05vw, 110px) var(--pad) 0; }
+.bv-formats .media { aspect-ratio: 415 / 552; }
+.bv-formats a { display: block; }
+.bv-format-title { display: flex; align-items: center; gap: 8px; padding: 16px 0 6px; font-weight: 600; font-size: clamp(19px, 1.61vw, 22px); line-height: 1.3; color: var(--ink); }
+.bv-format-title .dot { flex: none; width: 12px; height: 12px; border-radius: 50%; background: var(--dot); box-shadow: inset 0 0 0 1px #dddddc; }
+.bv-formats p { font-size: 15px; line-height: 1.5; color: var(--ink-2); }
+.bv-focus { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(32px, 4.1vw, 56px); align-items: center; padding: clamp(72px, 10.25vw, 140px) var(--pad) 0; }
+.bv-focus-text { display: flex; flex-direction: column; gap: 22px; }
+.bv-focus .label { font-size: 11px; letter-spacing: .08em; color: #5d5a54; }
+.bv-focus blockquote p { font-size: clamp(26px, 2.78vw, 38px); line-height: 1.25; color: #040404; }
+.bv-focus-note { font-size: 16px; line-height: 1.5; color: #3b3b3b; }
+.bv-slides { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.bv-slides .media { aspect-ratio: 303.5 / 440; }
+.bv-slides .media.empty.is-slot { background: #b1b1b1; }
+.bv-feed { display: grid; grid-template-columns: repeat(var(--cols, 5), minmax(0, 1fr)); gap: 4px; padding: clamp(64px, 8.78vw, 120px) var(--pad) 0; }
+.bv-feed .media { aspect-ratio: 3 / 4; }
+.bv-feed a { display: block; }
+.bv-link { display: flex; flex-direction: column; align-items: center; gap: 16px; padding: clamp(64px, 8.78vw, 120px) var(--pad); text-align: center; }
+.bv-link .label { font-size: 11px; letter-spacing: .08em; color: #2b2b2b; }
+.bv-big-link { font-weight: 700; font-size: clamp(40px, 5.86vw, 80px); line-height: 1.3; letter-spacing: -.03em; color: #2c2c2c; }
+a.bv-big-link:hover, a.bv-big-link:focus-visible { text-decoration: underline; text-decoration-thickness: from-font; text-underline-offset: .12em; }
+@media (max-width: 900px) {
+  .bv-numbers { grid-template-columns: 1fr 1fr; row-gap: 24px; }
+  .bv-focus { grid-template-columns: 1fr; }
+  .bv-feed { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 640px) {
+  .bv-formats { grid-template-columns: 1fr; gap: 40px; }
+  .bv-feed { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+.p-hero + .page-head { padding-top: 14px; }
