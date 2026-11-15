@@ -1201,10 +1201,10 @@ def build_home(h=None, file="index.html", draft=False):
   <div id="dopo-hero"></div>""")
     else:
         parts.append('  <h1 class="sr-only">Simone Carducci, creative development</h1>')
-    # "presentazione": a short line of presentation right under the hero, before the other sections (edited in /admin)
+    # "presentazione": a short presentation under the hero, styled like a project intro, before the other sections (edited in /admin)
     intro = _str(h.get("presentazione")).strip()
     if intro and on("presentazione"):
-        parts.append(f'  <section class="home-intro" aria-label="Presentazione"><p>{inline(intro)}</p></section>')
+        parts.append(f'  <section class="home-intro" aria-label="Presentazione"><div class="photo-intro"><p>{inline(intro)}</p></div></section>')
     sec = {}
     if on("pellicole"):
         sec["pellicole"] = band_color()
