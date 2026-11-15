@@ -1320,9 +1320,9 @@ def build_about():
 # content/pagine/<slug>.json = {"titolo", "descrizione", "blocchi": [{"tipo": ..., ...}]}; photos in img/<slug>/.
 # The blocks are the components of the Figma page "Componenti" (docs/COMPONENTI.md).
 
-def free_pages():
+def free_pages(folder=None):
     out = []
-    for f in sorted((ROOT / "content" / "pagine").glob("*.json")):
+    for f in sorted((folder or ROOT / "content" / "pagine").glob("*.json")):
         try:
             d = __import__("json").loads(f.read_text(encoding="utf-8"))
         except ValueError:
@@ -1381,6 +1381,12 @@ def auto_pick(raw):
         return None
     photos = [f for f in got.get("foto") or [] if isinstance(f, str) and f.startswith(f"img/{IG_DIR}/instagram/") and exists(f)]
     return {"foto": photos, "link": _str(got.get("link"))} if photos else None
+
+
+def edges(b):
+    """ "bordi": true on a block = a thin line around each post, so black posts on the black band and white posts
+    on the white page keep their edge (assets/style.css .has-edges)."""
+    return " has-edges" if b.get("bordi") else ""
 
 
 def ph(src, alt, folder, eager=False):
@@ -1491,7 +1497,40 @@ def block_html(b, p, i):
                 media = f'<a{la}>{media}</a>'
             cards += (f'<li>{media}<h3 class="bv-format-title">{dot}{html.escape(t)}</h3>'
                       f'{f"<p>{inline(txt)}</p>" if txt else ""}</li>')
-        return f'  <ul class="bv-formats">{cards}</ul>' if cards else ""
+        return f'  <ul class="bv-formats{edges(b)}">{cards}</ul>' if cards else ""
+    if kind == "passi":
+        # Numbered steps or formats (Figma "Bohème · Studio identità"): label, title, text, then one card per item.
+        # Each card: photo (or a block of its "colore" while the photo is missing), number, title, text.
+        items = [v for v in b.get("voci") or [] if isinstance(v, dict) and (_str(v.get("titolo")) or _str(v.get("testo")))]
+        if not items:
+            return ""
+        lab, t, txt = _str(b.get("etichetta")), _str(b.get("titolo")), _str(b.get("testo"))
+        fm = re.fullmatch(r"(\d+(?:\.\d+)?):(\d+(?:\.\d+)?)", _str(b.get("formato")))
+        ratio = f"{fm.group(1)} / {fm.group(2)}" if fm else "1170 / 1463"
+        cards = ""
+        for k, v in enumerate(items, 1):
+            vt, vtxt, col = _str(v.get("titolo")), _str(v.get("testo")), _str(v.get("colore"))
+            a = auto_pick(v.get("automatico"))
+            src = a["foto"][0] if a else v.get("foto")
+            if a:
+                media = img(src, vt or p["title"])
+            elif ig_photo(src) or (_photo(src, s) and exists(src)):
+                media = ph(src, vt or p["title"], s)
+            else:
+                bg = f' style="background: {col}"' if re.fullmatch(r"#[0-9a-fA-F]{3,8}", col) else ""
+                media = f'<div class="media empty is-slot"{bg}></div>'
+            url = _str(v.get("link")) or (a["link"] if a else _str(src) if ig_photo(src) else "")
+            if url.startswith("https://"):
+                media = media.replace("<img ", f'<img data-ig="{html.escape(url)}" ', 1)
+            cards += (f'<li>{media}<h3 class="bv-seq-title"><span class="num">{k:02d}</span>{html.escape(vt)}</h3>'
+                      f'{f"<p>{inline(vtxt)}</p>" if vtxt else ""}</li>')
+        rules = "".join(f"<li>{html.escape(_str(r))}</li>" for r in b.get("regole") or [] if _str(r))
+        side = " is-side" if b.get("affiancato") else ""
+        head = (f'<div class="bv-seq-head{side}"><div>{f"<p class=\"label\">{html.escape(lab)}</p>" if lab else ""}'
+                f'{f"<h2>{html.escape(t)}</h2>" if t else ""}</div>{f"<p class=\"bv-seq-text\">{inline(txt)}</p>" if txt else ""}</div>')
+        return (f'  <section class="bv-seq{edges(b)}">{head if (lab or t or txt) else ""}'
+                f'<ul class="bv-seq-list" style="--cols: {min(len(items), 4)}; --ratio: {ratio}">{cards}</ul>'
+                f'{f"<ul class=\"bv-rules\">{rules}</ul>" if rules else ""}</section>')
     if kind == "focus":
         lab, q, txt = _str(b.get("etichetta")), _str(b.get("citazione")), _str(b.get("testo"))
         a = auto_pick(b.get("automatico"))
@@ -1507,7 +1546,7 @@ def block_html(b, p, i):
         fl = b.get("link") if isinstance(b.get("link"), dict) else {}
         fla, flt = link_attrs(fl.get("url")), _str(fl.get("testo"))
         more = f'<p class="bv-focus-more"><a{fla}>{html.escape(flt or _str(fl.get("url")))} &rarr;</a></p>' if fla else ""
-        return (f'  <section class="bv-focus">\n    <div class="bv-focus-text">'
+        return (f'  <section class="bv-focus{edges(b)}">\n    <div class="bv-focus-text">'
                 f'{f"<p class=\"label\">{html.escape(lab)}</p>" if lab else ""}'
                 f'{f"<blockquote><p>{inline(q)}</p></blockquote>" if q else ""}'
                 f'{f"<p class=\"bv-focus-note\">{inline(txt)}</p>" if txt else ""}{more}</div>\n'
@@ -1541,7 +1580,7 @@ def block_html(b, p, i):
         head = f'<h2 class="bv-feed-title">{html.escape(t)}</h2>' if t else ""
         nav = ('<div class="bv-slides-nav" hidden><button type="button" data-step="-1" aria-label="Post precedenti">&larr;</button>'
                '<button type="button" data-step="1" aria-label="Post successivi">&rarr;</button></div>')
-        return (f'  <section class="bv-feed-wrap">{head}<div class="bv-carousel">'
+        return (f'  <section class="bv-feed-wrap{edges(b)}">{head}<div class="bv-carousel">'
                 f'<ul class="bv-feed" style="--cols: {cols}">{cells}</ul>{nav}</div></section>')
     if kind == "link":
         lab, t, la = _str(b.get("etichetta")), _str(b.get("testo")), link_attrs(b.get("link"))
@@ -1554,7 +1593,7 @@ def block_html(b, p, i):
     return ""
 
 
-def build_free(p):
+def build_free(p, file=None, draft=False):
     blocks = [b for b in p.get("blocchi") or [] if isinstance(b, dict)]
     # "cartella": photos from img/<cartella>/ (a review page can show the photos of the live project)
     p["_dir"] = _str(p.get("cartella")) if re.fullmatch(r"[a-z0-9][a-z0-9-]*", _str(p.get("cartella"))) else p["slug"]
@@ -1563,11 +1602,15 @@ def build_free(p):
     parts += [x for x in (block_html(b, p, i) for i, b in enumerate(blocks)) if x]
     over = bool(blocks) and blocks[0].get("tipo") == "foto" and blocks[0].get("piena") and _photo(blocks[0].get("foto"), p["_dir"])
     # pages with the Bohème blocks keep their content centred within a maximum width (assets/style.css)
-    bv = any(b.get("tipo") in ("numeri", "formati", "focus", "griglia", "link") for b in blocks)
+    bv = any(b.get("tipo") in ("numeri", "formati", "focus", "griglia", "link", "passi") for b in blocks)
     # "anteprima": true = a review page: not indexed by search engines
-    page(file=f'{p["slug"]}.html', title=p["title"], description=plain(_str(p.get("descrizione"))),
-         body="\n".join(parts), header="overlay" if over else "", main_class="flush bv-page" if bv else "flush",
-         noindex=bool(p.get("anteprima")))
+    body = "\n".join(parts)
+    if draft:
+        body = (f'  <p class="draft-note" role="status">Anteprima: queste modifiche non sono ancora pubblicate. '
+                f'<a href="{p["slug"]}.html">Vedi la pagina pubblicata</a></p>\n' + body)
+    page(file=file or f'{p["slug"]}.html', title=p["title"], description=plain(_str(p.get("descrizione"))),
+         body=body, header="overlay" if over else "", main_class="flush bv-page" if bv else "flush",
+         noindex=draft or bool(p.get("anteprima")))
 
 
 def git_blob_sha(path):
@@ -1613,6 +1656,13 @@ def main():
             print("skip page (name already used):", p["slug"])
             continue
         build_free(p)
+    # drafts saved from /admin: content/bozze/<slug>.json is shown at <slug>-anteprima.html (not indexed) until it is
+    # published, i.e. copied over content/pagine/<slug>.json; without a draft the preview address shows the live page
+    drafts = {p["slug"]: p for p in free_pages(ROOT / "content" / "bozze")}
+    for p in FREE:
+        if p["slug"] not in taken:
+            q = drafts.get(p["slug"], p)
+            build_free({**q, "slug": p["slug"]}, file=f'{p["slug"]}-anteprima.html', draft=p["slug"] in drafts)
     for old, new in MOVED.items():
         redirect(old, new)
 
