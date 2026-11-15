@@ -773,3 +773,10 @@ a.bv-big-link:hover, a.bv-big-link:focus-visible { text-decoration: underline; t
 @media (max-width: 900px) { .bv-collab-list { grid-template-columns: 1fr; } }
 
 .bv-zoom img { cursor: zoom-in; }
+
+/* Formats with more posts: one post at a time, arrows under it */
+.bv-format-posts { display: grid; grid-auto-flow: column; grid-auto-columns: 100%; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; }
+.bv-format-posts::-webkit-scrollbar { display: none; }
+.bv-format-posts li { scroll-snap-align: start; }
+.bv-format-posts .media { aspect-ratio: 1170 / 1463; }
+.bv-formats .bv-slides-nav { margin-top: 8px; }

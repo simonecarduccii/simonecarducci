@@ -1379,8 +1379,25 @@ def auto_pick(raw):
         return None
     if not isinstance(got, dict):
         return None
-    photos = [f for f in got.get("foto") or [] if isinstance(f, str) and f.startswith(f"img/{IG_DIR}/instagram/") and exists(f)]
-    return {"foto": photos, "link": _str(got.get("link"))} if photos else None
+    ok = lambda fs: [f for f in fs or [] if isinstance(f, str) and f.startswith(f"img/{IG_DIR}/instagram/") and exists(f)]
+    photos = ok(got.get("foto"))
+    posts = [{"foto": ok(x.get("foto")), "link": _str(x.get("link"))} for x in got.get("post") or [] if isinstance(x, dict)]
+    posts = [x for x in posts if x["foto"]] or [{"foto": photos, "link": _str(got.get("link"))}]
+    return {"foto": photos, "link": _str(got.get("link")), "post": posts, "testo": _str(got.get("testo"))} if photos else None
+
+
+def ofo_caption(text):
+    """Quote, interviewed artist and issue number of an Osservatorio post, read from its caption:
+    the first paragraph (without the "read it on www..." sentence), the first @name that is not Francesca or
+    Bohème, "#49" after Osservatorio/OFO. Whatever is not found stays empty and the hand-written text is used."""
+    text = _str(text)
+    lede = re.split(r"\n\s*[-–—]?\s*\n", text, maxsplit=1)[0]
+    sentences = re.split(r"(?<=[.!?…])\s+", lede.strip())
+    lede = " ".join(x for x in sentences if not re.search(r"www\.|https?://|osservatoriofo|link in bio", x, re.I)).strip()
+    num = re.search(r"(?:osservator\w*|ofo)\s*(?:n\.?\s*|#\s*)(\d{1,4})", text, re.I)
+    who = next((h for h in re.findall(r"@([A-Za-z0-9._]{2,30})", text)
+                if h.lower().rstrip(".") not in ("francesca_occhi", "francescaocchi", "bohememag")), "")
+    return {"citazione": lede, "numero": num.group(1) if num else "", "artista": who.rstrip(".")}
 
 
 def edges(b):
@@ -1496,6 +1513,20 @@ def block_html(b, p, i):
             dot = f'<i class="dot" style="--dot: {col}" aria-hidden="true"></i>' if re.fullmatch(r"#[0-9a-fA-F]{3,8}", col) else ""
             a = auto_pick(v.get("automatico"))
             src = a["foto"][0] if a else v.get("foto")
+            if a and len(a["post"]) > 1:  # "quanti" > 1: the latest posts of this kind, browsed with the arrows
+                lis = ""
+                for n, x in enumerate(a["post"], 1):
+                    m = img(x["foto"][0], f"{t or p['title']}, post {n}")
+                    if b.get("zoom") and x["link"].startswith("https://"):
+                        m = m.replace("<img ", f'<img data-ig="{html.escape(x["link"])}" ', 1)
+                    elif link_attrs(x["link"]):
+                        m = f'<a{link_attrs(x["link"])}>{m}</a>'
+                    lis += f"<li>{m}</li>"
+                nav = ('<div class="bv-slides-nav" hidden><button type="button" data-step="-1" aria-label="Post precedente">&larr;</button>'
+                       '<button type="button" data-step="1" aria-label="Post successivo">&rarr;</button></div>')
+                cards += (f'<li><div class="bv-carousel"><ul class="bv-format-posts">{lis}</ul>{nav}</div>'
+                          f'<h3 class="bv-format-title">{dot}{html.escape(t)}</h3>{f"<p>{inline(txt)}</p>" if txt else ""}</li>')
+                continue
             media = ph(src, t or p["title"], s) if not a else img(src, t or p["title"])
             url = _str(v.get("link")) or (a["link"] if a else _str(v.get("foto")) if ig_photo(v.get("foto")) else "")
             if b.get("zoom") and url.startswith("https://"):  # opens in the lightbox, with "Visualizza su Instagram"
@@ -1567,6 +1598,16 @@ def block_html(b, p, i):
     if kind == "focus":
         lab, q, txt = _str(b.get("etichetta")), _str(b.get("citazione")), _str(b.get("testo"))
         a = auto_pick(b.get("automatico"))
+        # "dalla_descrizione": the quote, the artist and the issue number come from the caption of the chosen post;
+        # the hand-written fields stay as the fallback for what the caption does not give
+        if b.get("dalla_descrizione") and a and a.get("testo"):
+            c = ofo_caption(a["testo"])
+            if c["citazione"]:
+                q = f"«{c['citazione'].strip('«»\"“” ')}»"
+            txt = (f'Intervista di Francesca Occhi a [@{c["artista"]}](https://www.instagram.com/{c["artista"]}/).'
+                   if c["artista"] else "Rubrica a cura di Francesca Occhi.")
+            base = re.sub(r"\s*#\s*\d+\s*$", "", lab)
+            lab = f"{base} #{c['numero']}" if c["numero"] else base
         photos = a["foto"] if a else [f for f in b.get("foto") or [] if isinstance(f, str)]
         if not (q or txt or photos):
             return ""
