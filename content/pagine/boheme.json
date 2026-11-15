@@ -13,7 +13,7 @@
     {
       "tipo": "titolo",
       "titolo": "Bohème Magazine",
-      "anno": "dal 2023",
+      "anno": "2024",
       "indietro": "index.html#cultura",
       "id": "yi0gzq"
     },
@@ -80,11 +80,11 @@
           "etichetta": "visualizzazioni organiche"
         },
         {
-          "numero": "300+",
-          "etichetta": "artisti"
+          "numero": "200+",
+          "etichetta": "fotografi pubblicati"
         },
         {
-          "numero": "0,00 €",
+          "numero": "0 €",
           "etichetta": "in sponsorizzate"
         }
       ],
@@ -99,9 +99,9 @@
       "tipo": "formati",
       "voci": [
         {
-          "titolo": "Progetti artistici",
+          "titolo": "Progetti",
           "colore": "#ffffff",
-          "testo": "Sfondo bianco, per rispettare il formato originale di ogni fotografia ed esaltare la ricerca visiva di ogni singolo artista.",
+          "testo": "Post bianchi, per rispettare il formato originale di ogni fotografia.",
           "foto": "img/boheme/formato-progetti.jpg",
           "link": "",
           "automatico": {
@@ -113,13 +113,14 @@
             ],
             "colore": "bianco",
             "soglia": 0,
-            "slide": 2
+            "slide": 1,
+            "quanti": 6
           }
         },
         {
           "titolo": "Open call",
           "colore": "#cca40b",
-          "testo": "Ricerchiamo, valutiamo e pubblichiamo settimanalmente opportunità creative per chi vuole vivere d'arte.",
+          "testo": "Foto dell’opera, etichetta per la disciplina, badge con la scadenza. Due a settimana.",
           "foto": "img/boheme/formato-open-call.jpg",
           "link": "",
           "automatico": {
@@ -131,13 +132,14 @@
             "escludi": [],
             "colore": "",
             "soglia": 0,
-            "slide": 1
+            "slide": 2,
+            "quanti": 6
           }
         },
         {
-          "titolo": "Osservatorio OFO",
+          "titolo": "Osservatorio · OFO",
           "colore": "#151515",
-          "testo": "Sfondo nero. A cura di Francesca Occhi editing, testo e intervista. Ad oggi abbiamo raccolto più di 50 artisti.",
+          "testo": "Post neri. Francesca Occhi cura editing, testo e intervista: più di 50 artisti.",
           "foto": "img/boheme/formato-osservatorio.jpg",
           "link": "",
           "automatico": {
@@ -151,11 +153,14 @@
             "escludi": [],
             "colore": "nero",
             "soglia": 0,
-            "slide": 1
+            "slide": 1,
+            "quanti": 6
           }
         }
       ],
-      "id": "dyaqq5"
+      "id": "dyaqq5",
+      "bordi": true,
+      "zoom": true
     },
     {
       "tipo": "testo",
@@ -183,13 +188,17 @@
         "escludi": [],
         "colore": "nero",
         "soglia": 0,
-        "slide": "tutte"
+        "slide": "tutte",
+        "salta": 2
       },
       "link": {
         "testo": "Leggi l’intervista di Francesca su osservatoriofo.com.",
         "url": "https://www.osservatoriofo.com"
       },
-      "id": "ufm3p1"
+      "id": "ufm3p1",
+      "bordi": true,
+      "zoom": true,
+      "dalla_descrizione": true
     },
     {
       "tipo": "griglia",
@@ -239,11 +248,12 @@
       "titolo": "Feed di Instagram",
       "instagram": true,
       "numero": 24,
-      "id": "3vcd2g"
+      "id": "3vcd2g",
+      "bordi": true
     },
     {
       "tipo": "link",
-      "etichetta": "Il magazine su Instagram",
+      "etichetta": "Il magazine continua su Instagram",
       "testo": "@bohememag →",
       "link": "https://www.instagram.com/bohememag/",
       "id": "ayb4n9"
@@ -254,13 +264,13 @@
       "etichetta": "Collabora con Bohème",
       "titolo": "Hai un’idea? Raccontacela.",
       "testo": "Bohème cresce con chi la legge. Se hai un progetto da far vedere, un’idea da costruire insieme o un bando da segnalare, scrivici: leggiamo ogni messaggio.",
-      "email": "simone.carducci01@gmail.com",
+      "email": "boheme.works@gmail.com",
       "pulsante": "Scrivici",
       "voci": [
         {
           "titolo": "Presenta il tuo progetto",
           "testo": "Sei un artista o un fotografo e vuoi che Bohème racconti il tuo lavoro.",
-          "cosa": "Da 5 a 10 immagini, qualche riga sul progetto e i tuoi contatti.",
+          "cosa": "Da 5 a 20 immagini, qualche riga sul progetto e i tuoi contatti.",
           "oggetto": "Progetto per Bohème"
         },
         {
