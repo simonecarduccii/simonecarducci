@@ -257,8 +257,9 @@
     try { album = JSON.parse(img.getAttribute('data-album') || 'null'); } catch (err) { album = null; }
     if (Array.isArray(album) && album.length > 1) {
       var ig0 = img.getAttribute('data-ig');
-      list = album.map(function (src, n) { return { src: new URL(src, document.baseURI).href, alt: img.alt + ', slide ' + (n + 1), ig: ig0 }; });
-      i = 0;
+      list = album.map(function (src, n) { return { src: new URL(src, document.baseURI).href, alt: img.alt.replace(/, foto \d+ di \d+$/, '') + ', foto ' + (n + 1), ig: ig0 }; });
+      var here = (img.getAttribute('src') || '').split('?')[0];
+      i = Math.max(0, album.indexOf(here));  // open on the slide that was clicked
     } else if (img.closest('.bv-format-posts')) {
       list = [item(img)];  // slides not downloaded yet: just this post
       i = 0;
@@ -669,6 +670,8 @@ window.addEventListener('message', function (e) {
       var step = li ? li.getBoundingClientRect().width + (parseFloat(getComputedStyle(row).columnGap) || 0) : row.clientWidth;
       row.scrollBy({ left: step * Number(b.getAttribute('data-step')), behavior: 'smooth' });
     });
+    var start = Number(row.getAttribute('data-start')) || 0;
+    if (start && row.children[start]) row.scrollLeft = row.children[start].offsetLeft - row.children[0].offsetLeft;
     row.addEventListener('scroll', update, { passive: true });
     window.addEventListener('resize', update);
     update();
