@@ -771,3 +771,5 @@ a.bv-big-link:hover, a.bv-big-link:focus-visible { text-decoration: underline; t
 .bv-collab-after { margin-top: 24px; font-size: 15px; color: #3b3b3b; }
 .bv-collab-after a { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
 @media (max-width: 900px) { .bv-collab-list { grid-template-columns: 1fr; } }
+
+.bv-zoom img { cursor: zoom-in; }

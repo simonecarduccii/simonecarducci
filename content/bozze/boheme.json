@@ -156,7 +156,8 @@
         }
       ],
       "id": "dyaqq5",
-      "bordi": true
+      "bordi": true,
+      "zoom": true
     },
     {
       "tipo": "testo",
@@ -191,7 +192,8 @@
         "url": "https://www.osservatoriofo.com"
       },
       "id": "ufm3p1",
-      "bordi": true
+      "bordi": true,
+      "zoom": true
     },
     {
       "tipo": "griglia",
