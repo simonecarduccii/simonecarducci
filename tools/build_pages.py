@@ -1166,7 +1166,14 @@ def fmt_style(fmt):
     return f' style="aspect-ratio: {m.group(1)} / {m.group(2)}"' if m else ""
 
 
-def build_home():
+def build_home(h=None, file="index.html", draft=False):
+    # h = the home data (content/home.json, or its draft content/bozze/home.json for index-anteprima.html)
+    h = HOME if h is None else h
+    sez = h.get("sezioni", {}) if isinstance(h.get("sezioni"), dict) else {}
+    on = lambda key: sez.get(key, True) is not False  # noqa: E731  (sections switched off in /admin)
+    research = h.get("ricerca_visiva") if isinstance(h.get("ricerca_visiva"), list) else RESEARCH
+    order = [k for k in h.get("ordine", []) if k in HOME_SECTIONS]
+    order += [k for k in HOME_SECTIONS if k not in order]
     c = contenuti()
     desc = field(c, "Description home")
     hero = [(p["slug"], p["title"], p["home_year"]) for p in CULTURE if on(p["slug"])]
@@ -1174,7 +1181,7 @@ def build_home():
         f'<li><a href="{sl}.html" data-cover="img/{sl}/cover.jpg"{focus(f"img/{sl}/cover.jpg").replace(" style=", " data-pos=").replace("object-position: ", "")}>{html.escape(t)}<sup class="yr">{html.escape(y)}</sup></a></li>'
         for sl, t, y in hero)
     # Figma "Portfolio · v2": six cards; the ones without a page or photo yet are placeholders.
-    cards = [(r["titolo"], project_year(r), r.get("pagina"), fmt_style(r.get("formato"))) for r in RESEARCH if r.get("visibile", True)]
+    cards = [(r["titolo"], project_year(r), r.get("pagina"), fmt_style(r.get("formato"))) for r in research if isinstance(r, dict) and r.get("visibile", True)]
     tiles = ""
     for n, (title, year, sl, st) in enumerate(cards, 1):
         cap = f'<span class="fig-cap"><span>{html.escape(title)}</span><span>{year}</span></span>'
@@ -1194,6 +1201,10 @@ def build_home():
   <div id="dopo-hero"></div>""")
     else:
         parts.append('  <h1 class="sr-only">Simone Carducci, creative development</h1>')
+    # "presentazione": a short line of presentation right under the hero, before the other sections (edited in /admin)
+    intro = _str(h.get("presentazione")).strip()
+    if intro and on("presentazione"):
+        parts.append(f'  <section class="home-intro" aria-label="Presentazione"><p>{inline(intro)}</p></section>')
     sec = {}
     if on("pellicole"):
         sec["pellicole"] = band_color()
@@ -1209,9 +1220,13 @@ def build_home():
   </section>""")
     if on("banda-archivio"):
         sec["banda-archivio"] = band_archive()
-    parts += [sec[k] for k in ORDER if k in sec]
+    parts += [sec[k] for k in order if k in sec]
     body = "\n\n".join(parts)
-    page(file="index.html", title=SITE, description=plain(desc), body=body, header="overlay", main_class="flush", body_class="home")
+    if draft:
+        body = ('  <p class="draft-note" role="status">Anteprima: queste modifiche non sono ancora pubblicate. '
+                '<a href="index.html">Vedi la home pubblicata</a></p>\n' + body)
+    page(file=file, title=SITE, description=plain(desc), body=body, header="overlay", main_class="flush", body_class="home",
+         noindex=draft)
 
 
 ARCHIVE_INDEX = [
@@ -1785,6 +1800,9 @@ def main():
     # drafts saved from /admin: content/bozze/<slug>.json is shown at <slug>-anteprima.html (not indexed) until it is
     # published, i.e. copied over content/pagine/<slug>.json; without a draft the preview address shows the live page
     drafts = {p["slug"]: p for p in free_pages(ROOT / "content" / "bozze")}
+    # content/bozze/home.json = a draft of content/home.json, shown at index-anteprima.html until it is published
+    home_draft = drafts.pop("home", None)
+    build_home(home_draft or HOME, file="index-anteprima.html", draft=bool(home_draft))
     for p in FREE:
         if p["slug"] not in taken:
             q = drafts.get(p["slug"], p)
