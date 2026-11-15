@@ -113,7 +113,8 @@
             ],
             "colore": "bianco",
             "soglia": 0,
-            "slide": 1
+            "slide": 1,
+            "quanti": 6
           }
         },
         {
@@ -131,7 +132,8 @@
             "escludi": [],
             "colore": "",
             "soglia": 0,
-            "slide": 2
+            "slide": 2,
+            "quanti": 6
           }
         },
         {
@@ -151,7 +153,8 @@
             "escludi": [],
             "colore": "nero",
             "soglia": 0,
-            "slide": 1
+            "slide": 1,
+            "quanti": 6
           }
         }
       ],
@@ -185,7 +188,8 @@
         "escludi": [],
         "colore": "nero",
         "soglia": 0,
-        "slide": "tutte"
+        "slide": "tutte",
+        "salta": 1
       },
       "link": {
         "testo": "Leggi l’intervista di Francesca su osservatoriofo.com.",
@@ -193,7 +197,8 @@
       },
       "id": "ufm3p1",
       "bordi": true,
-      "zoom": true
+      "zoom": true,
+      "dalla_descrizione": true
     },
     {
       "tipo": "griglia",

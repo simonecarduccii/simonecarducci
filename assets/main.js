@@ -244,7 +244,7 @@
     if (!img || box.contains(img)) return;
     list = photos();
     // the Instagram feed and each sequence browse only their own photos
-    var GROUPS = '.bv-feed, .bv-seq-list, .bv-zoom';
+    var GROUPS = '.bv-feed, .bv-seq-list, .bv-format-posts, .bv-zoom';
     var group = img.closest(GROUPS);
     list = list.filter(function (x) { return x.closest(GROUPS) === group; });
     var i = list.indexOf(img);

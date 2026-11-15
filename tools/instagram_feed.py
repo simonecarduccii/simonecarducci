@@ -152,7 +152,13 @@ def rule_of(raw):
     soglia = raw.get("soglia") if isinstance(raw.get("soglia"), int) and 0 < raw.get("soglia") < 255 else 0
     if not (words("parole") or colour):
         return None
-    return {"parole": words("parole"), "escludi": words("escludi"), "colore": colour, "soglia": soglia, "slide": slides}
+    rule = {"parole": words("parole"), "escludi": words("escludi"), "colore": colour, "soglia": soglia, "slide": slides}
+    # "salta": n = skip the n newest matching posts; "quanti": n = keep the n newest (after the skipped ones).
+    # Written only when set, so the key (and the downloaded picks) of the older rules stay the same.
+    for k, lo, hi in (("salta", 1, 10), ("quanti", 2, 12)):
+        if isinstance(raw.get(k), int) and lo <= raw.get(k) <= hi:
+            rule[k] = raw[k]
+    return rule
 
 
 def rule_key(rule):
@@ -204,6 +210,7 @@ def auto(items, base, token, out_dir):
     cache = json.loads(cache_f.read_text(encoding="utf-8")) if cache_f.is_file() else {}
     result, keep = {}, set()
     for key, r in rules.items():
+        skip, posts = 0, []
         for it in items:  # newest first
             text = (it.get("caption") or "").lower()
             if r["parole"] and not any(w in text for w in r["parole"]):
@@ -218,6 +225,9 @@ def auto(items, base, token, out_dir):
                     continue
                 if r["colore"] == "nero" and c > (r["soglia"] or 40):
                     continue
+            if skip < r.get("salta", 0):
+                skip += 1
+                continue
             code, photos = code_of(it), []
             nums = r["slide"]
             if nums == "tutte":
@@ -233,9 +243,13 @@ def auto(items, base, token, out_dir):
                 keep.add(dest.name)
                 photos.append(dest.relative_to(ROOT).as_posix())
             if photos:
-                result[key] = {"link": it["permalink"], "data": it.get("timestamp", ""), "foto": photos}
+                posts.append({"link": it["permalink"], "data": it.get("timestamp", ""), "foto": photos,
+                              "testo": it.get("caption") or ""})
                 print(f"automatic {key}: {code}")
-                break
+                if len(posts) >= r.get("quanti", 1):
+                    break
+        if posts:  # the first post at the top level, as before; all of them in "post"
+            result[key] = {**posts[0], "post": posts}
         else:
             print(f"automatic {key}: no matching post among the latest {SCAN}")
     cache_f.parent.mkdir(parents=True, exist_ok=True)
