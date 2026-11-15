@@ -338,7 +338,7 @@ body.no-preview .preview { display: none; }
 .ig-list { display: grid; gap: 12px; }
 .ig-item { display: grid; grid-template-columns: 96px minmax(0, 1fr) auto; gap: 12px; align-items: start; padding-bottom: 12px; border-bottom: 1px solid var(--rule); }
 .ig-item.off { opacity: .55; }
-.ig-thumb { width: 96px; aspect-ratio: 1; border-radius: 6px; overflow: hidden; background: #f0f0ee; display: grid; place-items: center; text-align: center; }
+.ig-thumb { width: 96px; aspect-ratio: 1170 / 1463; border-radius: 6px; overflow: hidden; background: #f0f0ee; display: grid; place-items: center; text-align: center; }
 .ig-thumb img, .ig-thumb video { width: 100%; height: 100%; object-fit: cover; }
 .ig-thumb .ph { font-size: 11px; padding: 6px; color: #777; }
 .ig-fields { display: grid; gap: 6px; }
@@ -363,14 +363,14 @@ body.no-preview .preview { display: none; }
 .pc-serata-name { flex: 1; display: grid; gap: 4px; }
 .pc-serata-name input { padding: 8px 10px; border: 1px solid var(--rule); border-radius: 6px; font: inherit; font-weight: 600; background: #fff; }
 .pc-serata .row-tools button { border: 1px solid var(--rule); background: #fff; border-radius: 6px; width: 30px; height: 34px; cursor: pointer; }
-.pc-thumb { width: 60px; height: 80px; object-fit: cover; border-radius: 4px; flex: none; }
+.pc-thumb { width: 64px; height: 80px; object-fit: cover; border-radius: 4px; flex: none; }
 .pc-thumb-add { display: grid; place-items: center; text-align: center; font-size: 11px; border: 1px dashed var(--ink-2, #888); color: var(--ink-2, #666); cursor: pointer; background: #fff; }
 .pc-thumb-add input { display: none; }
 .pc-fold { flex: none; width: 30px; height: 34px; border: 1px solid var(--rule); background: #fff; border-radius: 6px; cursor: pointer; font-size: 14px; }
 .pc-sum { flex: 0 1 auto; min-width: 0; font-size: 12px; color: var(--ink-2, #666); }
 .pc-head input, .pc-serata-name input { min-width: 0; }
 .pc-serata.closed { padding: 10px 14px; }
-.pc-serata.closed .pc-thumb { width: 36px; height: 48px; }
+.pc-serata.closed .pc-thumb { width: 38px; height: 48px; }
 .pc-new-serata { justify-self: start; background: var(--ink); color: var(--paper); font-weight: 600; padding: 10px 20px; }
 .pc-num { font-size: 12px; color: var(--ink-2, #666); white-space: nowrap; }
 .pc-images { display: grid; gap: 8px; }
@@ -470,3 +470,6 @@ body.no-preview .preview { display: none; }
 .ig-search { width: 100%; margin: 0 0 12px; padding: 7px 10px; border: 1px solid var(--rule); border-radius: 8px; }
 .ig-grid li[hidden] { display: none; }
 .auto-box .inline-fields input[type=text], .auto-box .inline-fields input[type=number] { width: 80px; }
+/* Instagram posts are 1170x1463 (4:5): show them whole */
+.ig-grid li button, .feed-edit .feed-img, .seq.ig-seq li { aspect-ratio: 1170 / 1463; }
+.block-photo.small { aspect-ratio: 1170 / 1463; }
