@@ -1518,7 +1518,25 @@ def block_html(b, p, i):
             dot = f'<i class="dot" style="--dot: {col}" aria-hidden="true"></i>' if re.fullmatch(r"#[0-9a-fA-F]{3,8}", col) else ""
             a = auto_pick(v.get("automatico"))
             src = a["foto"][0] if a else v.get("foto")
-            if a and len(a["post"]) > 1:  # "quanti" > 1: the latest posts of this kind, browsed with the arrows
+            first = a["post"][0] if a else {}
+            if len(first.get("album") or []) > 1:  # the post shown: its carousel, browsed with the arrows (Simone, 15 Nov)
+                alb, lis = first["album"], ""
+                for n, f in enumerate(alb, 1):
+                    m = img(f, f"{t or p['title']}, foto {n} di {len(alb)}")
+                    if b.get("zoom") and first["link"].startswith("https://"):
+                        m = m.replace("<img ", f'<img data-ig="{html.escape(first["link"])}" data-album="{html.escape(json.dumps(alb))}" ', 1)
+                    elif link_attrs(first["link"]):
+                        m = f'<a{link_attrs(first["link"])}>{m}</a>'
+                    lis += f"<li>{m}</li>"
+                nav = ('<div class="bv-slides-nav" hidden><button type="button" data-step="-1" aria-label="Foto precedente">&larr;</button>'
+                       '<button type="button" data-step="1" aria-label="Foto successiva">&rarr;</button></div>')
+                # start on the slide chosen in the rule ("slide": 2 for the open calls)
+                start = alb.index(first["foto"][0]) if first["foto"] and first["foto"][0] in alb else 0
+                start = f' data-start="{start}"' if start else ""
+                cards += (f'<li><div class="bv-carousel"><ul class="bv-format-posts"{start}>{lis}</ul>{nav}</div>'
+                          f'<h3 class="bv-format-title">{dot}{html.escape(t)}</h3>{f"<p>{inline(txt)}</p>" if txt else ""}</li>')
+                continue
+            if a and len(a["post"]) > 1:  # no slides downloaded yet: the latest posts of this kind
                 lis = ""
                 for n, x in enumerate(a["post"], 1):
                     m = img(x["foto"][0], f"{t or p['title']}, post {n}")
