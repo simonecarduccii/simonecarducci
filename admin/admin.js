@@ -886,12 +886,15 @@ Testo da scrivere.
       const grid = h("ol", { class: "lib-grid ig-grid" }, POSTS.filter((x) => x && x.link && x.codice).map((post) => {
         const slide = post.tipo === "CAROUSEL_ALBUM" ? h("input", { type: "number", min: "1", max: "20", value: "1", title: "Quale slide del carosello", "aria-label": "Slide" }) : null;
         const li = h("li", {},
-          h("button", { type: "button", title: post.data ? post.data.slice(0, 10) : post.codice, onclick: () => pick(linkOf(post, slide ? Number(slide.value) || 1 : 1), li) },
+          h("button", { type: "button", title: (post.testo || post.codice).slice(0, 200), onclick: () => pick(linkOf(post, slide ? Number(slide.value) || 1 : 1), li) },
             post.mini && tree[post.mini] ? h("img", { src: siteUrl(post.mini), alt: "", loading: "lazy" }) : h("span", { class: "ph" }, post.codice),
             post.tipo === "VIDEO" ? h("span", { class: "ig-kind" }, "▶") : post.tipo === "CAROUSEL_ALBUM" ? h("span", { class: "ig-kind" }, "❐") : null),
           h("span", { class: "ig-meta" }, post.data ? post.data.slice(0, 10).split("-").reverse().join("/") : "", slide ? h("label", {}, "slide ", slide) : null));
+        li.dataset.q = `${post.testo || ""} ${post.codice}`.toLowerCase();
         return li;
       }));
+      const search = h("input", { type: "search", class: "ig-search", placeholder: "Cerca nel testo dei post…", "aria-label": "Cerca nei post" });
+      search.addEventListener("input", () => { const q = search.value.trim().toLowerCase(); grid.querySelectorAll("li").forEach((li) => { li.hidden = !!q && !li.dataset.q.includes(q); }); });
       const paste = h("input", { type: "text", placeholder: "…oppure incolla il link di un post (https://www.instagram.com/p/…)", "aria-label": "Link di un post" });
       const pasteBtn = h("button", { type: "button", class: "btn small", onclick: () => {
         const v = paste.value.trim();
@@ -904,6 +907,7 @@ Testo da scrivere.
             h("button", { type: "button", class: "close", "aria-label": "Chiudi", onclick: () => done([]) }, "×")),
           h("div", { class: "lib" },
             h("div", { class: "ig-paste" }, paste, pasteBtn),
+            POSTS.length ? search : null,
             POSTS.length ? grid : h("p", { class: "hint" }, "L'elenco dei post arriva con il prossimo aggiornamento del sito (ogni giorno e dopo ogni salvataggio). Intanto puoi incollare il link di un post.")),
           multiple ? h("footer", {}, use) : null));
       overlay.addEventListener("click", (e) => { if (e.target === overlay) done([]); });
@@ -950,6 +954,45 @@ Testo da scrivere.
       return h("label", { class: "field" }, h("span", {}, "Colore del pallino"), h("span", { class: "color-row" }, pick, txt));
     };
 
+    // "automatico": every day the newest post matching words / border colour replaces the photo (tools/instagram_feed.py)
+    const chips = (label, arr, placeholder) => {
+      const wrap = h("div", { class: "chips" });
+      const input = h("input", { type: "text", placeholder, "aria-label": label });
+      const add = () => { const v = input.value.replace(/,$/, "").trim(); if (v && !arr.includes(v)) { arr.push(v); changed(); } input.value = ""; drawChips(); input.focus(); };
+      input.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === ",") { e.preventDefault(); add(); } else if (e.key === "Backspace" && !input.value && arr.length) { arr.pop(); changed(); drawChips(); input.focus(); } });
+      input.addEventListener("blur", () => { if (input.value.trim()) add(); });
+      const drawChips = () => wrap.replaceChildren(...arr.map((w, i) => h("span", { class: "chip" }, w,
+        h("button", { type: "button", "aria-label": `Togli ${w}`, onclick: () => { arr.splice(i, 1); changed(); drawChips(); } }, "×"))), input);
+      drawChips();
+      return h("label", { class: "field" }, h("span", {}, label), wrap);
+    };
+    const autoEditor = (owner, multiSlide) => {
+      const a = owner.automatico && typeof owner.automatico === "object" ? owner.automatico : null;
+      const sw = h("div", { class: "head-switch" }, toggle(!!(a && a.attivo), (v) => {
+        owner.automatico = { parole: [], escludi: [], colore: "", soglia: 0, slide: multiSlide ? [1, 2] : 1, ...(owner.automatico || {}), attivo: v };
+        changed(); draw();
+      }), h("span", {}, "Automatico: ogni giorno l'ultimo post di Instagram che corrisponde"));
+      if (!a || !a.attivo) return h("div", { class: "auto-box off" }, sw);
+      a.parole = Array.isArray(a.parole) ? a.parole : []; a.escludi = Array.isArray(a.escludi) ? a.escludi : [];
+      const slideIn = h("input", { type: "text", "aria-label": "Slide", placeholder: multiSlide ? "1, 2" : "1" });
+      slideIn.value = Array.isArray(a.slide) ? a.slide.join(", ") : String(a.slide || 1);
+      slideIn.addEventListener("input", () => {
+        const ns = slideIn.value.split(/[^0-9]+/).map(Number).filter((n) => n >= 1 && n <= 20);
+        a.slide = multiSlide ? (ns.length ? ns : [1]) : ns[0] || 1; changed();
+      });
+      const soglia = h("input", { type: "number", min: "0", max: "254", "aria-label": "Soglia" });
+      soglia.value = a.soglia || "";
+      soglia.addEventListener("input", () => { a.soglia = Math.max(0, Math.min(254, Number(soglia.value) || 0)); changed(); });
+      return h("div", { class: "auto-box" }, sw,
+        chips("Parole nel testo del post (basta una; vanno bene #hashtag e @tag)", a.parole, "scrivi e premi Invio"),
+        chips("Escludi i post con queste parole", a.escludi, "scrivi e premi Invio"),
+        h("div", { class: "inline-fields" },
+          select("Bordo della foto", a.colore || "", [["", "qualsiasi"], ["bianco", "bianco"], ["nero", "nero"]], (v) => { a.colore = v; draw(); }),
+          a.colore ? h("label", { class: "field inline" }, h("span", {}, "Soglia (vuoto = normale)"), soglia) : null,
+          h("label", { class: "field inline" }, h("span", {}, multiSlide ? "Slide (es. 1, 2)" : "Slide"), slideIn)),
+        h("p", { class: "hint" }, "Sul sito va il post scelto in automatico; la foto qui sotto si usa solo se nessun post corrisponde o se spegni l'automatico."));
+    };
+
     const body = (b) => {
       switch (b.tipo) {
         case "titolo": return [field("Titolo", b.titolo, (v) => { b.titolo = v; }), field("Anno", b.anno, (v) => { b.anno = v; }),
@@ -970,6 +1013,7 @@ Testo da scrivere.
           b.voci = Array.isArray(b.voci) ? b.voci : [];
           return [h("div", { class: "items items-cards" }, b.voci.map((v, i) => h("div", { class: "item" },
             h("div", { class: "item-head" }, h("b", {}, `Scheda ${i + 1}`), itemTools(b.voci, i)),
+            autoEditor(v, false),
             photoSlot(() => v.foto, (p) => { v.foto = p; }, "small", true),
             field("Titolo", v.titolo, (x) => { v.titolo = x; }), colorField(v.colore, (x) => { v.colore = x; }),
             field("Testo", v.testo, (x) => { v.testo = x; }, { rows: 3 }),
@@ -986,7 +1030,7 @@ Testo da scrivere.
           return [field("Etichetta in piccolo", b.etichetta, (v) => { b.etichetta = v; }),
             field("Citazione", b.citazione, (v) => { b.citazione = v; }, { rows: 3 }),
             field("Testo", b.testo, (v) => { b.testo = v; }, { rows: 3 }),
-            h("p", { class: "hint" }, "Foto a scorrimento:"), grid, addPhotos((p) => b.foto.push(p), true)];
+            autoEditor(b, true), h("p", { class: "hint" }, "Foto a scorrimento:"), grid, addPhotos((p) => b.foto.push(p), true)];
         }
         case "griglia": {
           b.voci = Array.isArray(b.voci) ? b.voci : [];
