@@ -13,7 +13,7 @@
     {
       "tipo": "titolo",
       "titolo": "Bohème Magazine",
-      "anno": "2023",
+      "anno": "2024",
       "indietro": "index.html#cultura",
       "id": "yi0gzq"
     },
@@ -80,11 +80,11 @@
           "etichetta": "visualizzazioni organiche"
         },
         {
-          "numero": "200+",
-          "etichetta": "fotografi pubblicati"
+          "numero": "300+",
+          "etichetta": "artisti coinvolti"
         },
         {
-          "numero": "0 €",
+          "numero": "0,00 €",
           "etichetta": "in sponsorizzate"
         }
       ],
@@ -132,7 +132,7 @@
             "escludi": [],
             "colore": "",
             "soglia": 0,
-            "slide": 2,
+            "slide": 1,
             "quanti": 6
           }
         },
