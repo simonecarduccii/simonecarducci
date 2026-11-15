@@ -670,7 +670,7 @@ Testo da scrivere.
     { tipo: "numeri", name: "Numeri", note: "cifre grandi con una riga sotto", make: () => ({ voci: [{ numero: "", etichetta: "" }] }) },
     { tipo: "formati", name: "Formati", note: "schede con foto, pallino colorato, titolo e testo", make: () => ({ voci: [{ titolo: "", colore: "#151515", testo: "", foto: null, link: "" }] }) },
     { tipo: "focus", name: "Focus", note: "etichetta, citazione, testo e foto a scorrimento", make: () => ({ etichetta: "", citazione: "", testo: "", foto: [] }) },
-    { tipo: "griglia", name: "Griglia di post", note: "foto quadrate in colonne, ognuna con un link", make: () => ({ colonne: 5, voci: [] }) },
+    { tipo: "griglia", name: "Griglia di post", note: "foto quadrate in colonne, ognuna con un link", make: () => ({ titolo: "", instagram: false, colonne: 5, voci: [] }) },
     { tipo: "link", name: "Link grande", note: "una riga piccola e un link in grande", make: () => ({ etichetta: "", testo: "", link: "" }) },
   ];
   const newId = () => Math.random().toString(36).slice(2, 8);
@@ -862,8 +862,16 @@ Testo da scrivere.
             (() => { const l = h("input", { type: "text", placeholder: "Link (facoltativo)", "aria-label": `Link del post ${i + 1}` }); l.value = v.link || "";
               l.addEventListener("input", () => { v.link = l.value.trim(); changed(); }); return l; })())));
           dropZone(grid, async (files) => { for (const f of files) { const p = isImage(f) && await newPhoto(f, MAX_SIDE); if (p) b.voci.push({ foto: p, link: "" }); } changed(); draw(); });
-          return [select("Colonne", String(b.colonne || 5), [2, 3, 4, 5, 6].map((n) => [String(n), String(n)]), (v) => { b.colonne = Number(v); }),
-            grid, addPhotos((p) => b.voci.push({ foto: p, link: "" }))];
+          const cols = select("Colonne", String(b.colonne || 5), [2, 3, 4, 5, 6].map((n) => [String(n), String(n)]), (v) => { b.colonne = Number(v); });
+          const auto = h("div", { class: "head-switch" }, toggle(!!b.instagram, (v) => { b.instagram = v; if (v && !b.numero) b.numero = 10; changed(); draw(); }),
+            h("span", {}, "Automatica: ogni giorno gli ultimi post da Instagram"));
+          const title = field("Titolo sopra la griglia (facoltativo)", b.titolo, (v) => { b.titolo = v; }, { placeholder: "Feed di Instagram" });
+          if (!b.instagram) return [auto, title, cols, grid, addPhotos((p) => b.voci.push({ foto: p, link: "" }))];
+          const num = select("Quanti post", String(b.numero || 10), Array.from({ length: 24 }, (_, k) => [String(k + 1), String(k + 1)]), (v) => { b.numero = Number(v); });
+          const reserve = h("details", { class: "reserve" }, h("summary", {}, `Foto di riserva (${b.voci.length}): si vedono solo se Instagram non risponde`),
+            grid, addPhotos((p) => b.voci.push({ foto: p, link: "" })));
+          return [auto, title, h("div", { class: "inline-fields" }, num, cols),
+            h("p", { class: "hint" }, "I post e le loro foto si aggiornano da soli ogni giorno: non serve caricarli."), reserve];
         }
         case "link": return [field("Riga in piccolo", b.etichetta, (v) => { b.etichetta = v; }),
           field("Testo grande", b.testo, (v) => { b.testo = v; }, { placeholder: "@bohememag →" }),
@@ -1001,7 +1009,7 @@ Testo da scrivere.
     const used = new Set(blocchi.flatMap((b) => (b.tipo === "foto" ? [b.foto] : b.tipo === "sequenza" || b.tipo === "focus" ? b.foto
       : b.tipo === "formati" || b.tipo === "griglia" ? b.voci.map((v) => v.foto) : [])).filter(Boolean));
     // photos in the page's own folder that no block uses are removed; a shared folder (cartella) is left alone
-    if (dir === slug) Object.keys(tree).forEach((p) => { if (p.startsWith(`img/${slug}/`) && p.endsWith(".jpg") && !used.has(p) && !(p in out)) out[p] = null; });
+    if (dir === slug) Object.keys(tree).forEach((p) => { if (p.startsWith(`img/${slug}/`) && !p.startsWith(`img/${slug}/instagram/`) && p.endsWith(".jpg") && !used.has(p) && !(p in out)) out[p] = null; });
     const json = asJson({ ...extra, titolo: state.titolo.trim() || slug, descrizione: state.descrizione.trim(), blocchi });
     if (json !== (texts[file] || "")) out[file] = await blobFrom({ text: json });
   }

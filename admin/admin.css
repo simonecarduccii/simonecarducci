@@ -436,3 +436,6 @@ body.no-preview .preview { display: none; }
 .block-photo .photo-btns .btn { position: static; }
 .block-photo .photo-btns .lib-btn { margin: 0; }
 .block-photo.small { max-width: 240px; }
+.inline-fields { display: flex; gap: 16px; flex-wrap: wrap; }
+.reserve { margin-top: 8px; border: 1px solid var(--rule); border-radius: 8px; padding: 8px 10px; }
+.reserve summary { cursor: pointer; font-size: 13px; }
