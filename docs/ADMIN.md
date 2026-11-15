@@ -213,3 +213,5 @@ le foto e un link YouTube per ogni DJ set (4 DJ = 4 link). Quello che è vuoto n
 Ogni pannello (il suo titolo) e ogni blocco delle Pagine ha un pulsante ▾ / ▸ che lo chiude o lo riapre. In cima a ogni pagina dell'admin **Comprimi tutto** / **Espandi tutto** li chiude o riapre tutti, insieme alle categorie, serate e sezioni che hanno già il loro ▾. Quello che chiudi resta chiuso in questo browser.
 
 Nella **Griglia di post** l'interruttore *Automatica* prende ogni giorno gli ultimi post da Instagram: si scelgono solo titolo, quanti post e colonne; le foto caricate a mano restano come *Foto di riserva*.
+
+**Post Instagram nei blocchi**: nelle schede dei Formati, nel Focus e nella Griglia il pulsante **Da Instagram** apre gli ultimi post di Bohème (da `content/instagram/post-boheme.json`, aggiornato dal sito): un clic sceglie il post; per un carosello si indica prima il numero della slide. Si può anche incollare il link di qualsiasi post. Nel file resta il link del post; l'immagine la scarica il sito al prossimo aggiornamento.
