@@ -1579,20 +1579,18 @@ def block_html(b, p, i):
                 f'{f"<ul class=\"bv-rules\">{rules}</ul>" if rules else ""}</section>')
     if kind == "collabora":
         # "Collabora con noi": an invitation and a few paths (present a project, propose a collaboration...); each
-        # path opens an email already addressed, with its subject and a short outline of what to send.
+        # path opens a plain mailto: to the address.
         paths = [v for v in b.get("voci") or [] if isinstance(v, dict) and _str(v.get("titolo"))]
         mail = _str(b.get("email"))
         lab, t, txt, after = _str(b.get("etichetta")), _str(b.get("titolo")), _str(b.get("testo")), _str(b.get("dopo"))
         if not (t or paths):
             return ""
-        from urllib.parse import quote
         cards = ""
         for v in paths:
             vt, vtxt, what = _str(v.get("titolo")), _str(v.get("testo")), _str(v.get("cosa"))
             cta = ""
             if re.fullmatch(r"[^@\s]+@[^@\s]+\.[a-z]{2,}", mail):
-                body = "Ciao Bohème,\n\n\n\n" + (f"---\nDa mandare: {what}\n" if what else "")
-                href = f"mailto:{mail}?subject={quote(_str(v.get('oggetto')) or vt)}&body={quote(body)}"
+                href = f"mailto:{mail}"  # a plain address: Simone wants nothing added (15 Nov)
                 cta = f'<a class="bv-collab-cta" href="{html.escape(href)}">{html.escape(_str(b.get("pulsante")) or "Scrivici")} &rarr;</a>'
             cards += (f'<li><h3>{html.escape(vt)}</h3>{f"<p>{inline(vtxt)}</p>" if vtxt else ""}'
                       f'{f"<p class=\"bv-collab-what\"><span class=\"label\">Cosa mandare</span>{inline(what)}</p>" if what else ""}{cta}</li>')
