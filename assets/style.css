@@ -753,7 +753,7 @@ a.bv-big-link:hover, a.bv-big-link:focus-visible { text-decoration: underline; t
 /* "bordi": a hairline around each post so its rectangle reads on a background of the same colour */
 .has-edges .media { outline: 1px solid rgba(21, 21, 21, .14); outline-offset: -1px; }
 .has-edges .media img { outline: inherit; outline-offset: -1px; }
-.bv-focus.has-edges .media { outline-color: rgba(255, 255, 255, .24); }
+.bv-focus.has-edges .media { outline-color: rgba(255, 255, 255, .5); }
 
 /* Collabora: an invitation and the ways to write to Bohème */
 .bv-collab { padding: clamp(72px, 8.78vw, 120px) var(--pad) clamp(32px, 3.5vw, 48px); }
