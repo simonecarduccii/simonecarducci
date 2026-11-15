@@ -1352,7 +1352,17 @@ def _photo(src, slug):
 
 
 def paras(text):
-    return "\n".join(f"<p>{inline(x.strip())}</p>" for x in re.split(r"\n\s*\n", text) if x.strip())
+    """Paragraphs separated by a blank line; a paragraph whose lines all start with "- " is a bulleted list."""
+    out = []
+    for x in re.split(r"\n\s*\n", text):
+        lines = [y.strip() for y in x.strip().splitlines() if y.strip()]
+        if not lines:
+            continue
+        if all(y.startswith("- ") for y in lines):
+            out.append("<ul>" + "".join(f"<li>{inline(y[2:].strip())}</li>" for y in lines) + "</ul>")
+        else:
+            out.append(f"<p>{inline(x.strip())}</p>")
+    return "\n".join(out)
 
 
 # An Instagram post link can stand for a photo in a block: tools/instagram_feed.py downloads it
@@ -1457,7 +1467,8 @@ def block_html(b, p, i):
         if not t and not nota:
             return ""
         note = f'\n    <p class="meta label">{inline(nota)}</p>' if nota else ""
-        return f'  <section class="photo-text block-text">\n    {paras(t)}{note}\n  </section>'
+        head = f'<h2 class="small-title">{html.escape(_str(b.get("titolo")))}</h2>\n    ' if _str(b.get("titolo")) else ""
+        return f'  <section class="photo-text block-text">\n    {head}{paras(t)}{note}\n  </section>'
     if kind == "citazione":
         t, a = _str(b.get("testo")), _str(b.get("autore"))
         if not t:
@@ -1755,10 +1766,10 @@ def main():
     build_archive()
     build_ai_index()
     for p in AI:
-        if p.get("doc"):
+        if p.get("doc") and p["slug"] not in free:  # content/pagine/<slug>.json replaces it, as for culture pages
             build_ai_detail(p)
     build_about()
-    taken = {"index", "about", "archivio", "ai", "404"} | {p["slug"] for p in PHOTO + AI if p.get("slug")}
+    taken = {"index", "about", "archivio", "ai", "404"} | {p["slug"] for p in PHOTO if p.get("slug")}
     for p in FREE:
         if p["slug"] in taken:
             print("skip page (name already used):", p["slug"])
