@@ -195,7 +195,7 @@ def colour_of(it, cache):
 def auto(items, base, token, out_dir):
     """Latest post matching each automatic rule written in content/pagine/."""
     rules = {}
-    for f in (ROOT / "content" / "pagine").glob("*.json"):
+    for f in [*(ROOT / "content" / "pagine").glob("*.json"), *(ROOT / "content" / "bozze").glob("*.json")]:  # drafts too
         try:
             find_rules(json.loads(f.read_text(encoding="utf-8")), rules)
         except ValueError:
@@ -248,7 +248,7 @@ def auto(items, base, token, out_dir):
 def chosen(items, base, token, out_dir, keep=frozenset()):
     """Download the posts whose link is written in a page of content/pagine/."""
     refs = set()
-    for f in (ROOT / "content" / "pagine").glob("*.json"):
+    for f in [*(ROOT / "content" / "pagine").glob("*.json"), *(ROOT / "content" / "bozze").glob("*.json")]:  # drafts too
         for m in IG_LINK.finditer(f.read_text(encoding="utf-8")):
             refs.add((m.group(1), max(1, int(m.group(2) or 1))))
     by_code = {code_of(it): it for it in items}

@@ -721,3 +721,36 @@ a.bv-big-link:hover, a.bv-big-link:focus-visible { text-decoration: underline; t
 .bv-focus-more a, .bv-focus .bv-slides-nav button { color: #fff; }
 .bv-focus .bv-slides-nav button:disabled { color: rgba(255,255,255,.3); }
 .bv-focus a:focus-visible, .bv-focus button:focus-visible { outline-color: #fff; }
+
+/* Sequenza (Bohème · Studio identità): numbered steps or formats, photo or a block of colour while it is missing */
+.bv-seq { padding: clamp(72px, 7vw, 96px) var(--pad) 0; }
+.bv-seq-head { display: flex; flex-direction: column; gap: 12px; margin-bottom: clamp(28px, 4.7vw, 64px); }
+.bv-seq-head.is-side { display: grid; grid-template-columns: minmax(0, 560px) minmax(0, 1fr); gap: 56px; align-items: end; }
+.bv-seq-head > div { display: flex; flex-direction: column; gap: 12px; }
+.bv-seq-head .label { font-size: 11px; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; color: #585858; }
+.bv-seq-head h2 { font-size: clamp(26px, 2.35vw, 32px); font-weight: 600; line-height: 1.1; color: #151515; }
+.bv-seq-head.is-side h2 { font-size: clamp(34px, 3.8vw, 52px); line-height: 1; letter-spacing: -.02em; }
+.bv-seq-text { font-size: 17px; line-height: 1.55; color: #151515; max-width: 678px; }
+.bv-seq-list { display: grid; grid-template-columns: repeat(var(--cols), minmax(0, 1fr)); gap: 20px; }
+.bv-seq-list .media { aspect-ratio: var(--ratio); }
+.bv-seq-list .media.empty.is-slot[style*="#ffffff"], .bv-seq-list .media.empty.is-slot[style*="#fff;"] { border: 1px solid #e3e3e3; }
+.bv-seq-list img { cursor: zoom-in; }
+.bv-seq-title { display: flex; gap: 10px; align-items: baseline; margin-top: 10px; font-size: 20px; font-weight: 600; color: #151515; }
+.bv-seq-title .num { font-size: 13px; font-weight: 500; color: #585858; }
+.bv-seq-list p { margin-top: 10px; font-size: 15px; line-height: 1.5; color: #585858; }
+.bv-rules { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 28px; }
+.bv-rules li { border: 1px solid #151515; border-radius: 20px; padding: 7px 12px; font-size: 14px; color: #151515; }
+@media (max-width: 900px) {
+  .bv-seq-head.is-side { grid-template-columns: 1fr; gap: 14px; }
+  .bv-seq-list { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+}
+@media (max-width: 640px) { .bv-seq-list[style*="--cols: 3"] { grid-template-columns: 1fr; } }
+
+/* Preview of a draft (content/bozze/): a note at the top of the page */
+.draft-note { position: sticky; top: 0; z-index: 40; padding: 10px var(--pad); background: #151515; color: #fff; font-size: 13px; }
+.draft-note a { color: #fff; text-decoration: underline; text-underline-offset: 3px; }
+
+/* "bordi": a hairline around each post so its rectangle reads on a background of the same colour */
+.has-edges .media { outline: 1px solid rgba(21, 21, 21, .14); outline-offset: -1px; }
+.has-edges .media img { outline: inherit; outline-offset: -1px; }
+.bv-focus.has-edges .media { outline-color: rgba(255, 255, 255, .24); }
