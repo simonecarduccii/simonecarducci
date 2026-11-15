@@ -771,6 +771,8 @@ a.bv-big-link:hover, a.bv-big-link:focus-visible { text-decoration: underline; t
 .bv-collab-cta::after { content: ""; position: absolute; inset: 0; } /* the whole card opens the mail */
 .bv-collab-cta:focus-visible { outline: none; }
 .bv-collab-list li:hover .bv-collab-cta, .bv-collab-cta:focus-visible { text-decoration: underline; }
+.bv-collab-fallback { margin-top: 16px; font-size: 15px; color: #151515; }
+.bv-collab-fallback a, .bv-collab-fallback button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
 .bv-collab-after { margin-top: 24px; font-size: 15px; color: #3b3b3b; }
 .bv-collab-after a { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
 @media (max-width: 900px) { .bv-collab-list { grid-template-columns: 1fr; } }

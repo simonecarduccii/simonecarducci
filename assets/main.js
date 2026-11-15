@@ -660,3 +660,47 @@ window.addEventListener('message', function (e) {
     update();
   });
 })();
+
+/* Collabora cards: if no mail app opens after "Scrivici" (common in Safari/Chrome when mail is read on the web),
+   offer Gmail compose and copying the address. */
+(function () {
+  document.querySelectorAll('.bv-collab').forEach(function (box) {
+    var note = document.createElement('p');
+    note.className = 'bv-collab-fallback';
+    note.hidden = true;
+    note.setAttribute('role', 'status');
+    var list = box.querySelector('.bv-collab-list');
+    if (!list) return;
+    list.after(note);
+    box.querySelectorAll('a.bv-collab-cta[href^="mailto:"]').forEach(function (a) {
+      a.addEventListener('click', function () {
+        var left = false;
+        function gone() { left = true; }
+        window.addEventListener('blur', gone, { once: true });
+        document.addEventListener('visibilitychange', gone, { once: true });
+        setTimeout(function () {
+          window.removeEventListener('blur', gone);
+          document.removeEventListener('visibilitychange', gone);
+          if (left) return;
+          var u = new URL(a.href), to = decodeURIComponent(u.pathname);
+          var gm = 'https://mail.google.com/mail/?view=cm&fs=1&to=' + encodeURIComponent(to) +
+            '&su=' + encodeURIComponent(u.searchParams.get('subject') || '') +
+            '&body=' + encodeURIComponent(u.searchParams.get('body') || '');
+          note.innerHTML = '';
+          note.append('La posta non si è aperta? ');
+          var g = document.createElement('a');
+          g.href = gm; g.target = '_blank'; g.rel = 'noopener'; g.textContent = 'Scrivi da Gmail ↗';
+          var c = document.createElement('button');
+          c.type = 'button'; c.textContent = 'Copia l’indirizzo (' + to + ')';
+          c.addEventListener('click', function () {
+            (navigator.clipboard ? navigator.clipboard.writeText(to) : Promise.reject()).then(
+              function () { c.textContent = 'Indirizzo copiato'; },
+              function () { c.textContent = to; });
+          });
+          note.append(g, ' · ', c);
+          note.hidden = false;
+        }, 1200);
+      });
+    });
+  });
+})();
