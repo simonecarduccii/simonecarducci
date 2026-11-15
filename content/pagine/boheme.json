@@ -100,21 +100,19 @@
       "tipo": "formati",
       "voci": [
         {
-          "titolo": "Osservatorio · OFO",
-          "colore": "#151515",
-          "testo": "Post neri. Francesca Occhi cura editing, testo e intervista: più di 50 artisti.",
-          "foto": "img/boheme/formato-osservatorio.jpg",
+          "titolo": "Progetti",
+          "colore": "#ffffff",
+          "testo": "Post bianchi, per rispettare il formato originale di ogni fotografia.",
+          "foto": "img/boheme/formato-progetti.jpg",
           "link": "",
           "automatico": {
             "attivo": true,
-            "parole": [
-              "francesca occhi",
-              "@francescaocchi",
-              "osservatorio",
-              "ofo"
+            "parole": [],
+            "escludi": [
+              "#opencall",
+              "open call"
             ],
-            "escludi": [],
-            "colore": "nero",
+            "colore": "bianco",
             "soglia": 0,
             "slide": 1
           }
@@ -138,19 +136,21 @@
           }
         },
         {
-          "titolo": "Progetti",
-          "colore": "#ffffff",
-          "testo": "Post bianchi, per rispettare il formato originale di ogni fotografia.",
-          "foto": "img/boheme/formato-progetti.jpg",
+          "titolo": "Osservatorio · OFO",
+          "colore": "#151515",
+          "testo": "Post neri. Francesca Occhi cura editing, testo e intervista: più di 50 artisti.",
+          "foto": "img/boheme/formato-osservatorio.jpg",
           "link": "",
           "automatico": {
             "attivo": true,
-            "parole": [],
-            "escludi": [
-              "#opencall",
-              "open call"
+            "parole": [
+              "francesca occhi",
+              "@francescaocchi",
+              "osservatorio",
+              "ofo"
             ],
-            "colore": "bianco",
+            "escludi": [],
+            "colore": "nero",
             "soglia": 0,
             "slide": 1
           }
