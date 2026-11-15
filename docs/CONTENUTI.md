@@ -37,7 +37,7 @@ Le intro di sezione qui sotto restano per meta description e versioni alternativ
 
 ### Progetti culturali
 - **Titolo:** Progetti culturali
-- **Lead:** Un magazine che ho fondato e un collettivo di cui ho curato la direzione creativa.
+- **Lead:** Un magazine di cui curo la direzione artistica ed editoriale e un collettivo di cui ho curato la direzione creativa.
 
 Card:
 - **Bohème Magazine** · dal 2023 - Magazine indipendente sull'arte emergente e sulle opportunità per artisti. 5.022 follower in 26 mesi, partendo da zero.
@@ -83,7 +83,7 @@ Descrizioni lunghe (per la lista in ai.html):
 
 ### Bio breve (2 frasi, per home o footer)
 
-Mi occupo di sviluppo creativo: ideo progetti culturali e li porto dalla prima idea al pubblico. Ho fondato Bohème Magazine, ho curato la direzione creativa del Colectivo modì e fotografo su pellicola.
+Mi occupo di sviluppo creativo: ideo progetti culturali e li porto dalla prima idea al pubblico. Curo la direzione artistica ed editoriale di Bohème Magazine, ho curato la direzione creativa del Colectivo modì e fotografo su pellicola.
 
 ### Frase d'apertura About (grande, stile statement, come nei portfolio di riferimento)
 
@@ -101,7 +101,7 @@ Ho passato più di 4 anni in servizio: a Bologna, in diversi resort Club Med in 
 
 **Quello che faccio oggi**
 
-Nel luglio 2024 ho fondato Bohème Magazine, nato come idea nel 2023, di cui curo la direzione artistica ed editoriale: un magazine indipendente sull'arte emergente e sulle opportunità per artisti, che in 26 mesi ha raccolto da zero, in organico, oltre 5.000 persone e 1,5 milioni di visualizzazioni, senza utilizzo di reel o TikTok. Per tenerlo aggiornato ho progettato Vedetta, un sistema che legge e verifica i bandi di centinaia di enti culturali: il progetto è tuttora in fase di sviluppo. Nel 2026 ho curato la direzione creativa del Colectivo modì, un collettivo artistico indipendente. Mi sono occupato di identità visiva, comunicazione, organizzazione e gestione delle serate, ingaggio degli artisti, e della produzione di contenuti social: DJ set filmati, video pubblicitari e podcast.
+Dal luglio 2024 curo la direzione artistica ed editoriale di Bohème Magazine, nato nel 2023 da un'idea originale di Luca Maria Pescatore: un magazine indipendente sull'arte emergente e sulle opportunità per artisti, che in 26 mesi ha raccolto da zero, in organico, oltre 5.000 persone e 1,5 milioni di visualizzazioni, senza utilizzo di reel o TikTok. Per tenerlo aggiornato ho progettato Vedetta, un sistema che legge e verifica i bandi di centinaia di enti culturali: il progetto è tuttora in fase di sviluppo. Nel 2026 ho curato la direzione creativa del Colectivo modì, un collettivo artistico indipendente. Mi sono occupato di identità visiva, comunicazione, organizzazione e gestione delle serate, ingaggio degli artisti, e della produzione di contenuti social: DJ set filmati, video pubblicitari e podcast.
 
 **Cosa studio**
 

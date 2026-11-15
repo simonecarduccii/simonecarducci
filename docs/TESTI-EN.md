@@ -11,7 +11,7 @@ Suggested use: an /en/ version of home, About and the two cultural projects, or 
 - **CTA:** See the work · Get in touch
 
 ### Cultural projects
-- **Lead:** A magazine I founded and a collective I was creative director of.
+- **Lead:** A magazine I direct and a collective I was creative director of.
 - **Bohème Magazine** · since 2023 - An independent magazine on emerging art and opportunities for artists. 5,022 followers in 26 months, from zero.
 - **Colectivo modì** · 2026 - An audiovisual collective: nights out, DJ sets filmed in 4K, and a podcast. From the decks to the edit to release.
 
@@ -39,7 +39,7 @@ Suggested use: an /en/ version of home, About and the two cultural projects, or 
 
 **The years on the road.** Then I spent years behind a bar: Bologna, Club Med resorts in Switzerland, Portugal and Italy, and restaurants in Turin, where I became a sommelier (WSET Level 2, with distinction). A different kind of apprenticeship: listening to the person in front of you, telling a producer's work in a few seconds, caring for every detail of the presentation. I learned English and French along the way, and I now speak Spanish too.
 
-**What I do now.** In July 2024 I founded **Bohème Magazine**, where I lead art and editorial direction: an independent magazine on emerging art and opportunities for artists that grew from zero to more than 5,000 followers and 1.47 million views in 26 months. To keep it up to date I designed **Vedetta**, a system that reads and verifies open calls from hundreds of cultural institutions. In 2026 I was creative director of **Colectivo modì**: visual identity, communication, filmed nights and DJ sets, a podcast.
+**What I do now.** Since July 2024 I have led the art and editorial direction of **Bohème Magazine**, an original idea by Luca Maria Pescatore from 2023: an independent magazine on emerging art and opportunities for artists that grew from zero to more than 5,000 followers and 1.47 million views in 26 months. To keep it up to date I designed **Vedetta**, a system that reads and verifies open calls from hundreds of cultural institutions. In 2026 I was creative director of **Colectivo modì**: visual identity, communication, filmed nights and DJ sets, a podcast.
 
 **What I study.** I'm in my third year of Cultural Heritage (art history track) at the University of Turin, with an Erasmus at the Universidad de Granada. In 2024 I earned the Google UX Design Certificate. I'm drawn above all to 20th-century and contemporary art. I've been shooting film for years: the archive is how I look at things before I tell them.
 
