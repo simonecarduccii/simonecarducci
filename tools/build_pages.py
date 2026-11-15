@@ -1664,6 +1664,14 @@ def block_html(b, p, i):
                '<button type="button" data-step="1" aria-label="Post successivi">&rarr;</button></div>')
         return (f'  <section class="bv-feed-wrap{edges(b)}">{head}<div class="bv-carousel">'
                 f'<ul class="bv-feed" style="--cols: {cols}">{cells}</ul>{nav}</div></section>')
+    if kind in ("eventi", "video_serate", "reel", "galleria"):
+        # data blocks: the page's own posters (content/eventi), random video band, Instagram reels and random photo
+        # gallery (img/<slug>/01.jpg... and the event photos), edited in
+        # their existing admin panels; the block only places them on the page
+        out = {"eventi": poster_rows, "video_serate": page_videos, "reel": instagram_posts,
+               "galleria": lambda slug: page_gallery(slug, p["title"])}[kind](p["slug"])
+        t = _str(b.get("titolo"))
+        return (f'  <h2 class="small-title bv-data-title">{html.escape(t)}</h2>\n' if t and out else "") + (f"  {out}" if out else "")
     if kind == "link":
         lab, t, la = _str(b.get("etichetta")), _str(b.get("testo")), link_attrs(b.get("link"))
         if not t:
@@ -1745,6 +1753,10 @@ def main():
         if p["slug"] not in taken:
             q = drafts.get(p["slug"], p)
             build_free({**q, "slug": p["slug"]}, file=f'{p["slug"]}-anteprima.html', draft=p["slug"] in drafts)
+    # a draft of a page that is not a block page yet (e.g. a culture page being moved to blocks): only the preview
+    for slug, q in drafts.items():
+        if slug not in taken and slug not in free:
+            build_free(q, file=f"{slug}-anteprima.html", draft=True)
     for old, new in MOVED.items():
         redirect(old, new)
 
