@@ -13,7 +13,7 @@ Suggested use: an /en/ version of home, About and the two cultural projects, or 
 ### Cultural projects
 - **Lead:** A magazine I founded and a collective I was creative director of.
 - **Bohème Magazine** · since 2023 - An independent magazine on emerging art and opportunities for artists. 5,022 followers in 26 months, from zero.
-- **Colectivo modì** · 2025-2026 - An audiovisual collective: nights out, DJ sets filmed in 4K, and a podcast. From the decks to the edit to release.
+- **Colectivo modì** · 2026 - An audiovisual collective: nights out, DJ sets filmed in 4K, and a podcast. From the decks to the edit to release.
 
 ### Photo archive
 - **Eyebrow:** Photo archive
@@ -27,7 +27,7 @@ Suggested use: an /en/ version of home, About and the two cultural projects, or 
 ### Tools (AI projects)
 - **Eyebrow:** Projects built with AI
 - **Lead:** Tools I design with artificial intelligence to solve real problems, mine and those of the people I work with. I decide what they do, how they're used and when they stop; AI writes most of the code.
-- **Bohème Vedetta** · 2026 - The engine that finds, reads and checks open calls for artists from 75+ institutions, and feeds the magazine.
+- **Bohème Vedetta** · 2026 - The engine that finds, reads and checks open calls for artists from hundreds of institutions, and feeds the magazine.
 - **Running Coach** · 2026 - in development - My running coach, towards a sub-4 marathon. It reads my data, adjusts the plan and sends it to my watch once I approve.
 - **Reading project** · in development, private - A reading tool designed for a member of my family. It is private: happy to talk about it in person.
 
@@ -39,7 +39,7 @@ Suggested use: an /en/ version of home, About and the two cultural projects, or 
 
 **The years on the road.** Then I spent years behind a bar: Bologna, Club Med resorts in Switzerland, Portugal and Italy, and restaurants in Turin, where I became a sommelier (WSET Level 2, with distinction). A different kind of apprenticeship: listening to the person in front of you, telling a producer's work in a few seconds, caring for every detail of the presentation. I learned English and French along the way, and I now speak Spanish too.
 
-**What I do now.** In July 2024 I founded **Bohème Magazine**, where I lead art and editorial direction: an independent magazine on emerging art and opportunities for artists that grew from zero to more than 5,000 followers and 1.47 million views in 26 months. To keep it up to date I designed **Vedetta**, a system that reads and verifies open calls from more than 75 cultural institutions. From 2025 to 2026 I was creative director of **Colectivo modì**: visual identity, communication, filmed nights and DJ sets, a podcast.
+**What I do now.** In July 2024 I founded **Bohème Magazine**, where I lead art and editorial direction: an independent magazine on emerging art and opportunities for artists that grew from zero to more than 5,000 followers and 1.47 million views in 26 months. To keep it up to date I designed **Vedetta**, a system that reads and verifies open calls from hundreds of cultural institutions. In 2026 I was creative director of **Colectivo modì**: visual identity, communication, filmed nights and DJ sets, a podcast.
 
 **What I study.** I'm in my third year of Cultural Heritage (art history track) at the University of Turin, with an Erasmus at the Universidad de Granada. In 2024 I earned the Google UX Design Certificate. I'm drawn above all to 20th-century and contemporary art. I've been shooting film for years: the archive is how I look at things before I tell them.
 
@@ -59,7 +59,7 @@ Suggested use: an /en/ version of home, About and the two cultural projects, or 
 
 **A magazine for people who make art, and for those looking for it.** Bohème started on Instagram in 2024. It covers emerging art and gathers the opportunities that matter to artists: open calls, residencies, prizes, exhibitions. In Italy those opportunities exist, but they are scattered across dozens of institutional websites and often arrive late or incomplete. Bohème finds them, checks them, and tells them in a carousel you can read in a minute.
 
-**5,022** followers from zero · **563** carousels · **1.47M** views
+**5,022** followers from zero · **550+** posts · **1.5M** views
 
 **From magazine to tool.** As the audience grew, Bohème became a tool too. I designed Vedetta, a system that looks for new sources every week and every three hours reads and verifies open calls from more than 75 institutions before they're published.
 

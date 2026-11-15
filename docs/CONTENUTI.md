@@ -24,7 +24,7 @@ Tono: prima persona, frasi brevi, fatti prima degli aggettivi. Niente "passione"
 
 ## Home secondo i mockup Figma
 
-- **Hero:** i titoli dei progetti culturali con l'anno: Colectivo modì 2025-2026 · Bohème Magazine dal 2023
+- **Hero:** i titoli dei progetti culturali con l'anno: Colectivo modì 2026 · Bohème Magazine dal 2023
 - **Banda pellicole (tre voci):** Tutte le mie pellicole (→ Lomography) · Tutto il mio archivio (→ archivio) · Tutta la mia vita (→ indice dell'archivio)
 - **Etichetta griglia foto:** Ricerca visiva
 - **Etichetta sezione AI:** Progetti con l'AI
@@ -41,7 +41,7 @@ Le intro di sezione qui sotto restano per meta description e versioni alternativ
 
 Card:
 - **Bohème Magazine** · dal 2023 - Magazine indipendente sull'arte emergente e sulle opportunità per artisti. 5.022 follower in 26 mesi, partendo da zero.
-- **Colectivo modì** · 2025-2026 - Collettivo audiovisivo: serate, DJ set filmati in 4K e un podcast. Dalla consolle al montaggio, fino alla pubblicazione.
+- **Colectivo modì** · 2026 - Collettivo audiovisivo: serate, DJ set filmati in 4K e un podcast. Dalla consolle al montaggio, fino alla pubblicazione.
 
 ### Archivio fotografico
 - **Eyebrow:** Archivio fotografico
@@ -72,7 +72,7 @@ Card (titolo · anno):
 | Progetto di lettura | Uno strumento di lettura per una persona di famiglia. | In sviluppo, privato | - | Uso familiare |
 
 Descrizioni lunghe (per la lista in ai.html):
-- **Bohème Vedetta:** Il motore che tiene aggiornato Bohème Magazine. Ogni settimana cerca nuove fonti, ogni tre ore legge i bandi di oltre 75 enti, fondazioni e festival e li prepara per la mia revisione prima che escano. La ricerca che prima richiedeva giorni diventa una lista pronta da controllare.
+- **Bohème Vedetta:** Il motore che tiene aggiornato Bohème Magazine. Ogni settimana cerca nuove fonti, ogni tre ore legge i bandi di centinaia di enti, fondazioni e festival e li prepara per la mia revisione prima che escano. La ricerca che prima richiedeva giorni diventa una lista pronta da controllare.
 - **Running Coach:** Il mio coach di corsa, verso una maratona sotto le quattro ore. Ogni mattina legge sonno, recupero, carico, meteo e impegni, propone come correggere il piano e, se approvo con un tocco, lo manda all'orologio. Per ogni uscita suggerisce un percorso in piano per Torino.
 - **Progetto di lettura:** Uno strumento di lettura pensato per una persona della mia famiglia. Il progetto è privato: ne parlo volentieri a voce.
 
@@ -101,7 +101,7 @@ Ho passato più di 4 anni in servizio: a Bologna, in diversi resort Club Med in 
 
 **Quello che faccio oggi**
 
-Nel luglio 2024 ho fondato Bohème Magazine, nato come idea nel 2023, di cui curo la direzione artistica ed editoriale: un magazine indipendente sull'arte emergente e sulle opportunità per artisti, che in 26 mesi ha raccolto da zero, in organico, oltre 5.000 persone e 1,47 milioni di visualizzazioni, senza utilizzo di reel o TikTok. Per tenerlo aggiornato ho progettato Vedetta, un sistema che legge e verifica i bandi di centinaia di enti culturali: il progetto è tuttora in fase di sviluppo. Tra il 2025 e il 2026 ho curato la direzione creativa del Colectivo modì, un collettivo artistico indipendente. Mi sono occupato di identità visiva, comunicazione, organizzazione e gestione delle serate, ingaggio degli artisti, e della produzione di contenuti social: DJ set filmati, video pubblicitari e podcast.
+Nel luglio 2024 ho fondato Bohème Magazine, nato come idea nel 2023, di cui curo la direzione artistica ed editoriale: un magazine indipendente sull'arte emergente e sulle opportunità per artisti, che in 26 mesi ha raccolto da zero, in organico, oltre 5.000 persone e 1,5 milioni di visualizzazioni, senza utilizzo di reel o TikTok. Per tenerlo aggiornato ho progettato Vedetta, un sistema che legge e verifica i bandi di centinaia di enti culturali: il progetto è tuttora in fase di sviluppo. Nel 2026 ho curato la direzione creativa del Colectivo modì, un collettivo artistico indipendente. Mi sono occupato di identità visiva, comunicazione, organizzazione e gestione delle serate, ingaggio degli artisti, e della produzione di contenuti social: DJ set filmati, video pubblicitari e podcast.
 
 **Cosa studio**
 
@@ -162,7 +162,7 @@ Schede complete in [`progetti/`](progetti/).
 | Progetto | Sezione | Anno | Scheda |
 | --- | --- | --- | --- |
 | Bohème Magazine | Cultura | dal 2023 | [boheme-magazine.md](progetti/boheme-magazine.md) |
-| Colectivo modì | Cultura | 2025-2026 | [colectivo-modi.md](progetti/colectivo-modi.md) |
+| Colectivo modì | Cultura | 2026 | [colectivo-modi.md](progetti/colectivo-modi.md) |
 | Siculo | Fotografia | 2025 | [siculo.md](progetti/siculo.md) |
 | Papà che fanno i papà | Fotografia | 2025 - in corso | [papa-che-fanno-i-papa.md](progetti/papa-che-fanno-i-papa.md) |
 | Place of Freedom | Fotografia | 2025 | [place-of-freedom.md](progetti/place-of-freedom.md) |
