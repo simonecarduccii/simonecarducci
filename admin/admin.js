@@ -667,6 +667,11 @@ Testo da scrivere.
     { tipo: "altri", name: "Altri progetti", note: "automatico: fino a 3 progetti di Ricerca visiva", make: () => ({}) },
     { tipo: "successivo", name: "Progetto successivo", note: "un link a un'altra pagina", make: () => ({ pagina: "", testo: "" }) },
     { tipo: "fascia", name: "Fascia", note: "Pellicole (colori) o Archivio (bianco e nero)", make: () => ({ variante: "archivio" }) },
+    { tipo: "numeri", name: "Numeri", note: "cifre grandi con una riga sotto", make: () => ({ voci: [{ numero: "", etichetta: "" }] }) },
+    { tipo: "formati", name: "Formati", note: "schede con foto, pallino colorato, titolo e testo", make: () => ({ voci: [{ titolo: "", colore: "#151515", testo: "", foto: null, link: "" }] }) },
+    { tipo: "focus", name: "Focus", note: "etichetta, citazione, testo e foto a scorrimento", make: () => ({ etichetta: "", citazione: "", testo: "", foto: [] }) },
+    { tipo: "griglia", name: "Griglia di post", note: "foto quadrate in colonne, ognuna con un link", make: () => ({ colonne: 5, voci: [] }) },
+    { tipo: "link", name: "Link grande", note: "una riga piccola e un link in grande", make: () => ({ etichetta: "", testo: "", link: "" }) },
   ];
   const newId = () => Math.random().toString(36).slice(2, 8);
   const pageSlugs = () => Object.keys(tree).map((p) => (p.match(/^content\/pagine\/([a-z0-9][a-z0-9-]*)\.json$/) || [])[1]).filter(Boolean).sort();
@@ -759,6 +764,9 @@ Testo da scrivere.
       blocchi: (Array.isArray(data.blocchi) ? data.blocchi : []).filter((b) => b && BLOCKS.some((t) => t.tipo === b.tipo))
         .map((b) => ({ ...JSON.parse(JSON.stringify(b)), id: b.id || newId() })) };
     draft.builder = { node, state, file, extra: Object.fromEntries(Object.entries(data).filter(([k]) => !["titolo", "descrizione", "blocchi"].includes(k))) };
+    const extra = draft.builder.extra;
+    // "cartella": the page takes its photos from img/<cartella>/ (e.g. a review page next to the live project)
+    const dir = /^[a-z0-9][a-z0-9-]*$/.test(extra.cartella || "") ? extra.cartella : slug;
     const changed = () => markDirty();
 
     const field = (label, value, set, opts = {}) => {
@@ -780,18 +788,86 @@ Testo da scrivere.
       return h("label", { class: "btn small" }, input, multiple ? "+ Aggiungi foto" : "Scegli foto");
     };
 
+    // one photo: shows it (or a grey box when the file is missing), "Scegli foto", the library, drag and drop
+    const photoSlot = (get, set, cls = "") => {
+      const src = photoSrc(get());
+      const missing = typeof get() === "string" && get() && !src;
+      const box = h("div", { class: "block-photo " + cls }, src ? h("img", { src, alt: "" })
+        : h("span", { class: "ph" }, missing ? `manca ${get().split("/").pop()}` : "nessuna foto"),
+        h("div", { class: "photo-btns" }, picker(false, async ([f]) => { const p = f && await newPhoto(f, MAX_SIDE); if (p) { set(p); changed(); draw(); } }),
+          libButton(false, ([p]) => { set(p); changed(); draw(); })));
+      dropZone(box, async ([f]) => { const p = f && isImage(f) && await newPhoto(f, MAX_SIDE); if (p) { set(p); changed(); draw(); } });
+      return box;
+    };
+    // a list of items (numbers, formats, posts) with ↑ ↓ ×
+    const itemTools = (arr, i) => h("span", { class: "tools" },
+      h("button", { type: "button", title: "Prima", "aria-label": "Sposta prima", disabled: i ? null : "", onclick: () => { arr.splice(i - 1, 0, arr.splice(i, 1)[0]); changed(); draw(); } }, "↑"),
+      h("button", { type: "button", title: "Dopo", "aria-label": "Sposta dopo", disabled: i < arr.length - 1 ? null : "", onclick: () => { arr.splice(i + 1, 0, arr.splice(i, 1)[0]); changed(); draw(); } }, "↓"),
+      h("button", { type: "button", class: "danger", title: "Togli", "aria-label": "Togli", onclick: () => { arr.splice(i, 1); changed(); draw(); } }, "×"));
+    const addPhotos = (onAdd) => h("div", { class: "photo-btns" },
+      picker(true, async (files) => { for (const f of files) { const p = await newPhoto(f, MAX_SIDE); if (p) onAdd(p); } changed(); draw(); }),
+      libButton(true, (list) => { list.forEach(onAdd); changed(); draw(); }));
+    const colorField = (v, set) => {
+      const ok = (c) => /^#[0-9a-f]{6}$/i.test(c);
+      const pick = h("input", { type: "color", "aria-label": "Colore" }), txt = h("input", { type: "text", placeholder: "#151515", "aria-label": "Colore (codice)" });
+      pick.value = ok(v) ? v : "#151515"; txt.value = v || "";
+      pick.addEventListener("input", () => { txt.value = pick.value; set(pick.value); changed(); });
+      txt.addEventListener("input", () => { if (ok(txt.value.trim())) pick.value = txt.value.trim(); set(txt.value.trim()); changed(); });
+      return h("label", { class: "field" }, h("span", {}, "Colore del pallino"), h("span", { class: "color-row" }, pick, txt));
+    };
+
     const body = (b) => {
       switch (b.tipo) {
-        case "titolo": return [field("Titolo", b.titolo, (v) => { b.titolo = v; }), field("Anno", b.anno, (v) => { b.anno = v; })];
+        case "titolo": return [field("Titolo", b.titolo, (v) => { b.titolo = v; }), field("Anno", b.anno, (v) => { b.anno = v; }),
+          field("Link della freccia ← (facoltativo, es. index.html#cultura)", b.indietro, (v) => { b.indietro = v.trim(); })];
         case "foto": {
-          const src = photoSrc(b.foto);
-          const box = h("div", { class: "block-photo" }, src ? h("img", { src, alt: "" }) : h("span", { class: "ph" }, "nessuna foto"),
-            h("div", { class: "photo-btns" }, picker(false, async ([f]) => { const p = f && await newPhoto(f, MAX_SIDE); if (p) { b.foto = p; changed(); draw(); } }),
-              libButton(false, ([p]) => { b.foto = p; changed(); draw(); })));
-          dropZone(box, async ([f]) => { const p = f && isImage(f) && await newPhoto(f, MAX_SIDE); if (p) { b.foto = p; changed(); draw(); } });
-          return [box, h("div", { class: "head-switch" }, toggle(!!b.piena, (v) => { b.piena = v; changed(); }), h("span", {}, "A tutta pagina (in cima alla pagina, sotto il menu)")),
+          return [photoSlot(() => b.foto, (p) => { b.foto = p; }), h("div", { class: "head-switch" }, toggle(!!b.piena, (v) => { b.piena = v; changed(); }), h("span", {}, "A tutta pagina (in cima alla pagina, sotto il menu)")),
+            field("Proporzioni a tutta pagina (facoltativo, larghezza:altezza, es. 1366:582)", b.formato, (v) => { b.formato = v.trim(); }),
             field("Descrizione della foto (per chi non vede)", b.alt, (v) => { b.alt = v; })];
         }
+        case "numeri": {
+          b.voci = Array.isArray(b.voci) ? b.voci : [];
+          return [h("div", { class: "items" }, b.voci.map((v, i) => h("div", { class: "item item-row" },
+            field("Numero", v.numero, (x) => { v.numero = x; }, { placeholder: "550+" }),
+            field("Riga sotto", v.etichetta, (x) => { v.etichetta = x; }, { placeholder: "post pubblicati" }), itemTools(b.voci, i)))),
+            h("button", { type: "button", class: "btn small", onclick: () => { b.voci.push({ numero: "", etichetta: "" }); changed(); draw(); } }, "+ Numero")];
+        }
+        case "formati": {
+          b.voci = Array.isArray(b.voci) ? b.voci : [];
+          return [h("div", { class: "items items-cards" }, b.voci.map((v, i) => h("div", { class: "item" },
+            h("div", { class: "item-head" }, h("b", {}, `Scheda ${i + 1}`), itemTools(b.voci, i)),
+            photoSlot(() => v.foto, (p) => { v.foto = p; }, "small"),
+            field("Titolo", v.titolo, (x) => { v.titolo = x; }), colorField(v.colore, (x) => { v.colore = x; }),
+            field("Testo", v.testo, (x) => { v.testo = x; }, { rows: 3 }),
+            field("Link della foto (facoltativo)", v.link, (x) => { v.link = x.trim(); }, { placeholder: "https://… , pagina.html o @nome" })))),
+            h("button", { type: "button", class: "btn small", onclick: () => { b.voci.push({ titolo: "", colore: "#151515", testo: "", foto: null, link: "" }); changed(); draw(); } }, "+ Scheda")];
+        }
+        case "focus": {
+          b.foto = Array.isArray(b.foto) ? b.foto : [];
+          const grid = h("ol", { class: "seq" }, b.foto.map((f, i) => h("li", {},
+            photoSrc(f) ? h("img", { src: photoSrc(f), alt: "" }) : h("span", { class: "ph" }, typeof f === "string" ? `manca ${f.split("/").pop()}` : ""),
+            h("span", { class: "num" }, String(i + 1).padStart(2, "0")), itemTools(b.foto, i))));
+          dropZone(grid, async (files) => { for (const f of files) { const p = isImage(f) && await newPhoto(f, MAX_SIDE); if (p) b.foto.push(p); } changed(); draw(); });
+          return [field("Etichetta in piccolo", b.etichetta, (v) => { b.etichetta = v; }),
+            field("Citazione", b.citazione, (v) => { b.citazione = v; }, { rows: 3 }),
+            field("Testo", b.testo, (v) => { b.testo = v; }, { rows: 3 }),
+            h("p", { class: "hint" }, "Foto a scorrimento:"), grid, addPhotos((p) => b.foto.push(p))];
+        }
+        case "griglia": {
+          b.voci = Array.isArray(b.voci) ? b.voci : [];
+          const grid = h("ol", { class: "seq feed-edit" }, b.voci.map((v, i) => h("li", {},
+            h("div", { class: "feed-img" }, photoSrc(v.foto) ? h("img", { src: photoSrc(v.foto), alt: "" })
+              : h("span", { class: "ph" }, typeof v.foto === "string" && v.foto ? `manca ${v.foto.split("/").pop()}` : ""),
+              h("span", { class: "num" }, String(i + 1).padStart(2, "0")), itemTools(b.voci, i)),
+            (() => { const l = h("input", { type: "text", placeholder: "Link (facoltativo)", "aria-label": `Link del post ${i + 1}` }); l.value = v.link || "";
+              l.addEventListener("input", () => { v.link = l.value.trim(); changed(); }); return l; })())));
+          dropZone(grid, async (files) => { for (const f of files) { const p = isImage(f) && await newPhoto(f, MAX_SIDE); if (p) b.voci.push({ foto: p, link: "" }); } changed(); draw(); });
+          return [select("Colonne", String(b.colonne || 5), [2, 3, 4, 5, 6].map((n) => [String(n), String(n)]), (v) => { b.colonne = Number(v); }),
+            grid, addPhotos((p) => b.voci.push({ foto: p, link: "" }))];
+        }
+        case "link": return [field("Riga in piccolo", b.etichetta, (v) => { b.etichetta = v; }),
+          field("Testo grande", b.testo, (v) => { b.testo = v; }, { placeholder: "@bohememag →" }),
+          field("Link", b.link, (v) => { b.link = v.trim(); }, { placeholder: "https://… , pagina.html o @nome" })];
         case "video": return [videoField(() => b.video, (v) => { b.video = v; changed(); }),
           field("Didascalia (facoltativa)", b.didascalia, (v) => { b.didascalia = v; }),
           h("div", { class: "head-switch" }, toggle(!!b.larga, (v) => { b.larga = v; changed(); }), h("span", {}, "A tutta larghezza"))];
@@ -886,7 +962,10 @@ Testo da scrivere.
     return h("div", {},
       h("section", { class: "panel" }, h("h2", {}, "Pagina"),
         field("Titolo (nella scheda del browser e nell'albero)", state.titolo, (v) => { state.titolo = v; }),
-        field("Descrizione per Google (max 155 caratteri)", state.descrizione, (v) => { state.descrizione = v; }, { rows: 2 })),
+        field("Descrizione per Google (max 155 caratteri)", state.descrizione, (v) => { state.descrizione = v; }, { rows: 2 }),
+        h("div", { class: "head-switch" }, toggle(!!extra.anteprima, (v) => { if (v) extra.anteprima = true; else delete extra.anteprima; changed(); }),
+          h("span", {}, "Pagina di prova (Google non la mostra)")),
+        dir !== slug ? h("p", { class: "hint" }, `Le foto di questa pagina stanno in img/${dir}/, insieme a quelle del progetto: togliere una foto qui non la cancella.`) : null),
       h("section", { class: "panel" }, h("h2", {}, "Blocchi", h("small", {}, " dall'alto in basso, come nella pagina")), list));
   }
 
@@ -894,11 +973,12 @@ Testo da scrivere.
   async function builderChanges(out) {
     const { state, file, extra, node } = draft.builder;
     const slug = node.freePage;
+    const dir = /^[a-z0-9][a-z0-9-]*$/.test(extra.cartella || "") ? extra.cartella : slug;
     const copies = [];
     const put = async (f, b) => {
       if (isVideoRef(f)) return putVideo(f, slug, out);
       if (!f || typeof f !== "object") return f;
-      if (!f.path) f.path = `img/${slug}/${b.id}-${newId()}.jpg`;
+      if (!f.path) f.path = `img/${dir}/${b.id}-${newId()}.jpg`;
       if (f.from) copies.push({ from: f.from, to: f.path });
       if (!f.sha) f.sha = await blobFrom({ blob: f.blob });
       out[f.path] = f.sha;
@@ -911,12 +991,17 @@ Testo da scrivere.
       if (b.tipo === "video") c.video = await putVideo(b.video, slug, out);
       if (b.tipo === "sequenza") { c.foto = []; for (const f of b.foto) c.foto.push(await put(f, b)); }
       if (b.tipo === "scheda") c.righe = (b.righe || []).filter((r) => (r[0] || "").trim() || (r[1] || "").trim());
+      if (b.tipo === "numeri") c.voci = (b.voci || []).filter((v) => (v.numero || "").trim() || (v.etichetta || "").trim()).map((v) => ({ ...v }));
+      if (b.tipo === "formati" || b.tipo === "griglia") { c.voci = []; for (const v of b.voci || []) c.voci.push({ ...v, foto: await put(v.foto, b) }); }
+      if (b.tipo === "focus") { c.foto = []; for (const f of b.foto || []) c.foto.push(await put(f, b)); }
       blocchi.push(c);
     }
     if (copies.length) await fociFollow(out, copies, null);
     dropUnusedMedia(slug, new Set(blocchi.flatMap((b) => (b.tipo === "video" ? [b.video] : b.tipo === "sequenza" ? b.foto : [])).filter((v) => typeof v === "string")), out);
-    const used = new Set(blocchi.flatMap((b) => (b.tipo === "foto" ? [b.foto] : b.tipo === "sequenza" ? b.foto : [])).filter(Boolean));
-    Object.keys(tree).forEach((p) => { if (p.startsWith(`img/${slug}/`) && p.endsWith(".jpg") && !used.has(p) && !(p in out)) out[p] = null; });
+    const used = new Set(blocchi.flatMap((b) => (b.tipo === "foto" ? [b.foto] : b.tipo === "sequenza" || b.tipo === "focus" ? b.foto
+      : b.tipo === "formati" || b.tipo === "griglia" ? b.voci.map((v) => v.foto) : [])).filter(Boolean));
+    // photos in the page's own folder that no block uses are removed; a shared folder (cartella) is left alone
+    if (dir === slug) Object.keys(tree).forEach((p) => { if (p.startsWith(`img/${slug}/`) && p.endsWith(".jpg") && !used.has(p) && !(p in out)) out[p] = null; });
     const json = asJson({ ...extra, titolo: state.titolo.trim() || slug, descrizione: state.descrizione.trim(), blocchi });
     if (json !== (texts[file] || "")) out[file] = await blobFrom({ text: json });
   }
