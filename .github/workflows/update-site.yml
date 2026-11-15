@@ -13,7 +13,9 @@ on:
       - "tools/build_pages.py"
       - "tools/apply_photos.py"
       - "tools/check_videos.py"
-  # every day: a YouTube video made private is hidden, one made public again comes back
+      - "tools/instagram_feed.py"
+  # every day: a YouTube video made private is hidden, one made public again comes back,
+  # and the Instagram feed of the Bohème page gets the latest posts
   schedule:
     - cron: "17 5 * * *"
   workflow_dispatch:
@@ -37,6 +39,12 @@ jobs:
         with:
           python-version: "3.12"
       - run: pip install pillow pillow-heif
+      # latest Bohème posts for the feed grid (needs the INSTAGRAM_TOKEN secret, otherwise it does nothing)
+      - name: Fetch Instagram feed
+        continue-on-error: true
+        env:
+          INSTAGRAM_TOKEN: ${{ secrets.INSTAGRAM_TOKEN }}
+        run: python3 tools/instagram_feed.py
       - name: Apply photos
         run: python3 tools/apply_photos.py
       - name: Check YouTube videos
