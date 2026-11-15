@@ -986,6 +986,17 @@ Testo da scrivere.
       drawChips();
       return h("label", { class: "field" }, h("span", {}, label), wrap);
     };
+    // a number in a rule, written only when it differs from the default
+    const numIn = (label, obj, key, min, max, def) => {
+      const inp = h("input", { type: "number", min: String(min), max: String(max), placeholder: String(def), "aria-label": label });
+      inp.value = obj[key] && obj[key] !== def ? obj[key] : "";
+      inp.addEventListener("input", () => {
+        const n = Math.round(Number(inp.value));
+        if (!inp.value || !n || n === def) delete obj[key]; else obj[key] = Math.max(min, Math.min(max, n));
+        changed();
+      });
+      return h("label", { class: "field inline" }, h("span", {}, label), inp);
+    };
     const autoEditor = (owner, multiSlide) => {
       const a = owner.automatico && typeof owner.automatico === "object" ? owner.automatico : null;
       const sw = h("div", { class: "head-switch" }, toggle(!!(a && a.attivo), (v) => {
@@ -1017,6 +1028,9 @@ Testo da scrivere.
           select("Bordo della foto", a.colore || "", [["", "qualsiasi"], ["bianco", "bianco"], ["nero", "nero"]], (v) => { a.colore = v; draw(); }),
           a.colore ? h("label", { class: "field inline" }, h("span", {}, "Soglia (vuoto = normale)"), soglia) : null,
           h("label", { class: "field inline" }, h("span", {}, multiSlide ? "Slide (es. 1, 2)" : "Slide"), slideIn), allBox),
+        h("div", { class: "inline-fields" },
+          numIn("Salta i primi (0 = nessuno)", a, "salta", 0, 10, 0),
+          multiSlide ? null : numIn("Quanti post (più di 1 = carosello con frecce)", a, "quanti", 1, 12, 1)),
         h("p", { class: "hint" }, "Sul sito va il post scelto in automatico; la foto qui sotto si usa solo se nessun post corrisponde o se spegni l'automatico."));
     };
 
@@ -1096,7 +1110,10 @@ Testo da scrivere.
             h("div", { class: "inline-fields link-pair" },
               field("Link sotto il testo: scritta (facoltativa)", (b.link || {}).testo, (v) => { b.link = { ...(b.link || {}), testo: v }; }, { placeholder: "Leggi l’Osservatorio su osservatoriofo.com" }),
               field("Indirizzo", (b.link || {}).url, (v) => { b.link = { ...(b.link || {}), url: v.trim() }; }, { placeholder: "https://…" })),
-            autoEditor(b, true), bordiSwitch(b), h("p", { class: "hint" }, "Foto a scorrimento:"), grid, addPhotos((p) => b.foto.push(p), true)];
+            autoEditor(b, true),
+            h("div", { class: "head-switch" }, toggle(!!b.dalla_descrizione, (v) => { if (v) b.dalla_descrizione = true; else delete b.dalla_descrizione; changed(); }),
+              h("span", {}, "Citazione e “Osservatore: @nome” presi dal testo del post (spento = quelli scritti qui sopra)")),
+            bordiSwitch(b), h("p", { class: "hint" }, "Foto a scorrimento:"), grid, addPhotos((p) => b.foto.push(p), true)];
         }
         case "griglia": {
           b.voci = Array.isArray(b.voci) ? b.voci : [];
