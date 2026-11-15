@@ -338,7 +338,8 @@
       const view = await renderElement(node);
       main.replaceChildren(view);
       folds(main);
-      setPreview(node.page);
+      setPreview(previewOf(node));
+      if (draft.builder) { const b = $("#save"); if (b) b.textContent = "Salva bozza"; }
       main.querySelectorAll("[data-live]").forEach((el) => livePreview(el.dataset.live, el.value));
       linkPreview();
     } catch (e) {
@@ -657,6 +658,7 @@ Testo da scrivere.
   // tools/build_pages.py turns each block into the same HTML as the other pages.
 
   const PAGE_DIR = "content/pagine/";
+  const DRAFT_DIR = "content/bozze/";
   // ---------------------------------------------------------------- videos
   // A video is a YouTube / Vimeo link, or a file uploaded to media/<page>/ (max 50 MB: longer videos go on YouTube or Vimeo).
   // In the JSON it is always a string: the link, or the path of the file.
@@ -737,6 +739,8 @@ Testo da scrivere.
     { tipo: "formati", name: "Formati", note: "schede con foto, pallino colorato, titolo e testo", make: () => ({ voci: [{ titolo: "", colore: "#151515", testo: "", foto: null, link: "" }] }) },
     { tipo: "focus", name: "Focus", note: "etichetta, citazione, testo e foto a scorrimento", make: () => ({ etichetta: "", citazione: "", testo: "", foto: [] }) },
     { tipo: "griglia", name: "Griglia di post", note: "foto quadrate in colonne, ognuna con un link", make: () => ({ titolo: "", instagram: false, colonne: 5, voci: [] }) },
+    { tipo: "passi", name: "Passi", note: "titolo e testo, poi schede in fila (foto, colore, titolo, testo) e regole", make: () => ({ etichetta: "", titolo: "", testo: "", affiancato: false, formato: "", voci: [{ titolo: "", testo: "", foto: null, colore: "#ffffff", link: "" }], regole: [] }) },
+    { tipo: "collabora", name: "Collabora", note: "invito a scriverci: strade diverse, ognuna apre una mail con il suo oggetto", make: () => ({ etichetta: "", titolo: "", testo: "", email: "", pulsante: "Scrivici", dopo: "", instagram: "", voci: [{ titolo: "", testo: "", cosa: "", oggetto: "" }] }) },
     { tipo: "link", name: "Link grande", note: "una riga piccola e un link in grande", make: () => ({ etichetta: "", testo: "", link: "" }) },
   ];
   const newId = () => Math.random().toString(36).slice(2, 8);
@@ -832,14 +836,16 @@ Testo da scrivere.
   }
 
   async function builderPanel(node) {
-    const slug = node.freePage, file = `${PAGE_DIR}${slug}.json`;
+    const slug = node.freePage, file = `${PAGE_DIR}${slug}.json`, bozza = `${DRAFT_DIR}${slug}.json`;
+    // a draft (content/bozze/<slug>.json) is what you edit when it exists; the live page changes only with "Pubblica"
+    const hasDraft = !!tree[bozza];
     let data = {};
-    try { data = JSON.parse(await readText(file, true) || "{}"); } catch (e) { data = {}; }
+    try { data = JSON.parse(await readText(hasDraft ? bozza : file, true) || "{}"); } catch (e) { data = {}; }
     await loadMine();
     const state = { titolo: data.titolo || slug, descrizione: data.descrizione || "",
       blocchi: (Array.isArray(data.blocchi) ? data.blocchi : []).filter((b) => b && BLOCKS.some((t) => t.tipo === b.tipo))
         .map((b) => ({ ...JSON.parse(JSON.stringify(b)), id: b.id || newId() })) };
-    draft.builder = { node, state, file, extra: Object.fromEntries(Object.entries(data).filter(([k]) => !["titolo", "descrizione", "blocchi"].includes(k))) };
+    draft.builder = { node, state, file, bozza, hasDraft, target: "bozza", extra: Object.fromEntries(Object.entries(data).filter(([k]) => !["titolo", "descrizione", "blocchi"].includes(k))) };
     const extra = draft.builder.extra;
     // the page in place of a culture page (e.g. boheme): always public
     const live = RESERVED.includes(slug);
@@ -958,16 +964,17 @@ Testo da scrivere.
       picker(true, async (files) => { for (const f of files) { const p = await newPhoto(f, MAX_SIDE); if (p) onAdd(p); } changed(); draw(); }),
       libButton(true, (list) => { list.forEach(onAdd); changed(); draw(); }),
       ig ? igButton(true, (list) => list.forEach(onAdd)) : null);
-    const colorField = (v, set) => {
+    const colorField = (v, set, label = "Colore del pallino") => {
       const ok = (c) => /^#[0-9a-f]{6}$/i.test(c);
       const pick = h("input", { type: "color", "aria-label": "Colore" }), txt = h("input", { type: "text", placeholder: "#151515", "aria-label": "Colore (codice)" });
       pick.value = ok(v) ? v : "#151515"; txt.value = v || "";
       pick.addEventListener("input", () => { txt.value = pick.value; set(pick.value); changed(); });
       txt.addEventListener("input", () => { if (ok(txt.value.trim())) pick.value = txt.value.trim(); set(txt.value.trim()); changed(); });
-      return h("label", { class: "field" }, h("span", {}, "Colore del pallino"), h("span", { class: "color-row" }, pick, txt));
+      return h("label", { class: "field" }, h("span", {}, label), h("span", { class: "color-row" }, pick, txt));
     };
 
     // "automatico": every day the newest post matching words / border colour replaces the photo (tools/instagram_feed.py)
+    const bordiSwitch = (b) => h("div", { class: "head-switch" }, toggle(!!b.bordi, (v) => { if (v) b.bordi = true; else delete b.bordi; changed(); }), h("span", {}, "Filo sottile intorno ai post"));
     const chips = (label, arr, placeholder) => {
       const wrap = h("div", { class: "chips" });
       const input = h("input", { type: "text", placeholder, "aria-label": label });
@@ -1031,7 +1038,7 @@ Testo da scrivere.
         }
         case "formati": {
           b.voci = Array.isArray(b.voci) ? b.voci : [];
-          return [h("div", { class: "items items-cards" }, b.voci.map((v, i) => h("div", { class: "item" },
+          return [bordiSwitch(b), h("div", { class: "items items-cards" }, b.voci.map((v, i) => h("div", { class: "item" },
             h("div", { class: "item-head" }, h("b", {}, `Scheda ${i + 1}`), itemTools(b.voci, i)),
             autoEditor(v, false),
             photoSlot(() => v.foto, (p) => { v.foto = p; }, "small", true),
@@ -1039,6 +1046,42 @@ Testo da scrivere.
             field("Testo", v.testo, (x) => { v.testo = x; }, { rows: 3 }),
             field("Link della foto (facoltativo)", v.link, (x) => { v.link = x.trim(); }, { placeholder: "https://… , pagina.html o @nome" })))),
             h("button", { type: "button", class: "btn small", onclick: () => { b.voci.push({ titolo: "", colore: "#151515", testo: "", foto: null, link: "" }); changed(); draw(); } }, "+ Scheda")];
+        }
+        case "collabora": {
+          b.voci = Array.isArray(b.voci) ? b.voci : [];
+          return [field("Etichetta in piccolo", b.etichetta, (v) => { b.etichetta = v; }),
+            field("Titolo", b.titolo, (v) => { b.titolo = v; }),
+            field("Testo", b.testo, (v) => { b.testo = v; }, { rows: 4 }),
+            h("div", { class: "inline-fields link-pair" },
+              field("Email a cui scrivere", b.email, (v) => { b.email = v.trim(); }, { placeholder: "nome@esempio.it" }),
+              field("Scritta del pulsante", b.pulsante, (v) => { b.pulsante = v; }, { placeholder: "Scrivici" })),
+            h("div", { class: "items items-cards" }, b.voci.map((v, i) => h("div", { class: "item" },
+              h("div", { class: "item-head" }, h("b", {}, `Strada ${i + 1}`), itemTools(b.voci, i)),
+              field("Titolo", v.titolo, (x) => { v.titolo = x; }),
+              field("Testo", v.testo, (x) => { v.testo = x; }, { rows: 3 }),
+              field("Cosa mandare", v.cosa, (x) => { v.cosa = x; }, { rows: 2 }),
+              field("Oggetto della mail", v.oggetto, (x) => { v.oggetto = x; })))),
+            h("button", { type: "button", class: "btn small", onclick: () => { b.voci.push({ titolo: "", testo: "", cosa: "", oggetto: "" }); changed(); draw(); } }, "+ Strada"),
+            field("Cosa succede dopo", b.dopo, (v) => { b.dopo = v; }, { rows: 2 }),
+            field("Link Instagram (facoltativo)", b.instagram, (v) => { b.instagram = v.trim(); }, { placeholder: "https://www.instagram.com/…" })];
+        }
+        case "passi": {
+          b.voci = Array.isArray(b.voci) ? b.voci : []; b.regole = Array.isArray(b.regole) ? b.regole : [];
+          return [field("Etichetta in piccolo", b.etichetta, (v) => { b.etichetta = v; }),
+            field("Titolo", b.titolo, (v) => { b.titolo = v; }),
+            field("Testo", b.testo, (v) => { b.testo = v; }, { rows: 4 }),
+            h("div", { class: "head-switch" }, toggle(!!b.affiancato, (v) => { b.affiancato = v; changed(); }), h("span", {}, "Titolo e testo affiancati")),
+            bordiSwitch(b),
+            field("Proporzioni delle foto (facoltativo, larghezza:altezza, es. 4:5)", b.formato, (v) => { b.formato = v.trim(); }),
+            h("div", { class: "items items-cards" }, b.voci.map((v, i) => h("div", { class: "item" },
+              h("div", { class: "item-head" }, h("b", {}, `Passo ${i + 1}`), itemTools(b.voci, i)),
+              autoEditor(v, false),
+              photoSlot(() => v.foto, (p) => { v.foto = p; }, "small", true),
+              field("Titolo", v.titolo, (x) => { v.titolo = x; }), colorField(v.colore, (x) => { v.colore = x; }, "Colore (se manca la foto)"),
+              field("Testo", v.testo, (x) => { v.testo = x; }, { rows: 3 }),
+              field("Link della foto (facoltativo)", v.link, (x) => { v.link = x.trim(); }, { placeholder: "https://… , pagina.html o @nome" })))),
+            h("button", { type: "button", class: "btn small", onclick: () => { b.voci.push({ titolo: "", testo: "", foto: null, colore: "#ffffff", link: "" }); changed(); draw(); } }, "+ Passo"),
+            chips("Regole (etichette in fondo)", b.regole, "scrivi e premi Invio")];
         }
         case "focus": {
           b.foto = Array.isArray(b.foto) ? b.foto : [];
@@ -1053,7 +1096,7 @@ Testo da scrivere.
             h("div", { class: "inline-fields link-pair" },
               field("Link sotto il testo: scritta (facoltativa)", (b.link || {}).testo, (v) => { b.link = { ...(b.link || {}), testo: v }; }, { placeholder: "Leggi l’Osservatorio su osservatoriofo.com" }),
               field("Indirizzo", (b.link || {}).url, (v) => { b.link = { ...(b.link || {}), url: v.trim() }; }, { placeholder: "https://…" })),
-            autoEditor(b, true), h("p", { class: "hint" }, "Foto a scorrimento:"), grid, addPhotos((p) => b.foto.push(p), true)];
+            autoEditor(b, true), bordiSwitch(b), h("p", { class: "hint" }, "Foto a scorrimento:"), grid, addPhotos((p) => b.foto.push(p), true)];
         }
         case "griglia": {
           b.voci = Array.isArray(b.voci) ? b.voci : [];
@@ -1069,11 +1112,11 @@ Testo da scrivere.
           const auto = h("div", { class: "head-switch" }, toggle(!!b.instagram, (v) => { b.instagram = v; if (v && !b.numero) b.numero = 10; changed(); draw(); }),
             h("span", {}, "Automatica: ogni giorno gli ultimi post da Instagram"));
           const title = field("Titolo sopra la griglia (facoltativo)", b.titolo, (v) => { b.titolo = v; }, { placeholder: "Feed di Instagram" });
-          if (!b.instagram) return [auto, title, cols, grid, addPhotos((p) => b.voci.push({ foto: p, link: "" }), true)];
+          if (!b.instagram) return [auto, title, cols, bordiSwitch(b), grid, addPhotos((p) => b.voci.push({ foto: p, link: "" }), true)];
           const num = select("Quanti post", String(b.numero || 10), Array.from({ length: 24 }, (_, k) => [String(k + 1), String(k + 1)]), (v) => { b.numero = Number(v); });
           const reserve = h("details", { class: "reserve" }, h("summary", {}, `Foto di riserva (${b.voci.length}): si vedono solo se Instagram non risponde`),
             grid, addPhotos((p) => b.voci.push({ foto: p, link: "" }), true));
-          return [auto, title, h("div", { class: "inline-fields" }, num, cols),
+          return [auto, title, h("div", { class: "inline-fields" }, num, cols), bordiSwitch(b),
             h("p", { class: "hint" }, "I post e le loro foto si aggiornano da soli ogni giorno: non serve caricarli."), reserve];
         }
         case "link": return [field("Riga in piccolo", b.etichetta, (v) => { b.etichetta = v; }),
@@ -1170,7 +1213,32 @@ Testo da scrivere.
       list.replaceChildren(...out);
     }
     draw();
-    return h("div", {},
+    const publish = async () => {
+      if (!confirm("Pubblicare la bozza? La pagina online diventa uguale all'anteprima.")) return;
+      draft.builder.target = "pagina";
+      markDirty();
+      try { await save(); } finally { if (draft.builder) draft.builder.target = "bozza"; }
+    };
+    const discard = async () => {
+      if (!confirm("Buttare la bozza? Le modifiche non pubblicate si perdono (restano nella cronologia di GitHub).")) return;
+      try {
+        await commit(`Discard draft of ${state.titolo || slug} from admin`, async () => (tree[bozza] ? { [bozza]: null } : {}));
+        draft.dirty = false; await open(node);
+      } catch (e) { alert("Non sono riuscito a buttare la bozza: " + e.message); }
+    };
+    const draftPanel = h("section", { class: "panel draft-panel" });
+    const drawDraft = (hasDraft) => draftPanel.replaceChildren(h("h2", {}, "Bozza e anteprima"),
+      h("p", {}, hasDraft ? "Stai modificando la bozza: la pagina online non cambia finché non premi Pubblica."
+        : "Le modifiche si salvano come bozza: prima le guardi nell'anteprima, poi le pubblichi."),
+      h("div", { class: "draft-btns" },
+        h("a", { class: "btn small", href: SITE + `${slug}-anteprima.html`, target: "_blank", rel: "noopener" }, "Apri anteprima ↗"),
+        h("button", { type: "button", class: "btn small primary-ish", onclick: publish }, hasDraft ? "Pubblica la bozza" : "Pubblica subito"),
+        hasDraft ? h("button", { type: "button", class: "btn small danger", onclick: discard }, "Butta la bozza") : null),
+      h("p", { class: "hint" }, "“Salva bozza” (in basso) aggiorna l'anteprima in un minuto circa."));
+    drawDraft(hasDraft);
+    // after a save: back to drafts, and the panel says whether a draft exists now
+    draft.builder.afterSave = () => { draft.builder.target = "bozza"; drawDraft(!!tree[bozza]); };
+    return h("div", {}, draftPanel,
       h("section", { class: "panel" }, h("h2", {}, "Pagina"),
         field("Titolo (nella scheda del browser e nell'albero)", state.titolo, (v) => { state.titolo = v; }),
         field("Descrizione per Google (max 155 caratteri)", state.descrizione, (v) => { state.descrizione = v; }, { rows: 2 }),
@@ -1182,8 +1250,9 @@ Testo da scrivere.
 
   // Save: upload the new photos, drop the ones no block uses any more, write the JSON
   async function builderChanges(out) {
-    const { state, file, extra, node } = draft.builder;
+    const { state, file, bozza, extra, node } = draft.builder;
     const slug = node.freePage;
+    const publishing = draft.builder.target === "pagina";
     const dir = /^[a-z0-9][a-z0-9-]*$/.test(extra.cartella || "") ? extra.cartella : slug;
     const live = RESERVED.includes(slug);
     if (live) delete extra.anteprima;
@@ -1207,18 +1276,23 @@ Testo da scrivere.
       if (b.tipo === "sequenza") { c.foto = []; for (const f of b.foto) c.foto.push(await put(f, b)); }
       if (b.tipo === "scheda") c.righe = (b.righe || []).filter((r) => (r[0] || "").trim() || (r[1] || "").trim());
       if (b.tipo === "numeri") c.voci = (b.voci || []).filter((v) => (v.numero || "").trim() || (v.etichetta || "").trim()).map((v) => ({ ...v }));
-      if (b.tipo === "formati" || b.tipo === "griglia") { c.voci = []; for (const v of b.voci || []) c.voci.push({ ...v, foto: await put(v.foto, b) }); }
+      if (b.tipo === "formati" || b.tipo === "griglia" || b.tipo === "passi") { c.voci = []; for (const v of b.voci || []) c.voci.push({ ...v, foto: await put(v.foto, b) }); }
       if (b.tipo === "focus") { c.foto = []; for (const f of b.foto || []) c.foto.push(await put(f, b)); }
       blocchi.push(c);
     }
     if (copies.length) await fociFollow(out, copies, null);
-    dropUnusedMedia(slug, new Set(blocchi.flatMap((b) => (b.tipo === "video" ? [b.video] : b.tipo === "sequenza" ? b.foto : [])).filter((v) => typeof v === "string")), out);
+    if (publishing) dropUnusedMedia(slug, new Set(blocchi.flatMap((b) => (b.tipo === "video" ? [b.video] : b.tipo === "sequenza" ? b.foto : [])).filter((v) => typeof v === "string")), out);
     const used = new Set(blocchi.flatMap((b) => (b.tipo === "foto" ? [b.foto] : b.tipo === "sequenza" || b.tipo === "focus" ? b.foto
-      : b.tipo === "formati" || b.tipo === "griglia" ? b.voci.map((v) => v.foto) : [])).filter(Boolean));
+      : b.tipo === "formati" || b.tipo === "griglia" || b.tipo === "passi" ? b.voci.map((v) => v.foto) : [])).filter(Boolean));
     // photos in the page's own folder that no block uses are removed; a shared folder (cartella) is left alone
-    if (dir === slug && !live) Object.keys(tree).forEach((p) => { if (p.startsWith(`img/${slug}/`) && !p.startsWith(`img/${slug}/instagram/`) && p.endsWith(".jpg") && !used.has(p) && !(p in out)) out[p] = null; });
+    if (publishing && dir === slug && !live) Object.keys(tree).forEach((p) => { if (p.startsWith(`img/${slug}/`) && !p.startsWith(`img/${slug}/instagram/`) && p.endsWith(".jpg") && !used.has(p) && !(p in out)) out[p] = null; });
     const json = asJson({ ...extra, titolo: state.titolo.trim() || slug, descrizione: state.descrizione.trim(), blocchi });
-    if (json !== (texts[file] || "")) out[file] = await blobFrom({ text: json });
+    if (publishing) {
+      if (json !== (await readText(file, true) || "")) out[file] = await blobFrom({ text: json });
+      if (tree[bozza]) out[bozza] = null;
+    } else if (json !== (tree[bozza] ? await readText(bozza, true) : await readText(file, true)) || "") {
+      out[bozza] = await blobFrom({ text: json });
+    }
   }
 
   // ---------------------------------------------------------------- order of the home sections
@@ -2743,7 +2817,7 @@ Testo da scrivere.
         state.seq.filter((it) => !it.text).forEach((it, i) => { it.orig = `${n.photos.dir}/${String(i + 1).padStart(2, "0")}.jpg`; it.sha0 = tree[it.orig]; });
       }
       if (draft.home || Object.keys(draft.switches).length) { await applyHome(); renderNav(); }
-      if (draft.builder) { await applyPages(); renderNav(); }
+      if (draft.builder) { await applyPages(); renderNav(); if (draft.builder.afterSave) draft.builder.afterSave(); }
       if (draft.building != null) { await loadBuilding(); renderNav(); }
       if (!sha) { st.textContent = "Niente da salvare"; return; }
       st.textContent = "Salvato. Il sito si aggiorna in 1-2 minuti…";
@@ -2768,9 +2842,9 @@ Testo da scrivere.
       } catch (e) { break; }
     }
     await new Promise((r) => setTimeout(r, 45000));
-    if (current !== node) return setPreview(node.page, true);
+    if (current !== node) return setPreview(previewOf(node), true);
     if (draft && draft.dirty) { if (st()) st().textContent = "Online ✓ · hai altre modifiche da salvare"; return; }
-    setPreview(node.page, true);
+    setPreview(previewOf(node), true);
     await open(node);
     if (st()) st().textContent = "Online ✓ (se non vedi la modifica, ricarica la pagina)";
   }
@@ -3219,6 +3293,9 @@ Testo da scrivere.
   }
 
   // ---------------------------------------------------------------- preview
+
+  // a page with blocks shows its draft preview (<slug>-anteprima.html) while you work on the draft
+  const previewOf = (node) => (draft && draft.builder && draft.builder.node === node ? `${node.freePage}-anteprima.html` : node.page);
 
   function setPreview(page, reload) {
     const frame = $("#preview iframe");
