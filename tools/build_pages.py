@@ -381,8 +381,8 @@ def drop_empty(out):
     return out
 
 
-def page(*, file, title, description, body, current=None, header="", body_class="", main_class=""):
-    robots = ""
+def page(*, file, title, description, body, current=None, header="", body_class="", main_class="", noindex=False):
+    robots = '\n<meta name="robots" content="noindex">' if noindex else ""
     key = file[:-5]
     seo = SEO.get(key) if isinstance(SEO.get(key), dict) else {}
     description = _str(seo.get("descrizione")) or description
@@ -1354,13 +1354,28 @@ def paras(text):
     return "\n".join(f"<p>{inline(x.strip())}</p>" for x in re.split(r"\n\s*\n", text) if x.strip())
 
 
+def ph(src, alt, folder, eager=False):
+    """Photo of a block, or an empty grey box of the same size when it is not uploaded yet."""
+    if _photo(src, folder) and exists(src):
+        return img(src, alt, eager=eager)
+    return '<div class="media empty is-slot"></div>'
+
+
+def link_attrs(link):
+    href = fact_href(_str(link))
+    if not href:
+        return ""
+    ext = href.startswith("http")
+    return f' href="{html.escape(href)}"' + (' target="_blank" rel="noopener"' if ext else "")
+
+
 def block_html(b, p, i):
-    s, kind = p["slug"], b.get("tipo")
+    s, kind = p["_dir"], b.get("tipo")
     if kind == "titolo":
         t, y = _str(b.get("titolo")) or p["title"], _str(b.get("anno"))
         tag = "h1" if i == p["_h1"] else "h2"
         sup = f'<sup class="yr">{html.escape(y)}</sup>' if y else ""
-        arrow = back("index.html#ricerca-visiva") if tag == "h1" else ""
+        arrow = back(_str(b.get("indietro")) or "index.html#ricerca-visiva") if tag == "h1" else ""
         return f'  <div class="p-title-row page-head">{arrow}<{tag} class="p-title">{html.escape(t)}{sup}</{tag}></div>'
     if kind == "foto":
         src = b.get("foto")
@@ -1368,7 +1383,9 @@ def block_html(b, p, i):
             return ""
         alt = _str(b.get("alt")) or p["title"]
         if b.get("piena"):
-            return f'  <section class="p-hero">\n    {img(src, alt, eager=i == 0)}\n  </section>'
+            m = re.fullmatch(r"(\d{1,4}):(\d{1,4})", _str(b.get("formato")))
+            ratio = f' style="aspect-ratio: {m.group(1)} / {m.group(2)}"' if m else ""
+            return f'  <section class="p-hero{" fixed-ratio" if m else ""}"{ratio}>\n    {img(src, alt, eager=i == 0)}\n  </section>'
         return f'  <div class="photo-first">{img(src, alt, eager=i < 2)}</div>'
     if kind == "testo":
         t, nota = _str(b.get("testo")), _str(b.get("nota"))
@@ -1409,7 +1426,7 @@ def block_html(b, p, i):
         return f'  <ol class="photo-seq layout-{cls}" aria-label="Fotografie">{lis}</ol>'
     if kind == "altri":
         shown = {r["pagina"] for r in RESEARCH if r.get("visibile", True) and r.get("pagina")}
-        others = [q for q in PHOTO if q["slug"] != s and q["slug"] in shown]
+        others = [q for q in PHOTO if q["slug"] != p["slug"] and q["slug"] in shown]
         if not others:
             return ""
         tiles = "".join(
@@ -1420,10 +1437,52 @@ def block_html(b, p, i):
                 f'    <div class="related-row">{tiles}</div>\n  </section>')
     if kind == "successivo":
         to, targets = _str(b.get("pagina")), page_targets()
-        if to not in targets or to == s:
+        if to not in targets or to == p["slug"]:
             return ""
         label = _str(b.get("testo")) or "Progetto successivo"
         return f'  <a class="next-project" href="{to}.html"><span>{html.escape(label)}</span><span>{html.escape(targets[to])} ›</span></a>'
+    if kind == "numeri":
+        items = [(_str(v.get("numero")), _str(v.get("etichetta"))) for v in b.get("voci") or [] if isinstance(v, dict)]
+        lis = "".join(f'<li><span class="num">{html.escape(n)}</span><span class="what">{html.escape(t)}</span></li>' for n, t in items if n or t)
+        return f'  <ul class="bv-numbers" aria-label="In numeri">{lis}</ul>' if lis else ""
+    if kind == "formati":
+        cards = ""
+        for k, v in enumerate(v for v in b.get("voci") or [] if isinstance(v, dict)):
+            t, txt = _str(v.get("titolo")), _str(v.get("testo"))
+            col = _str(v.get("colore"))
+            dot = f'<i class="dot" style="--dot: {col}" aria-hidden="true"></i>' if re.fullmatch(r"#[0-9a-fA-F]{3,8}", col) else ""
+            media = ph(v.get("foto"), t or p["title"], s)
+            la = link_attrs(v.get("link"))
+            if la:
+                media = f'<a{la}>{media}</a>'
+            cards += (f'<li>{media}<h3 class="bv-format-title">{dot}{html.escape(t)}</h3>'
+                      f'{f"<p>{inline(txt)}</p>" if txt else ""}</li>')
+        return f'  <ul class="bv-formats">{cards}</ul>' if cards else ""
+    if kind == "focus":
+        lab, q, txt = _str(b.get("etichetta")), _str(b.get("citazione")), _str(b.get("testo"))
+        photos = [f for f in b.get("foto") or [] if isinstance(f, str)]
+        if not (q or txt or photos):
+            return ""
+        slides = "".join(f'<li>{ph(f, lab or p["title"], s)}</li>' for f in photos)
+        return (f'  <section class="bv-focus">\n    <div class="bv-focus-text">'
+                f'{f"<p class=\"label\">{html.escape(lab)}</p>" if lab else ""}'
+                f'{f"<blockquote><p>{inline(q)}</p></blockquote>" if q else ""}'
+                f'{f"<p class=\"bv-focus-note\">{inline(txt)}</p>" if txt else ""}</div>\n'
+                f'    {f"<ul class=\"bv-slides\">{slides}</ul>" if slides else ""}\n  </section>')
+    if kind == "griglia":
+        cols = b.get("colonne") if isinstance(b.get("colonne"), int) and 2 <= b.get("colonne") <= 6 else 5
+        cells = ""
+        for k, v in enumerate((v for v in b.get("voci") or [] if isinstance(v, dict)), 1):
+            media = ph(v.get("foto"), f'{p["title"]}, post {k}', s)
+            la = link_attrs(v.get("link"))
+            cells += f'<li>{f"<a{la}>{media}</a>" if la else media}</li>'
+        return f'  <ul class="bv-feed" style="--cols: {cols}">{cells}</ul>' if cells else ""
+    if kind == "link":
+        lab, t, la = _str(b.get("etichetta")), _str(b.get("testo")), link_attrs(b.get("link"))
+        if not t:
+            return ""
+        big = f'<a class="bv-big-link"{la}>{html.escape(t)}</a>' if la else f'<p class="bv-big-link">{html.escape(t)}</p>'
+        return f'  <section class="bv-link">{f"<p class=\"label\">{html.escape(lab)}</p>" if lab else ""}{big}</section>'
     if kind == "fascia":
         return band_color() if b.get("variante") == "pellicole" else band_archive()
     return ""
@@ -1431,12 +1490,15 @@ def block_html(b, p, i):
 
 def build_free(p):
     blocks = [b for b in p.get("blocchi") or [] if isinstance(b, dict)]
+    # "cartella": photos from img/<cartella>/ (a review page can show the photos of the live project)
+    p["_dir"] = _str(p.get("cartella")) if re.fullmatch(r"[a-z0-9][a-z0-9-]*", _str(p.get("cartella"))) else p["slug"]
     p["_h1"] = next((i for i, b in enumerate(blocks) if b.get("tipo") == "titolo"), -1)
     parts = [] if p["_h1"] >= 0 else [f'  <h1 class="sr-only">{html.escape(p["title"])}</h1>']
     parts += [x for x in (block_html(b, p, i) for i, b in enumerate(blocks)) if x]
-    over = bool(blocks) and blocks[0].get("tipo") == "foto" and blocks[0].get("piena") and _photo(blocks[0].get("foto"), p["slug"])
+    over = bool(blocks) and blocks[0].get("tipo") == "foto" and blocks[0].get("piena") and _photo(blocks[0].get("foto"), p["_dir"])
+    # "anteprima": true = a review page: not indexed by search engines
     page(file=f'{p["slug"]}.html', title=p["title"], description=plain(_str(p.get("descrizione"))),
-         body="\n".join(parts), header="overlay" if over else "", main_class="flush")
+         body="\n".join(parts), header="overlay" if over else "", main_class="flush", noindex=bool(p.get("anteprima")))
 
 
 def git_blob_sha(path):
