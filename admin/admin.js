@@ -740,6 +740,7 @@ Testo da scrivere.
     { tipo: "focus", name: "Focus", note: "etichetta, citazione, testo e foto a scorrimento", make: () => ({ etichetta: "", citazione: "", testo: "", foto: [] }) },
     { tipo: "griglia", name: "Griglia di post", note: "foto quadrate in colonne, ognuna con un link", make: () => ({ titolo: "", instagram: false, colonne: 5, voci: [] }) },
     { tipo: "passi", name: "Passi", note: "titolo e testo, poi schede in fila (foto, colore, titolo, testo) e regole", make: () => ({ etichetta: "", titolo: "", testo: "", affiancato: false, formato: "", voci: [{ titolo: "", testo: "", foto: null, colore: "#ffffff", link: "" }], regole: [] }) },
+    { tipo: "collabora", name: "Collabora", note: "invito a scriverci: strade diverse, ognuna apre una mail con il suo oggetto", make: () => ({ etichetta: "", titolo: "", testo: "", email: "", pulsante: "Scrivici", dopo: "", instagram: "", voci: [{ titolo: "", testo: "", cosa: "", oggetto: "" }] }) },
     { tipo: "link", name: "Link grande", note: "una riga piccola e un link in grande", make: () => ({ etichetta: "", testo: "", link: "" }) },
   ];
   const newId = () => Math.random().toString(36).slice(2, 8);
@@ -1045,6 +1046,24 @@ Testo da scrivere.
             field("Testo", v.testo, (x) => { v.testo = x; }, { rows: 3 }),
             field("Link della foto (facoltativo)", v.link, (x) => { v.link = x.trim(); }, { placeholder: "https://… , pagina.html o @nome" })))),
             h("button", { type: "button", class: "btn small", onclick: () => { b.voci.push({ titolo: "", colore: "#151515", testo: "", foto: null, link: "" }); changed(); draw(); } }, "+ Scheda")];
+        }
+        case "collabora": {
+          b.voci = Array.isArray(b.voci) ? b.voci : [];
+          return [field("Etichetta in piccolo", b.etichetta, (v) => { b.etichetta = v; }),
+            field("Titolo", b.titolo, (v) => { b.titolo = v; }),
+            field("Testo", b.testo, (v) => { b.testo = v; }, { rows: 4 }),
+            h("div", { class: "inline-fields link-pair" },
+              field("Email a cui scrivere", b.email, (v) => { b.email = v.trim(); }, { placeholder: "nome@esempio.it" }),
+              field("Scritta del pulsante", b.pulsante, (v) => { b.pulsante = v; }, { placeholder: "Scrivici" })),
+            h("div", { class: "items items-cards" }, b.voci.map((v, i) => h("div", { class: "item" },
+              h("div", { class: "item-head" }, h("b", {}, `Strada ${i + 1}`), itemTools(b.voci, i)),
+              field("Titolo", v.titolo, (x) => { v.titolo = x; }),
+              field("Testo", v.testo, (x) => { v.testo = x; }, { rows: 3 }),
+              field("Cosa mandare", v.cosa, (x) => { v.cosa = x; }, { rows: 2 }),
+              field("Oggetto della mail", v.oggetto, (x) => { v.oggetto = x; })))),
+            h("button", { type: "button", class: "btn small", onclick: () => { b.voci.push({ titolo: "", testo: "", cosa: "", oggetto: "" }); changed(); draw(); } }, "+ Strada"),
+            field("Cosa succede dopo", b.dopo, (v) => { b.dopo = v; }, { rows: 2 }),
+            field("Link Instagram (facoltativo)", b.instagram, (v) => { b.instagram = v.trim(); }, { placeholder: "https://www.instagram.com/…" })];
         }
         case "passi": {
           b.voci = Array.isArray(b.voci) ? b.voci : []; b.regole = Array.isArray(b.regole) ? b.regole : [];
