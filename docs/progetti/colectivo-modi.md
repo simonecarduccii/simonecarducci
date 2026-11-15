@@ -19,7 +19,7 @@ modì è un collettivo che tiene insieme musica, serate e video. Organizza DJ se
 
 Il mio lavoro partiva dall’identità: dare a modì un’immagine riconoscibile, dentro e fuori dalla pista. Ho definito la strategia creativa, il tono della comunicazione e l’aspetto di ogni contenuto, dalla fotografia ai formati editoriali alle campagne digitali. Da lì seguivo tutto il flusso, dalla ricerca al concept fino alla consegna, coordinando collaboratori e fornitori quando serviva.
 
-Le serate erano divise in quattro concept: POP NO POP, Die Neue Brüke, Friday at Modì e Open Sound. Ho girato e montato io stesso i set, in 4K e con riprese multicamera sincronizzate sull’audio, in Final Cut Pro. Dietro ci sono oltre 750 GB di girato, archiviati in modo che ogni montaggio si possa riaprire anche a distanza di mesi. Tutto è pubblicato su YouTube.
+Le serate erano divise in quattro concept: POP NO POP, Die Neue Brücke, Friday at modì e Open Sound. Ho girato e montato io stesso i set, in 4K e con riprese multicamera sincronizzate sull’audio, in Final Cut Pro. Dietro ci sono oltre 750 GB di girato, archiviati in modo che ogni montaggio si possa riaprire anche a distanza di mesi. Tutto è pubblicato su YouTube.
 
 Più che un organizzatore di eventi, modì è diventato una piccola casa di produzione. Da lì è nato anche il Podcast Performativo, un progetto di due membri del collettivo: un podcast di taglio psicologico sul malessere di una generazione di studenti fuori sede. È arrivato al dodicesimo episodio.
 
