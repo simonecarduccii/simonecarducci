@@ -476,3 +476,10 @@ body.no-preview .preview { display: none; }
 .link-pair { flex-wrap: nowrap; } .link-pair .field { flex: 1; min-width: 0; }
 .auto-box .check { display: inline-flex; gap: 6px; align-items: center; font-size: 13px; white-space: nowrap; }
 .auto-box .check input { width: auto; margin: 0; }
+/* drafts */
+.draft-panel { background: #fffbea; border: 1px solid #ecdca0; border-radius: 10px; padding: 14px 16px; margin-bottom: 12px; }
+.draft-panel p { margin: 0 0 8px; }
+.draft-btns { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 6px; }
+.draft-btns a.btn { text-decoration: none; }
+.draft-btns .primary-ish { background: var(--ink); color: #fff; border-color: var(--ink); }
+.draft-btns .danger { color: #a33; }
