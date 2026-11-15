@@ -1,4 +1,5 @@
 {
+  "anteprima": true,
   "titolo": "Bohème Magazine",
   "descrizione": "Bohème racconta l'arte emergente e raccoglie le opportunità che contano per chi la fa: bandi, residenze, premi, open call.",
   "blocchi": [
@@ -7,13 +8,15 @@
       "foto": "img/boheme/cover.jpg",
       "alt": "Post \"Nasce Bohème\"",
       "piena": true,
-      "formato": "1366:582"
+      "formato": "1366:582",
+      "id": "4b5avg"
     },
     {
       "tipo": "titolo",
       "titolo": "Bohème Magazine",
       "anno": "2024",
-      "indietro": "index.html#cultura"
+      "indietro": "index.html#cultura",
+      "id": "yi0gzq"
     },
     {
       "tipo": "scheda",
@@ -63,7 +66,8 @@
           "@bohememag",
           "https://www.instagram.com/bohememag/"
         ]
-      ]
+      ],
+      "id": "gv8dqu"
     },
     {
       "tipo": "numeri",
@@ -84,11 +88,13 @@
           "numero": "0 €",
           "etichetta": "in sponsorizzate"
         }
-      ]
+      ],
+      "id": "1c6jbw"
     },
     {
       "tipo": "testo",
-      "testo": "Bohème racconta l’arte emergente e raccoglie le opportunità che contano per chi la fa: bandi, residenze, premi, open call. Ne curo la direzione artistica ed editoriale, dalla linea curatoriale ai template di ogni uscita."
+      "testo": "Bohème racconta l’arte emergente e raccoglie le opportunità che contano per chi la fa: bandi, residenze, premi, open call. Ne curo la direzione artistica ed editoriale, dalla linea curatoriale ai template di ogni uscita.",
+      "id": "xkm2t7"
     },
     {
       "tipo": "formati",
@@ -149,11 +155,13 @@
             "slide": 1
           }
         }
-      ]
+      ],
+      "id": "dyaqq5"
     },
     {
       "tipo": "testo",
-      "testo": "Bohème è un magazine indipendente che ho fondato su Instagram nel luglio 2024. Racconta l'arte emergente e raccoglie le opportunità che contano per chi la fa: bandi, residenze, premi, open call, mostre. In Italia queste occasioni esistono, ma sono sparse tra decine di siti di enti, fondazioni e festival, e spesso arrivano tardi o incomplete. Bohème le cerca, le verifica e le racconta in un carosello che si legge in un minuto.\n\nNe curo la direzione artistica ed editoriale: la linea curatoriale e il tono, la ricerca e la selezione dei progetti fotografici e artistici, le rubriche e i format, l'editing dei testi, dalle presentazioni alle interviste, e l'immagine complessiva di ogni uscita. In ventisei mesi, partendo da zero, il magazine ha raccolto 5.022 follower, pubblicato 563 caroselli e superato 1,47 milioni di visualizzazioni, con un pubblico soprattutto italiano tra i 25 e i 44 anni.\n\nCon la crescita del pubblico Bohème è diventato anche uno strumento. Per tenerlo aggiornato ho progettato Vedetta, un sistema che ogni settimana cerca nuove fonti e ogni tre ore legge e verifica i bandi di oltre 75 enti, prima che io li riveda e li pubblichi. Il passo successivo è un sito pubblico dei bandi su bohememag.it e un'app, tenuti insieme da un'unica identità visiva.\n\nCostruire un pubblico da zero mi ha insegnato a scegliere ogni giorno cosa non pubblicare. La fiducia di chi legge si guadagna con la precisione, uscita dopo uscita: per questo nessun bando esce senza essere stato controllato."
+      "testo": "Bohème è un magazine indipendente che ho fondato su Instagram nel luglio 2024. Racconta l'arte emergente e raccoglie le opportunità che contano per chi la fa: bandi, residenze, premi, open call, mostre. In Italia queste occasioni esistono, ma sono sparse tra decine di siti di enti, fondazioni e festival, e spesso arrivano tardi o incomplete. Bohème le cerca, le verifica e le racconta in un carosello che si legge in un minuto.\n\nNe curo la direzione artistica ed editoriale: la linea curatoriale e il tono, la ricerca e la selezione dei progetti fotografici e artistici, le rubriche e i format, l'editing dei testi, dalle presentazioni alle interviste, e l'immagine complessiva di ogni uscita. In ventisei mesi, partendo da zero, il magazine ha raccolto 5.022 follower, pubblicato 563 caroselli e superato 1,47 milioni di visualizzazioni, con un pubblico soprattutto italiano tra i 25 e i 44 anni.\n\nCon la crescita del pubblico Bohème è diventato anche uno strumento. Per tenerlo aggiornato ho progettato Vedetta, un sistema che ogni settimana cerca nuove fonti e ogni tre ore legge e verifica i bandi di oltre 75 enti, prima che io li riveda e li pubblichi. Il passo successivo è un sito pubblico dei bandi su bohememag.it e un'app, tenuti insieme da un'unica identità visiva.\n\nCostruire un pubblico da zero mi ha insegnato a scegliere ogni giorno cosa non pubblicare. La fiducia di chi legge si guadagna con la precisione, uscita dopo uscita: per questo nessun bando esce senza essere stato controllato.",
+      "id": "q5qmre"
     },
     {
       "tipo": "focus",
@@ -180,7 +188,8 @@
       "link": {
         "testo": "Leggi l’Osservatorio su osservatoriofo.com",
         "url": "https://www.osservatoriofo.com"
-      }
+      },
+      "id": "ufm3p1"
     },
     {
       "tipo": "griglia",
@@ -229,13 +238,15 @@
       ],
       "titolo": "Feed di Instagram",
       "instagram": true,
-      "numero": 10
+      "numero": 10,
+      "id": "3vcd2g"
     },
     {
       "tipo": "link",
       "etichetta": "Il magazine continua su Instagram",
       "testo": "@bohememag →",
-      "link": "https://www.instagram.com/bohememag/"
+      "link": "https://www.instagram.com/bohememag/",
+      "id": "ayb4n9"
     }
   ]
 }
