@@ -100,8 +100,10 @@ mark.verify { background: none; color: #b0461f; font-size: .85em; }
   font-size: var(--fs-nav); line-height: 1.3;
   background: color-mix(in srgb, var(--paper) 92%, transparent);
   -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
-  transition: background .25s, color .25s;
+  transition: background .25s, color .25s, transform .35s ease;
 }
+.site-header.is-hidden { transform: translateY(-100%); }  /* scrolling down; back on scrolling up (assets/main.js) */
+@media (prefers-reduced-motion: reduce) { .site-header { transition: none; } }
 .site-header.overlay { position: fixed; left: 0; right: 0; background: transparent; -webkit-backdrop-filter: none; backdrop-filter: none; color: var(--on-photo); }
 .site-header.overlay.scrolled { background: color-mix(in srgb, var(--paper) 92%, transparent); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); color: var(--ink); }
 .brand { font-weight: 700; letter-spacing: .05em; }

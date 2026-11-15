@@ -1,11 +1,22 @@
 // Simone Carducci - portfolio. Small, dependency-free interactions.
 
-// Header: transparent over a full-bleed hero, solid after 40px of scroll.
+// Header: transparent over a full-bleed hero, solid after 40px of scroll;
+// on every page it slides away when scrolling down and comes back when scrolling up.
 (function () {
-  var header = document.querySelector('.site-header.overlay');
+  var header = document.querySelector('.site-header');
   if (!header) return;
-  var onScroll = function () { header.classList.toggle('scrolled', window.scrollY > 40); };
+  var overlay = header.classList.contains('overlay');
+  var last = window.scrollY;
+  var onScroll = function () {
+    var y = window.scrollY;
+    if (overlay) header.classList.toggle('scrolled', y > 40);
+    if (y <= header.offsetHeight) header.classList.remove('is-hidden');
+    else if (y > last + 4 && !header.contains(document.activeElement)) header.classList.add('is-hidden');
+    else if (y < last - 4) header.classList.remove('is-hidden');
+    if (Math.abs(y - last) > 4) last = y;
+  };
   window.addEventListener('scroll', onScroll, { passive: true });
+  header.addEventListener('focusin', function () { header.classList.remove('is-hidden'); });
   onScroll();
 })();
 
