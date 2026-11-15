@@ -339,7 +339,7 @@
       main.replaceChildren(view);
       folds(main);
       setPreview(previewOf(node));
-      if (draft.builder) { const b = $("#save"); if (b) b.textContent = "Salva bozza"; }
+      if (draft.builder || draft.homeDraft) { const b = $("#save"); if (b) b.textContent = "Salva bozza"; }
       main.querySelectorAll("[data-live]").forEach((el) => livePreview(el.dataset.live, el.value));
       linkPreview();
     } catch (e) {
@@ -442,7 +442,7 @@
     if (node.library) body.append(await libraryPanel());
     if (node.pagesList) body.append(await pagesPanel());
     if (node.freePage) body.append(await builderPanel(node));
-    if (node.id === "home") body.append(await orderPanel());
+    if (node.id === "home") body.append(await homeDraftPanel(), await orderPanel());
     if (node.homeList) body.append(await homePanel());
     else if (node.children) {
       body.append(h("section", { class: "panel" }, h("h2", {}, "Dentro questa sezione"),
@@ -1346,8 +1346,53 @@ Testo da scrivere.
   const HOME_SECTIONS = [["pellicole", "Pellicole (banda a colori)"], ["ricerca-visiva", "Ricerca visiva"],
     ["ia", "Progetti con l'AI"], ["banda-archivio", "Archivio (banda in bianco e nero)"]];
 
+  // Home draft (content/bozze/home.json -> index-anteprima.html): what is edited on the Home page itself
+  // (presentation, order, section switches) is saved as a draft; changes made elsewhere (Ricerca visiva,
+  // "Visibile in home" of a project) go online at once and are copied into the draft too, so it never falls behind.
+  const HOME_DRAFT = DRAFT_DIR + "home.json";
+  async function homeDraftPanel() {
+    let base = {};
+    try { base = JSON.parse(await readText(tree[HOME_DRAFT] ? HOME_DRAFT : "content/home.json", true) || "{}"); } catch (e) { base = {}; }
+    draft.homeDraft = { target: "bozza", pres: typeof base.presentazione === "string" ? base.presentazione : "", presDirty: false };
+    const publish = async () => {
+      if (!confirm("Pubblicare la bozza della home? La home online diventa uguale all'anteprima.")) return;
+      draft.homeDraft.target = "pagina"; draft.homeDraft.presDirty = true; markDirty();
+      try { await save(); } finally { if (draft.homeDraft) draft.homeDraft.target = "bozza"; }
+    };
+    const discard = async () => {
+      if (!confirm("Buttare la bozza della home? Le modifiche non pubblicate si perdono (restano nella cronologia di GitHub).")) return;
+      try {
+        await commit("Discard home draft from admin", async () => (tree[HOME_DRAFT] ? { [HOME_DRAFT]: null } : {}));
+        draft.dirty = false; await open(ALL.find((n) => n.id === "home"));
+      } catch (e) { alert("Non sono riuscito a buttare la bozza: " + e.message); }
+    };
+    const box = h("section", { class: "panel draft-panel" });
+    const drawDraft = () => {
+      const has = !!tree[HOME_DRAFT];
+      box.replaceChildren(h("h2", {}, "Bozza e anteprima"),
+        h("p", {}, has ? "Stai modificando la bozza della home: la home online non cambia finché non premi Pubblica."
+          : "Le modifiche di questa pagina si salvano come bozza: prima le guardi nell'anteprima, poi le pubblichi."),
+        h("div", { class: "draft-btns" },
+          h("a", { class: "btn small", href: SITE + "index-anteprima.html", target: "_blank", rel: "noopener" }, "Apri anteprima ↗"),
+          h("button", { type: "button", class: "btn small primary-ish", onclick: publish }, has ? "Pubblica la bozza" : "Pubblica subito"),
+          has ? h("button", { type: "button", class: "btn small danger", onclick: discard }, "Butta la bozza") : null),
+        h("p", { class: "hint" }, "“Salva bozza” (in basso) aggiorna l'anteprima in un minuto circa. Progetti di Ricerca visiva e interruttori “Visibile in home” delle singole pagine vanno online subito."));
+    };
+    drawDraft();
+    draft.homeDraft.afterSave = () => { draft.homeDraft.target = "bozza"; draft.homeDraft.presDirty = false; drawDraft(); };
+    const ta = h("textarea", { rows: 4, "aria-label": "Presentazione", placeholder: "Due righe su chi sei e cosa fai…" });
+    ta.value = draft.homeDraft.pres;
+    ta.addEventListener("input", () => { draft.homeDraft.pres = ta.value; draft.homeDraft.presDirty = true; markDirty(); });
+    const on = !(base.sezioni && base.sezioni.presentazione === false);
+    return h("div", {}, box,
+      h("section", { class: "panel" }, h("h2", {}, "Presentazione"),
+        h("div", { class: "head-switch" }, toggle(on, (v) => { draft.switches.presentazione = v; markDirty(); }), h("span", {}, "Visibile in home")),
+        h("label", { class: "field" }, h("span", {}, "Testo sotto l'hero, prima di Pellicole"), ta),
+        h("p", { class: "hint" }, "**grassetto**, _corsivo_, [testo del link](https://...). Vuoto = non compare.")));
+  }
+
   async function orderPanel() {
-    const data = JSON.parse(await readText("content/home.json", true) || "{}");
+    const data = JSON.parse(await readText(tree[HOME_DRAFT] ? HOME_DRAFT : "content/home.json", true) || "{}");
     const keys = HOME_SECTIONS.map(([k]) => k);
     const order = (data.ordine || []).filter((k) => keys.includes(k));
     keys.forEach((k) => { if (!order.includes(k)) order.push(k); });
@@ -2784,18 +2829,36 @@ Testo da scrivere.
           if (json !== (texts[SITO_FILE] || "")) out[SITO_FILE] = await blobFrom({ text: json });
         }
         // home grid
-        if (draft.home || draft.orderDirty || Object.keys(draft.switches).length) {
-          const fresh = JSON.parse(await readText("content/home.json", true) || "{}");
-          const next = { ...fresh, sezioni: { ...(fresh.sezioni || {}) } };
-          if (draft.home) next.ricerca_visiva = draft.home.list;
-          if (draft.orderDirty) next.ordine = [...draft.order];
-          next.ricerca_visiva = (next.ricerca_visiva || []).map((r) => ({ ...r }));
-          for (const [key, v] of Object.entries(draft.switches)) {
-            if (key.startsWith("rv:")) { const r = next.ricerca_visiva.find((x) => x.id === key.slice(3)); if (r) r.visibile = v; }
-            else next.sezioni[key] = v;
+        const hd = draft.homeDraft;
+        if (draft.home || draft.orderDirty || Object.keys(draft.switches).length || (hd && hd.presDirty)) {
+          const apply = (fresh) => {
+            const next = { ...fresh, sezioni: { ...(fresh.sezioni || {}) } };
+            if (draft.home) next.ricerca_visiva = draft.home.list;
+            if (draft.orderDirty) next.ordine = [...draft.order];
+            if (hd) { if (hd.pres.trim()) next.presentazione = hd.pres.trim(); else delete next.presentazione; }
+            next.ricerca_visiva = (next.ricerca_visiva || []).map((r) => ({ ...r }));
+            for (const [key, v] of Object.entries(draft.switches)) {
+              if (key.startsWith("rv:")) { const r = next.ricerca_visiva.find((x) => x.id === key.slice(3)); if (r) r.visibile = v; }
+              else next.sezioni[key] = v;
+            }
+            return JSON.stringify(next, null, 2) + "\n";
+          };
+          const live = JSON.parse(await readText("content/home.json", true) || "{}");
+          let bozza = null;
+          if (tree[HOME_DRAFT]) { try { bozza = JSON.parse(await readText(HOME_DRAFT, true) || "{}"); } catch (e) { bozza = null; } }
+          if (hd && hd.target === "pagina") {
+            // publish: the draft (with today's edits) becomes the home; the draft goes away
+            const json = apply(bozza || live);
+            if (json !== texts["content/home.json"]) out["content/home.json"] = await blobFrom({ text: json });
+            if (tree[HOME_DRAFT]) out[HOME_DRAFT] = null;
+          } else if (hd) {
+            // the Home page: everything goes to the draft (made from the live home the first time)
+            out[HOME_DRAFT] = await blobFrom({ text: apply(bozza || live) });
+          } else {
+            const json = apply(live);
+            if (json !== texts["content/home.json"]) out["content/home.json"] = await blobFrom({ text: json });
+            if (bozza) out[HOME_DRAFT] = await blobFrom({ text: apply(bozza) }); // keep the draft up to date
           }
-          const json = JSON.stringify(next, null, 2) + "\n";
-          if (json !== texts["content/home.json"]) out["content/home.json"] = await blobFrom({ text: json });
         }
         // Mac folder
         if (draft.cartella && draft.cartella.value !== (draft.cartella.data.cartella || "")) {
@@ -2887,6 +2950,7 @@ Testo da scrivere.
       }
       if (draft.home || Object.keys(draft.switches).length) { await applyHome(); renderNav(); }
       if (draft.builder) { await applyPages(); renderNav(); if (draft.builder.afterSave) draft.builder.afterSave(); }
+      if (draft.homeDraft && draft.homeDraft.afterSave) draft.homeDraft.afterSave();
       if (draft.building != null) { await loadBuilding(); renderNav(); }
       if (!sha) { st.textContent = "Niente da salvare"; return; }
       st.textContent = "Salvato. Il sito si aggiorna in 1-2 minuti…";
@@ -3364,7 +3428,8 @@ Testo da scrivere.
   // ---------------------------------------------------------------- preview
 
   // a page with blocks shows its draft preview (<slug>-anteprima.html) while you work on the draft
-  const previewOf = (node) => (draft && draft.builder && draft.builder.node === node ? `${node.freePage}-anteprima.html` : node.page);
+  const previewOf = (node) => (draft && draft.builder && draft.builder.node === node ? `${node.freePage}-anteprima.html`
+    : draft && draft.homeDraft && node.id === "home" && tree[DRAFT_DIR + "home.json"] ? "index-anteprima.html" : node.page);
 
   function setPreview(page, reload) {
     const frame = $("#preview iframe");
