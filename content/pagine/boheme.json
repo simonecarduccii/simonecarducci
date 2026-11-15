@@ -99,9 +99,9 @@
       "tipo": "formati",
       "voci": [
         {
-          "titolo": "Progetti",
+          "titolo": "Progetti artistici",
           "colore": "#ffffff",
-          "testo": "Post bianchi, per rispettare il formato originale di ogni fotografia.",
+          "testo": "Sfondo bianco, per rispettare il formato originale di ogni fotografia ed esaltare la ricerca visiva di ogni singolo artista.",
           "foto": "img/boheme/formato-progetti.jpg",
           "link": "",
           "automatico": {
@@ -119,7 +119,7 @@
         {
           "titolo": "Open call",
           "colore": "#cca40b",
-          "testo": "Foto dell’opera, etichetta per la disciplina, badge con la scadenza. Due a settimana.",
+          "testo": "Ricerchiamo, valutiamo e pubblichiamo settimanalmente opportunità creative per chi vuole vivere d'arte.",
           "foto": "img/boheme/formato-open-call.jpg",
           "link": "",
           "automatico": {
@@ -131,13 +131,13 @@
             "escludi": [],
             "colore": "",
             "soglia": 0,
-            "slide": 2
+            "slide": 1
           }
         },
         {
-          "titolo": "Osservatorio · OFO",
+          "titolo": "Osservatorio OFO",
           "colore": "#151515",
-          "testo": "Post neri. Francesca Occhi cura editing, testo e intervista: più di 50 artisti.",
+          "testo": "Sfondo nero. A cura di Francesca Occhi editing, testo e intervista. Ad oggi abbiamo raccolto più di 50 artisti.",
           "foto": "img/boheme/formato-osservatorio.jpg",
           "link": "",
           "automatico": {
