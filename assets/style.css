@@ -784,3 +784,8 @@ a.bv-big-link:hover, a.bv-big-link:focus-visible { text-decoration: underline; t
 .bv-format-posts .media { aspect-ratio: 1170 / 1463; }
 .bv-formats .bv-slides-nav { margin-top: 8px; }
 .bv-data-title { padding: clamp(48px, 5vw, 72px) var(--pad) 0; }
+.block-text > * + * { margin-top: 1em; }
+.block-text .small-title + * { margin-top: 12px; }
+.block-text ul { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+.block-text ul li { position: relative; padding-left: 20px; }
+.block-text ul li::before { content: "–"; position: absolute; left: 0; color: var(--ink-2); }
