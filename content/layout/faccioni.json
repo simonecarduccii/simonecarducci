@@ -11,5 +11,6 @@
       "dopo": 42,
       "blocco": "crediti"
     }
-  ]
+  ],
+  "nascoste": [11, 12]
 }
