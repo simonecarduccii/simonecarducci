@@ -654,7 +654,7 @@ body.no-scroll { overflow: hidden; }
 .bv-formats .media { aspect-ratio: 1170 / 1463; }
 .bv-formats a { display: block; }
 .bv-format-title { display: flex; align-items: center; gap: 8px; padding: 16px 0 6px; font-weight: 600; font-size: clamp(19px, 1.61vw, 22px); line-height: 1.3; color: var(--ink); }
-.bv-format-title .dot { flex: none; width: 12px; height: 12px; border-radius: 50%; background: var(--dot); box-shadow: inset 0 0 0 1px #dddddc; }
+.bv-format-title .dot { flex: none; width: 12px; height: 12px; border-radius: 50%; background: var(--dot); box-shadow: inset 0 0 0 1px rgba(21, 21, 21, .16); }
 .bv-formats p { font-size: 15px; line-height: 1.5; color: var(--ink-2); }
 .bv-focus { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(32px, 4.1vw, 56px); align-items: center; padding: clamp(72px, 10.25vw, 140px) var(--pad) 0; }
 .bv-focus-text { display: flex; flex-direction: column; gap: 22px; }
