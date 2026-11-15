@@ -714,7 +714,8 @@ a.bv-big-link:hover, a.bv-big-link:focus-visible { text-decoration: underline; t
 
 /* Osservatorio: a full-width black band, the same black as the OFO posts */
 .bv-focus { --ofo: #0b0801; background: var(--ofo); color: #fff; margin-top: clamp(72px, 10.25vw, 140px);
-  padding: clamp(56px, 7vw, 96px) var(--pad); }
+  padding: clamp(80px, 9vw, 128px) calc(var(--pad) + clamp(24px, 4vw, 64px)); }
+.bv-focus .bv-slides-nav { margin-top: 24px; }
 .bv-focus .label { color: #b9b4ab; }
 .bv-focus blockquote p { color: #fff; }
 .bv-focus-note { color: #d9d5cd; }
