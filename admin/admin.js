@@ -847,7 +847,72 @@ Testo da scrivere.
       sel.addEventListener("change", () => { set(sel.value); changed(); });
       return h("label", { class: "field inline" }, h("span", {}, label), sel);
     };
-    const photoSrc = (f) => (f && typeof f === "object" ? f.url : f && tree[f] ? siteUrl(f) : null);
+    // Instagram posts: content/instagram/post-<dir>.json [{codice, link, data, tipo, mini}], filled by the "Update site" Action
+    let POSTS = [];
+    try { POSTS = JSON.parse(await readText(`content/instagram/post-${dir}.json`) || "[]"); } catch (e) { POSTS = []; }
+    if (!Array.isArray(POSTS)) POSTS = Array.isArray(POSTS.post) ? POSTS.post : [];
+    const igParse = (f) => {
+      const m = typeof f === "string" && f.match(/instagram\.com\/(?:[\w.]+\/)?(?:p|reel|tv)\/([\w-]+)/);
+      if (!m) return null;
+      const n = Number((f.match(/[?&]img_index=(\d+)/) || [])[1]) || 1;
+      return { code: m[1], n };
+    };
+    // the image the Action downloaded for a chosen post, else the post's preview
+    const igSrc = (f) => {
+      const ig = igParse(f);
+      if (!ig) return null;
+      const base = `img/${dir}/instagram/scelti/${ig.code}-`;
+      const got = tree[`${base}${ig.n}.jpg`] ? `${base}${ig.n}.jpg` : null;
+      if (got) return siteUrl(got);
+      const post = POSTS.find((x) => x.codice === ig.code);
+      return post && post.mini && tree[post.mini] ? siteUrl(post.mini) : null;
+    };
+    const photoSrc = (f) => (f && typeof f === "object" ? f.url : igParse(f) ? igSrc(f) : f && tree[f] ? siteUrl(f) : null);
+    const missingLabel = (f) => (igParse(f) ? `post ${igParse(f).code}${igParse(f).n > 1 ? ` · slide ${igParse(f).n}` : ""} (arriva al prossimo aggiornamento)` : `manca ${String(f).split("/").pop()}`);
+    // the picker: a grid of the latest posts; a carousel can take a slide number; any post link can be pasted
+    const igPick = (multiple) => new Promise((resolve) => {
+      const chosen = [];
+      const done = (list) => { overlay.remove(); document.removeEventListener("keydown", esc); resolve(list); };
+      const esc = (e) => { if (e.key === "Escape") done([]); };
+      const use = h("button", { type: "button", class: "primary", disabled: true, onclick: () => done(chosen.map((c) => c.link)) }, "Usa");
+      const linkOf = (post, slide) => post.link.replace(/[?#].*$/, "").replace(/\/?$/, "/") + (slide > 1 ? `?img_index=${slide}` : "");
+      const pick = (link, li) => {
+        if (!multiple) { done([link]); return; }
+        const k = chosen.findIndex((c) => c.li === li);
+        if (k >= 0) chosen.splice(k, 1); else chosen.push({ link, li });
+        li.classList.toggle("on", k < 0);
+        use.disabled = !chosen.length; use.textContent = chosen.length ? `Usa ${chosen.length} post` : "Usa";
+      };
+      const grid = h("ol", { class: "lib-grid ig-grid" }, POSTS.filter((x) => x && x.link && x.codice).map((post) => {
+        const slide = post.tipo === "CAROUSEL_ALBUM" ? h("input", { type: "number", min: "1", max: "20", value: "1", title: "Quale slide del carosello", "aria-label": "Slide" }) : null;
+        const li = h("li", {},
+          h("button", { type: "button", title: post.data ? post.data.slice(0, 10) : post.codice, onclick: () => pick(linkOf(post, slide ? Number(slide.value) || 1 : 1), li) },
+            post.mini && tree[post.mini] ? h("img", { src: siteUrl(post.mini), alt: "", loading: "lazy" }) : h("span", { class: "ph" }, post.codice),
+            post.tipo === "VIDEO" ? h("span", { class: "ig-kind" }, "▶") : post.tipo === "CAROUSEL_ALBUM" ? h("span", { class: "ig-kind" }, "❐") : null),
+          h("span", { class: "ig-meta" }, post.data ? post.data.slice(0, 10).split("-").reverse().join("/") : "", slide ? h("label", {}, "slide ", slide) : null));
+        return li;
+      }));
+      const paste = h("input", { type: "text", placeholder: "…oppure incolla il link di un post (https://www.instagram.com/p/…)", "aria-label": "Link di un post" });
+      const pasteBtn = h("button", { type: "button", class: "btn small", onclick: () => {
+        const v = paste.value.trim();
+        if (!igParse(v)) { alert("Link non riconosciuto: serve l'indirizzo di un post Instagram (instagram.com/p/…)."); return; }
+        if (multiple) { chosen.push({ link: v, li: null }); use.disabled = false; use.textContent = `Usa ${chosen.length} post`; paste.value = ""; } else done([v]);
+      } }, "Usa il link");
+      const overlay = h("div", { class: "lib-modal", role: "dialog", "aria-modal": "true", "aria-label": "Post Instagram" },
+        h("div", { class: "lib-box" },
+          h("header", {}, h("h2", {}, "Post Instagram"), h("span", { class: "muted" }, multiple ? "scegli uno o più post" : "scegli un post"),
+            h("button", { type: "button", class: "close", "aria-label": "Chiudi", onclick: () => done([]) }, "×")),
+          h("div", { class: "lib" },
+            h("div", { class: "ig-paste" }, paste, pasteBtn),
+            POSTS.length ? grid : h("p", { class: "hint" }, "L'elenco dei post arriva con il prossimo aggiornamento del sito (ogni giorno e dopo ogni salvataggio). Intanto puoi incollare il link di un post.")),
+          multiple ? h("footer", {}, use) : null));
+      overlay.addEventListener("click", (e) => { if (e.target === overlay) done([]); });
+      document.addEventListener("keydown", esc);
+      document.body.append(overlay);
+      paste.focus();
+    });
+    const igButton = (multiple, onPicked) => h("button", { type: "button", class: "btn small ig-btn",
+      onclick: async () => { const list = await igPick(multiple); if (list.length) { onPicked(list); changed(); draw(); } } }, "Da Instagram");
     const picker = (multiple, onFiles) => {
       const input = h("input", { type: "file", accept: "image/*", multiple: multiple ? "" : null, hidden: "" });
       input.addEventListener("change", async () => { await onFiles([...input.files].filter(isImage)); input.value = ""; });
@@ -855,13 +920,15 @@ Testo da scrivere.
     };
 
     // one photo: shows it (or a grey box when the file is missing), "Scegli foto", the library, drag and drop
-    const photoSlot = (get, set, cls = "") => {
+    const photoSlot = (get, set, cls = "", ig = false) => {
       const src = photoSrc(get());
       const missing = typeof get() === "string" && get() && !src;
       const box = h("div", { class: "block-photo " + cls }, src ? h("img", { src, alt: "" })
-        : h("span", { class: "ph" }, missing ? `manca ${get().split("/").pop()}` : "nessuna foto"),
+        : h("span", { class: "ph" }, missing ? missingLabel(get()) : "nessuna foto"),
+        igParse(get()) ? h("span", { class: "ig-tag" }, "Instagram") : null,
         h("div", { class: "photo-btns" }, picker(false, async ([f]) => { const p = f && await newPhoto(f, MAX_SIDE); if (p) { set(p); changed(); draw(); } }),
-          libButton(false, ([p]) => { set(p); changed(); draw(); })));
+          libButton(false, ([p]) => { set(p); changed(); draw(); }),
+          ig ? igButton(false, ([l]) => set(l)) : null));
       dropZone(box, async ([f]) => { const p = f && isImage(f) && await newPhoto(f, MAX_SIDE); if (p) { set(p); changed(); draw(); } });
       return box;
     };
@@ -870,9 +937,10 @@ Testo da scrivere.
       h("button", { type: "button", title: "Prima", "aria-label": "Sposta prima", disabled: i ? null : "", onclick: () => { arr.splice(i - 1, 0, arr.splice(i, 1)[0]); changed(); draw(); } }, "↑"),
       h("button", { type: "button", title: "Dopo", "aria-label": "Sposta dopo", disabled: i < arr.length - 1 ? null : "", onclick: () => { arr.splice(i + 1, 0, arr.splice(i, 1)[0]); changed(); draw(); } }, "↓"),
       h("button", { type: "button", class: "danger", title: "Togli", "aria-label": "Togli", onclick: () => { arr.splice(i, 1); changed(); draw(); } }, "×"));
-    const addPhotos = (onAdd) => h("div", { class: "photo-btns" },
+    const addPhotos = (onAdd, ig = false) => h("div", { class: "photo-btns" },
       picker(true, async (files) => { for (const f of files) { const p = await newPhoto(f, MAX_SIDE); if (p) onAdd(p); } changed(); draw(); }),
-      libButton(true, (list) => { list.forEach(onAdd); changed(); draw(); }));
+      libButton(true, (list) => { list.forEach(onAdd); changed(); draw(); }),
+      ig ? igButton(true, (list) => list.forEach(onAdd)) : null);
     const colorField = (v, set) => {
       const ok = (c) => /^#[0-9a-f]{6}$/i.test(c);
       const pick = h("input", { type: "color", "aria-label": "Colore" }), txt = h("input", { type: "text", placeholder: "#151515", "aria-label": "Colore (codice)" });
@@ -902,7 +970,7 @@ Testo da scrivere.
           b.voci = Array.isArray(b.voci) ? b.voci : [];
           return [h("div", { class: "items items-cards" }, b.voci.map((v, i) => h("div", { class: "item" },
             h("div", { class: "item-head" }, h("b", {}, `Scheda ${i + 1}`), itemTools(b.voci, i)),
-            photoSlot(() => v.foto, (p) => { v.foto = p; }, "small"),
+            photoSlot(() => v.foto, (p) => { v.foto = p; }, "small", true),
             field("Titolo", v.titolo, (x) => { v.titolo = x; }), colorField(v.colore, (x) => { v.colore = x; }),
             field("Testo", v.testo, (x) => { v.testo = x; }, { rows: 3 }),
             field("Link della foto (facoltativo)", v.link, (x) => { v.link = x.trim(); }, { placeholder: "https://… , pagina.html o @nome" })))),
@@ -911,19 +979,21 @@ Testo da scrivere.
         case "focus": {
           b.foto = Array.isArray(b.foto) ? b.foto : [];
           const grid = h("ol", { class: "seq" }, b.foto.map((f, i) => h("li", {},
-            photoSrc(f) ? h("img", { src: photoSrc(f), alt: "" }) : h("span", { class: "ph" }, typeof f === "string" ? `manca ${f.split("/").pop()}` : ""),
+            photoSrc(f) ? h("img", { src: photoSrc(f), alt: "" }) : h("span", { class: "ph" }, typeof f === "string" ? missingLabel(f) : ""),
+            igParse(f) ? h("span", { class: "ig-tag" }, "IG") : null,
             h("span", { class: "num" }, String(i + 1).padStart(2, "0")), itemTools(b.foto, i))));
           dropZone(grid, async (files) => { for (const f of files) { const p = isImage(f) && await newPhoto(f, MAX_SIDE); if (p) b.foto.push(p); } changed(); draw(); });
           return [field("Etichetta in piccolo", b.etichetta, (v) => { b.etichetta = v; }),
             field("Citazione", b.citazione, (v) => { b.citazione = v; }, { rows: 3 }),
             field("Testo", b.testo, (v) => { b.testo = v; }, { rows: 3 }),
-            h("p", { class: "hint" }, "Foto a scorrimento:"), grid, addPhotos((p) => b.foto.push(p))];
+            h("p", { class: "hint" }, "Foto a scorrimento:"), grid, addPhotos((p) => b.foto.push(p), true)];
         }
         case "griglia": {
           b.voci = Array.isArray(b.voci) ? b.voci : [];
           const grid = h("ol", { class: "seq feed-edit" }, b.voci.map((v, i) => h("li", {},
             h("div", { class: "feed-img" }, photoSrc(v.foto) ? h("img", { src: photoSrc(v.foto), alt: "" })
-              : h("span", { class: "ph" }, typeof v.foto === "string" && v.foto ? `manca ${v.foto.split("/").pop()}` : ""),
+              : h("span", { class: "ph" }, typeof v.foto === "string" && v.foto ? missingLabel(v.foto) : ""),
+              igParse(v.foto) ? h("span", { class: "ig-tag" }, "IG") : null,
               h("span", { class: "num" }, String(i + 1).padStart(2, "0")), itemTools(b.voci, i)),
             (() => { const l = h("input", { type: "text", placeholder: "Link (facoltativo)", "aria-label": `Link del post ${i + 1}` }); l.value = v.link || "";
               l.addEventListener("input", () => { v.link = l.value.trim(); changed(); }); return l; })())));
@@ -932,10 +1002,10 @@ Testo da scrivere.
           const auto = h("div", { class: "head-switch" }, toggle(!!b.instagram, (v) => { b.instagram = v; if (v && !b.numero) b.numero = 10; changed(); draw(); }),
             h("span", {}, "Automatica: ogni giorno gli ultimi post da Instagram"));
           const title = field("Titolo sopra la griglia (facoltativo)", b.titolo, (v) => { b.titolo = v; }, { placeholder: "Feed di Instagram" });
-          if (!b.instagram) return [auto, title, cols, grid, addPhotos((p) => b.voci.push({ foto: p, link: "" }))];
+          if (!b.instagram) return [auto, title, cols, grid, addPhotos((p) => b.voci.push({ foto: p, link: "" }), true)];
           const num = select("Quanti post", String(b.numero || 10), Array.from({ length: 24 }, (_, k) => [String(k + 1), String(k + 1)]), (v) => { b.numero = Number(v); });
           const reserve = h("details", { class: "reserve" }, h("summary", {}, `Foto di riserva (${b.voci.length}): si vedono solo se Instagram non risponde`),
-            grid, addPhotos((p) => b.voci.push({ foto: p, link: "" })));
+            grid, addPhotos((p) => b.voci.push({ foto: p, link: "" }), true));
           return [auto, title, h("div", { class: "inline-fields" }, num, cols),
             h("p", { class: "hint" }, "I post e le loro foto si aggiornano da soli ogni giorno: non serve caricarli."), reserve];
         }

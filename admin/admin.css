@@ -448,3 +448,14 @@ body.no-preview .preview { display: none; }
 .panel.folded > h2 { margin-bottom: 0; }
 .block.folded > :not(header) { display: none !important; }
 .block.folded > header { border-bottom: 0; }
+/* Instagram post picker */
+.ig-paste { display: flex; gap: 8px; margin: 4px 0 14px; }
+.ig-paste input { flex: 1; min-width: 0; padding: 7px 10px; border: 1px solid var(--rule); border-radius: 8px; }
+.ig-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; }
+.ig-grid li { display: flex; flex-direction: column; gap: 3px; }
+.ig-grid .ph { display: grid; place-items: center; height: 100%; font-size: 11px; color: var(--ink-2); }
+.ig-kind { position: absolute; right: 5px; top: 4px; color: #fff; text-shadow: 0 0 3px rgba(0,0,0,.7); font-size: 13px; }
+.ig-meta { display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: var(--ink-2); gap: 4px; }
+.ig-meta input { width: 40px; padding: 1px 3px; font-size: 11px; border: 1px solid var(--rule); border-radius: 4px; }
+.ig-tag { position: absolute; left: 6px; bottom: 6px; background: rgba(0,0,0,.6); color: #fff; font-size: 10px; padding: 1px 5px; border-radius: 4px; }
+.block-photo .ig-tag { left: 10px; top: 10px; bottom: auto; }
