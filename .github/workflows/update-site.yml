@@ -44,6 +44,8 @@ jobs:
         continue-on-error: true
         env:
           INSTAGRAM_TOKEN: ${{ secrets.INSTAGRAM_TOKEN }}
+          # renews the 60-day Instagram token and saves it back into INSTAGRAM_TOKEN
+          GH_SECRETS_PAT: ${{ secrets.GH_SECRETS_PAT }}
         run: python3 tools/instagram_feed.py
       - name: Apply photos
         run: python3 tools/apply_photos.py
