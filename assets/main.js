@@ -204,7 +204,7 @@
 // Click the right or left half of the photo (an arrow appears on hover) to move, ✕ or a click outside to close.
 (function () {
   if (!window.HTMLDialogElement) return;
-  var SEL = '.photo-seq img, .photo-first img, .gallery img, .p-hero img, .about-intro img';
+  var SEL = '.photo-seq img, .photo-first img, .gallery img, .p-hero img, .about-intro img, .bv-feed img';
   function photos() {
     return Array.prototype.slice.call(document.querySelectorAll(SEL))
       .filter(function (img) { return !img.closest('a') && img.isConnected; });
@@ -217,10 +217,12 @@
   box.innerHTML = '<div class="lb-stage"><img alt="">' +
     '<button class="lb-zone lb-prev" type="button" aria-label="Foto precedente"><span>&larr;</span></button>' +
     '<button class="lb-zone lb-next" type="button" aria-label="Foto successiva"><span>&rarr;</span></button></div>' +
-    '<button class="lb-close" type="button" aria-label="Chiudi" autofocus>&#10005;</button><span class="lb-count label"></span>';
+    '<button class="lb-close" type="button" aria-label="Chiudi" autofocus>&#10005;</button><span class="lb-count label"></span>' +
+    '<a class="lb-ig" target="_blank" rel="noopener" hidden>Visualizza su Instagram &nearr;</a>';
   document.body.appendChild(box);
   var big = box.querySelector('img');
   var count = box.querySelector('.lb-count');
+  var ig = box.querySelector('.lb-ig');
   var prev = box.querySelector('.lb-prev');
   var next = box.querySelector('.lb-next');
   var list = [];
@@ -232,12 +234,18 @@
     big.alt = list[index].alt;
     count.textContent = list.length > 1 ? (index + 1) + ' / ' + list.length : '';
     prev.hidden = next.hidden = list.length < 2;
+    var post = list[index].getAttribute('data-ig');
+    ig.hidden = !post;
+    if (post) ig.href = post;
   }
 
   document.addEventListener('click', function (e) {
     var img = e.target.closest && e.target.closest('img');
     if (!img || box.contains(img)) return;
     list = photos();
+    // the Instagram feed browses only its own posts
+    var feed = img.closest('.bv-feed');
+    list = list.filter(function (x) { return !!x.closest('.bv-feed') === !!feed; });
     var i = list.indexOf(img);
     if (i < 0) return;
     show(i);
@@ -250,7 +258,7 @@
   prev.addEventListener('click', function () { show(index - 1); });
   next.addEventListener('click', function () { show(index + 1); });
   // A click anywhere that is not the photo or a button closes the lightbox.
-  box.addEventListener('click', function (e) { if (!e.target.closest('.lb-stage, button')) box.close(); });
+  box.addEventListener('click', function (e) { if (!e.target.closest('.lb-stage, button, a')) box.close(); });
   box.addEventListener('keydown', function (e) {
     if (e.key === 'ArrowLeft') show(index - 1);
     if (e.key === 'ArrowRight') show(index + 1);
@@ -625,10 +633,10 @@ window.addEventListener('message', function (e) {
   });
 });
 
-// Bohème focus: every slide of the OFO post in one row; the arrows scroll it one slide at a time.
+// Bohème focus and Instagram feed: one row; the arrows scroll it one item at a time.
 (function () {
   document.querySelectorAll('.bv-carousel').forEach(function (box) {
-    var row = box.querySelector('.bv-slides');
+    var row = box.querySelector('ul');
     var nav = box.querySelector('.bv-slides-nav');
     if (!row || !nav) return;
     var prev = nav.querySelector('[data-step="-1"]');

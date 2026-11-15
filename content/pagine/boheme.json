@@ -1,5 +1,4 @@
 {
-  "anteprima": true,
   "titolo": "Bohème Magazine",
   "descrizione": "Bohème racconta l'arte emergente e raccoglie le opportunità che contano per chi la fa: bandi, residenze, premi, open call.",
   "blocchi": [
@@ -187,7 +186,7 @@
         "slide": "tutte"
       },
       "link": {
-        "testo": "Leggi l’intervista di Francesca su ossevatoriofo.com.",
+        "testo": "Leggi l’intervista di Francesca su osservatoriofo.com.",
         "url": "https://www.osservatoriofo.com"
       },
       "id": "ufm3p1"
@@ -239,7 +238,7 @@
       ],
       "titolo": "Feed di Instagram",
       "instagram": true,
-      "numero": 10,
+      "numero": 24,
       "id": "3vcd2g"
     },
     {
