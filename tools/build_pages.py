@@ -1556,9 +1556,12 @@ def build_free(p):
     parts = [] if p["_h1"] >= 0 else [f'  <h1 class="sr-only">{html.escape(p["title"])}</h1>']
     parts += [x for x in (block_html(b, p, i) for i, b in enumerate(blocks)) if x]
     over = bool(blocks) and blocks[0].get("tipo") == "foto" and blocks[0].get("piena") and _photo(blocks[0].get("foto"), p["_dir"])
+    # pages with the Bohème blocks keep their content centred within a maximum width (assets/style.css)
+    bv = any(b.get("tipo") in ("numeri", "formati", "focus", "griglia", "link") for b in blocks)
     # "anteprima": true = a review page: not indexed by search engines
     page(file=f'{p["slug"]}.html', title=p["title"], description=plain(_str(p.get("descrizione"))),
-         body="\n".join(parts), header="overlay" if over else "", main_class="flush", noindex=bool(p.get("anteprima")))
+         body="\n".join(parts), header="overlay" if over else "", main_class="flush bv-page" if bv else "flush",
+         noindex=bool(p.get("anteprima")))
 
 
 def git_blob_sha(path):

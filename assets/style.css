@@ -696,3 +696,10 @@ a.bv-big-link:hover, a.bv-big-link:focus-visible { text-decoration: underline; t
 .bv-slides-nav button:disabled { color: var(--rule); cursor: default; }
 .bv-focus-more a { font-size: 16px; color: var(--ink); text-decoration: underline; text-underline-offset: 3px; }
 .bv-focus-more a:hover { text-decoration: none; }
+
+/* Bohème blocks: a little more room at the edges, centred within a maximum width */
+.bv-numbers, .bv-formats, .bv-focus, .bv-feed-wrap, .bv-link, .bv-page .p-title-row, .bv-page .p-facts-wrap {
+  --bv-side: clamp(20px, 5vw, 80px);
+  box-sizing: border-box; max-width: calc(1240px + 2 * var(--bv-side)); margin-inline: auto;
+  padding-left: var(--bv-side); padding-right: var(--bv-side);
+}
