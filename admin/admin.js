@@ -727,7 +727,7 @@ Testo da scrivere.
   const BLOCKS = [
     { tipo: "titolo", name: "Titolo pagina", note: "titolo grande e anno", make: () => ({ titolo: "", anno: "" }) },
     { tipo: "foto", name: "Foto grande", note: "una foto, larga o a tutta pagina", make: () => ({ foto: null, piena: false }) },
-    { tipo: "testo", name: "Testo", note: "paragrafi e una nota in piccolo", make: () => ({ testo: "", nota: "" }) },
+    { tipo: "testo", name: "Testo", note: "titoletto, paragrafi, elenchi e una nota in piccolo", make: () => ({ titolo: "", testo: "", nota: "" }) },
     { tipo: "citazione", name: "Citazione", note: "una frase grande in corsivo", make: () => ({ testo: "", autore: "" }) },
     { tipo: "scheda", name: "Scheda dati", note: "righe etichetta / valore", make: () => ({ righe: [["", ""]] }) },
     { tipo: "sequenza", name: "Sequenza foto", note: "più foto (e video) in uno dei layout", make: () => ({ layout: "griglia", foto: [] }) },
@@ -1151,7 +1151,8 @@ Testo da scrivere.
         case "video": return [videoField(() => b.video, (v) => { b.video = v; changed(); }),
           field("Didascalia (facoltativa)", b.didascalia, (v) => { b.didascalia = v; }),
           h("div", { class: "head-switch" }, toggle(!!b.larga, (v) => { b.larga = v; changed(); }), h("span", {}, "A tutta larghezza"))];
-        case "testo": return [field("Testo (un rigo vuoto separa i paragrafi)", b.testo, (v) => { b.testo = v; }, { rows: 7 }),
+        case "testo": return [field("Titoletto sopra (facoltativo)", b.titolo, (v) => { b.titolo = v; }),
+          field("Testo (un rigo vuoto separa i paragrafi; righe che iniziano con “- ” diventano un elenco)", b.testo, (v) => { b.testo = v; }, { rows: 7 }),
           field("Nota in piccolo (facoltativa)", b.nota, (v) => { b.nota = v; })];
         case "citazione": return [field("Citazione", b.testo, (v) => { b.testo = v; }, { rows: 3 }), field("Autore (facoltativo)", b.autore, (v) => { b.autore = v; })];
         case "scheda": {

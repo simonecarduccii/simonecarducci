@@ -1,0 +1,102 @@
+{
+  "titolo": "Bohème Vedetta",
+  "descrizione": "Il motore che trova, legge e verifica i bandi per artisti, e tiene aggiornato Bohème Magazine.",
+  "blocchi": [
+    {
+      "tipo": "foto",
+      "foto": null,
+      "alt": "Bohème Vedetta",
+      "piena": true,
+      "id": "ved00"
+    },
+    {
+      "tipo": "titolo",
+      "titolo": "Bohème Vedetta",
+      "anno": "2026",
+      "indietro": "ai.html",
+      "id": "ved01"
+    },
+    {
+      "tipo": "scheda",
+      "righe": [
+        [
+          "Anno",
+          "2026",
+          ""
+        ],
+        [
+          "Ruolo",
+          "Ideazione e progettazione; sviluppo con l'AI (Claude Code)",
+          ""
+        ],
+        [
+          "Ambito",
+          "Strumenti per la cultura, automazione",
+          ""
+        ],
+        [
+          "Tecnologie",
+          "Python, FastAPI, Docker, Supabase, Claude, GitHub Pages",
+          ""
+        ],
+        [
+          "Stato",
+          "Attivo dal 9 ottobre 2026",
+          ""
+        ],
+        [
+          "Link",
+          "pannello privato; sito pubblico dei bandi in arrivo su bohememag.it",
+          ""
+        ]
+      ],
+      "id": "ved02"
+    },
+    {
+      "tipo": "testo",
+      "testo": "Il motore che trova, legge e verifica i bandi per artisti, e tiene aggiornato Bohème Magazine.",
+      "id": "ved03"
+    },
+    {
+      "tipo": "testo",
+      "titolo": "Il problema",
+      "testo": "Per Bohème cercavo bandi a mano, ente per ente. Le fonti erano decine, ognuna con il suo sito, e un bando con la data sbagliata fa perdere la fiducia di chi legge. Serviva uno strumento che facesse la ricerca al posto mio senza rinunciare alla verifica.",
+      "id": "ved04"
+    },
+    {
+      "tipo": "testo",
+      "titolo": "Come funziona",
+      "testo": "Vedetta ha due agenti. **Scout** ogni lunedì cerca sul web enti che pubblicano bandi e non sono ancora seguiti, e me li propone. Il **Motore dei bandi** ogni tre ore legge le fonti attive, solo le pagine cambiate, controlla doppioni e campi mancanti, e prepara i bandi pronti. Io li rivedo da un pannello web prima che escano.\n\n- **75** fonti seguite, **65** con un contatto\n- un giro ogni **3 ore**, con un tetto di **80** letture al giorno\n- **122** test automatici",
+      "id": "ved05"
+    },
+    {
+      "tipo": "testo",
+      "titolo": "Il mio ruolo",
+      "testo": "- Ho definito cosa deve fare, cosa non deve fare e dove serve una persona: niente si pubblica senza revisione.\n- Ho progettato il pannello di revisione e il flusso delle fonti candidate.\n- Ho guidato lo sviluppo con Claude Code, decisione per decisione, documentando ogni scelta.",
+      "id": "ved06"
+    },
+    {
+      "tipo": "testo",
+      "titolo": "Cosa ho imparato",
+      "testo": "L'AI scrive il codice in fretta; la parte difficile è decidere le regole. Una pagina con date inventate va scartata, un link che non risponde va riprovato, non cancellato. Sono queste scelte a rendere uno strumento affidabile.",
+      "id": "ved07"
+    },
+    {
+      "tipo": "sequenza",
+      "layout": "colonna",
+      "foto": [],
+      "id": "ved08"
+    },
+    {
+      "tipo": "successivo",
+      "pagina": "ai",
+      "testo": "Tutti gli strumenti",
+      "id": "ved09"
+    },
+    {
+      "tipo": "fascia",
+      "variante": "archivio",
+      "id": "ved10"
+    }
+  ]
+}
