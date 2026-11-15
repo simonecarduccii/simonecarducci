@@ -1381,7 +1381,8 @@ def auto_pick(raw):
         return None
     ok = lambda fs: [f for f in fs or [] if isinstance(f, str) and f.startswith(f"img/{IG_DIR}/instagram/") and exists(f)]
     photos = ok(got.get("foto"))
-    posts = [{"foto": ok(x.get("foto")), "link": _str(x.get("link"))} for x in got.get("post") or [] if isinstance(x, dict)]
+    posts = [{"foto": ok(x.get("foto")), "link": _str(x.get("link")), "album": ok(x.get("album"))}
+             for x in got.get("post") or [] if isinstance(x, dict)]
     posts = [x for x in posts if x["foto"]] or [{"foto": photos, "link": _str(got.get("link"))}]
     return {"foto": photos, "link": _str(got.get("link")), "post": posts, "testo": _str(got.get("testo"))} if photos else None
 
@@ -1522,7 +1523,10 @@ def block_html(b, p, i):
                 for n, x in enumerate(a["post"], 1):
                     m = img(x["foto"][0], f"{t or p['title']}, post {n}")
                     if b.get("zoom") and x["link"].startswith("https://"):
-                        m = m.replace("<img ", f'<img data-ig="{html.escape(x["link"])}" ', 1)
+                        # the pop-up shows every slide of this post, not the other posts
+                        alb = x.get("album") or []
+                        alb = f' data-album="{html.escape(json.dumps(alb))}"' if len(alb) > 1 else ""
+                        m = m.replace("<img ", f'<img data-ig="{html.escape(x["link"])}"{alb} ', 1)
                     elif link_attrs(x["link"]):
                         m = f'<a{link_attrs(x["link"])}>{m}</a>'
                     lis += f"<li>{m}</li>"
