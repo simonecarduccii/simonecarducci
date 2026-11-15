@@ -198,6 +198,30 @@ def colour_of(it, cache):
     return cache[code]
 
 
+def album(it, code, base, token, out_dir, keep):
+    """Every slide of a post (downloaded once), as paths from the site root."""
+    kids = [it]
+    if it.get("media_type") == "CAROUSEL_ALBUM":
+        try:
+            kids = get(f"{base}/{it['id']}/children", fields="media_type,media_url,thumbnail_url",
+                       access_token=token).get("data", [])[:20] or [it]
+        except Exception as e:
+            print("album", code, "skipped:", e)
+            return []
+    out = []
+    for n, kid in enumerate(kids, 1):
+        dest = out_dir / "scelti" / f"{code}-{n}.jpg"
+        if not dest.is_file():
+            try:
+                save_jpg(image_url(kid), dest)
+            except Exception as e:
+                print("album", code, n, "skipped:", e)
+                continue
+        keep.add(dest.name)
+        out.append(dest.relative_to(ROOT).as_posix())
+    return out
+
+
 def auto(items, base, token, out_dir):
     """Latest post matching each automatic rule written in content/pagine/."""
     rules = {}
@@ -243,8 +267,11 @@ def auto(items, base, token, out_dir):
                 keep.add(dest.name)
                 photos.append(dest.relative_to(ROOT).as_posix())
             if photos:
-                posts.append({"link": it["permalink"], "data": it.get("timestamp", ""), "foto": photos,
-                              "testo": it.get("caption") or ""})
+                post = {"link": it["permalink"], "data": it.get("timestamp", ""), "foto": photos,
+                        "testo": it.get("caption") or ""}
+                if r.get("quanti"):  # browsed post by post: every slide, for the pop-up
+                    post["album"] = album(it, code, base, token, out_dir, keep) or photos
+                posts.append(post)
                 print(f"automatic {key}: {code}")
                 if len(posts) >= r.get("quanti", 1):
                     break

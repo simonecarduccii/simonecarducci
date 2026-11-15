@@ -228,13 +228,15 @@
   var list = [];
   var index = 0;
 
+  // list: {src, alt, ig} for each photo of the pop-up
+  function item(img) { return { src: img.currentSrc || img.src, alt: img.alt, ig: img.getAttribute('data-ig') }; }
   function show(i) {
     index = (i + list.length) % list.length;
-    big.src = list[index].currentSrc || list[index].src;
+    big.src = list[index].src;
     big.alt = list[index].alt;
     count.textContent = list.length > 1 ? (index + 1) + ' / ' + list.length : '';
     prev.hidden = next.hidden = list.length < 2;
-    var post = list[index].getAttribute('data-ig');
+    var post = list[index].ig;
     ig.hidden = !post;
     if (post) ig.href = post;
   }
@@ -249,6 +251,18 @@
     list = list.filter(function (x) { return x.closest(GROUPS) === group; });
     var i = list.indexOf(img);
     if (i < 0) return;
+    list = list.map(item);
+    // a post of a Bohème format opens on its own slides, not on the other posts
+    var album = null;
+    try { album = JSON.parse(img.getAttribute('data-album') || 'null'); } catch (err) { album = null; }
+    if (Array.isArray(album) && album.length > 1) {
+      var ig0 = img.getAttribute('data-ig');
+      list = album.map(function (src, n) { return { src: new URL(src, document.baseURI).href, alt: img.alt + ', slide ' + (n + 1), ig: ig0 }; });
+      i = 0;
+    } else if (img.closest('.bv-format-posts')) {
+      list = [item(img)];  // slides not downloaded yet: just this post
+      i = 0;
+    }
     show(i);
     box.showModal();
     document.body.classList.add('no-scroll');
@@ -293,7 +307,7 @@
       var b = e.target.closest('button');
       if (!b) return;
       var tile = row.querySelector('.tile');
-      var step = tile ? tile.getBoundingClientRect().width + parseFloat(getComputedStyle(row).columnGap || 0) : row.clientWidth;
+      var step = tile ? tile.getBoundingClientRect().width + (parseFloat(getComputedStyle(row).columnGap) || 0) : row.clientWidth;
       row.scrollBy({ left: step * Number(b.getAttribute('data-rel-step')), behavior: 'smooth' });
     });
     row.addEventListener('scroll', update, { passive: true });
@@ -652,7 +666,7 @@ window.addEventListener('message', function (e) {
       var b = e.target.closest('button');
       if (!b) return;
       var li = row.querySelector('li');
-      var step = li ? li.getBoundingClientRect().width + parseFloat(getComputedStyle(row).columnGap || 0) : row.clientWidth;
+      var step = li ? li.getBoundingClientRect().width + (parseFloat(getComputedStyle(row).columnGap) || 0) : row.clientWidth;
       row.scrollBy({ left: step * Number(b.getAttribute('data-step')), behavior: 'smooth' });
     });
     row.addEventListener('scroll', update, { passive: true });
@@ -661,46 +675,38 @@ window.addEventListener('message', function (e) {
   });
 })();
 
-/* Collabora cards: if no mail app opens after "Scrivici" (common in Safari/Chrome when mail is read on the web),
-   offer Gmail compose and copying the address. */
+/* Collabora cards: "Scrivici" is a mailto link, which does nothing on a computer with no mail app set up
+   (who reads mail on the web). So a line under the cards always offers Gmail and copying the address;
+   after a card is clicked, its Gmail link carries that card's subject and text. */
 (function () {
   document.querySelectorAll('.bv-collab').forEach(function (box) {
+    var list = box.querySelector('.bv-collab-list');
+    var links = box.querySelectorAll('a.bv-collab-cta[href^="mailto:"]');
+    if (!list || !links.length) return;
+    function gmail(a, plain) {
+      var u = new URL(a.href), to = decodeURIComponent(u.pathname);
+      var q = 'https://mail.google.com/mail/?view=cm&fs=1&to=' + encodeURIComponent(to);
+      if (!plain) q += '&su=' + encodeURIComponent(u.searchParams.get('subject') || '') +
+        '&body=' + encodeURIComponent(u.searchParams.get('body') || '');
+      return { to: to, url: q };
+    }
+    var first = gmail(links[0], true);
     var note = document.createElement('p');
     note.className = 'bv-collab-fallback';
-    note.hidden = true;
-    note.setAttribute('role', 'status');
-    var list = box.querySelector('.bv-collab-list');
-    if (!list) return;
+    note.append('Non si apre la posta? ');
+    var g = document.createElement('a');
+    g.href = first.url; g.target = '_blank'; g.rel = 'noopener'; g.textContent = 'Scrivi da Gmail ↗';
+    var c = document.createElement('button');
+    c.type = 'button'; c.textContent = 'Copia l’indirizzo ' + first.to;
+    c.addEventListener('click', function () {
+      (navigator.clipboard ? navigator.clipboard.writeText(first.to) : Promise.reject()).then(
+        function () { c.textContent = 'Indirizzo copiato: ' + first.to; },
+        function () { c.textContent = first.to; });
+    });
+    note.append(g, ' · ', c);
     list.after(note);
-    box.querySelectorAll('a.bv-collab-cta[href^="mailto:"]').forEach(function (a) {
-      a.addEventListener('click', function () {
-        var left = false;
-        function gone() { left = true; }
-        window.addEventListener('blur', gone, { once: true });
-        document.addEventListener('visibilitychange', gone, { once: true });
-        setTimeout(function () {
-          window.removeEventListener('blur', gone);
-          document.removeEventListener('visibilitychange', gone);
-          if (left) return;
-          var u = new URL(a.href), to = decodeURIComponent(u.pathname);
-          var gm = 'https://mail.google.com/mail/?view=cm&fs=1&to=' + encodeURIComponent(to) +
-            '&su=' + encodeURIComponent(u.searchParams.get('subject') || '') +
-            '&body=' + encodeURIComponent(u.searchParams.get('body') || '');
-          note.innerHTML = '';
-          note.append('La posta non si è aperta? ');
-          var g = document.createElement('a');
-          g.href = gm; g.target = '_blank'; g.rel = 'noopener'; g.textContent = 'Scrivi da Gmail ↗';
-          var c = document.createElement('button');
-          c.type = 'button'; c.textContent = 'Copia l’indirizzo (' + to + ')';
-          c.addEventListener('click', function () {
-            (navigator.clipboard ? navigator.clipboard.writeText(to) : Promise.reject()).then(
-              function () { c.textContent = 'Indirizzo copiato'; },
-              function () { c.textContent = to; });
-          });
-          note.append(g, ' · ', c);
-          note.hidden = false;
-        }, 1200);
-      });
+    links.forEach(function (a) {
+      a.addEventListener('click', function () { g.href = gmail(a).url; });
     });
   });
 })();
