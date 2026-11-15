@@ -624,3 +624,30 @@ window.addEventListener('message', function (e) {
     if (f.contentWindow === e.source) { f.style.aspectRatio = 'auto'; f.style.height = data.details.height + 'px'; }
   });
 });
+
+// Bohème focus: every slide of the OFO post in one row; the arrows scroll it one slide at a time.
+(function () {
+  document.querySelectorAll('.bv-carousel').forEach(function (box) {
+    var row = box.querySelector('.bv-slides');
+    var nav = box.querySelector('.bv-slides-nav');
+    if (!row || !nav) return;
+    var prev = nav.querySelector('[data-step="-1"]');
+    var next = nav.querySelector('[data-step="1"]');
+    function update() {
+      var max = row.scrollWidth - row.clientWidth;
+      nav.hidden = max <= 1;
+      prev.disabled = row.scrollLeft <= 1;
+      next.disabled = row.scrollLeft >= max - 1;
+    }
+    nav.addEventListener('click', function (e) {
+      var b = e.target.closest('button');
+      if (!b) return;
+      var li = row.querySelector('li');
+      var step = li ? li.getBoundingClientRect().width + parseFloat(getComputedStyle(row).columnGap || 0) : row.clientWidth;
+      row.scrollBy({ left: step * Number(b.getAttribute('data-step')), behavior: 'smooth' });
+    });
+    row.addEventListener('scroll', update, { passive: true });
+    window.addEventListener('resize', update);
+    update();
+  });
+})();

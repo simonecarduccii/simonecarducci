@@ -18,7 +18,7 @@ Output:
 - for the /admin picker: small previews of the latest posts in img/<folder>/instagram/mini/<code>.jpg and
   their list in content/instagram/post-<folder>.json [{"codice", "link", "data", "tipo", "mini", "testo"}];
 - automatic photos: a block item with "automatico": {"attivo": true, "parole": [...], "escludi": [...],
-  "colore": "bianco"|"nero"|"", "soglia": n, "slide": n or [n, ...]} gets, every day, the latest post whose
+  "colore": "bianco"|"nero"|"", "soglia": n, "slide": n, [n, ...] or "tutte"} gets, every day, the latest post whose
   caption contains one of the words (hashtags and @tags included) and whose image is mostly white or black
   when asked. Result in content/instagram/auto-<folder>.json {rule key: {"link", "foto": [...]}}.
 """
@@ -121,6 +121,17 @@ def image_url(it):
     return it.get("thumbnail_url") if it.get("media_type") == "VIDEO" else it.get("media_url")
 
 
+def slide_count(it, base, token):
+    """Number of images in a post: the slides of a carousel (at most 20), 1 otherwise."""
+    if it.get("media_type") != "CAROUSEL_ALBUM":
+        return 1
+    try:
+        kids = get(f"{base}/{it['id']}/children", fields="id", access_token=token).get("data", [])
+    except Exception:
+        return 1
+    return max(1, min(20, len(kids)))
+
+
 def download_slide(it, n, base, token, dest):
     """Image n (1 = first) of a post: the slide of a carousel, the cover of a video."""
     if it.get("media_type") == "CAROUSEL_ALBUM":
@@ -136,7 +147,8 @@ def rule_of(raw):
     words = lambda k: sorted({str(w).strip().lower() for w in raw.get(k) or [] if str(w).strip()})
     colour = raw.get("colore") if raw.get("colore") in ("bianco", "nero") else ""
     sl = raw.get("slide")
-    slides = [int(x) for x in (sl if isinstance(sl, list) else [sl]) if isinstance(x, int) and 1 <= x <= 20] or [1]
+    # "tutte" = every slide of the carousel, in order
+    slides = "tutte" if sl == "tutte" else [int(x) for x in (sl if isinstance(sl, list) else [sl]) if isinstance(x, int) and 1 <= x <= 20] or [1]
     soglia = raw.get("soglia") if isinstance(raw.get("soglia"), int) and 0 < raw.get("soglia") < 255 else 0
     if not (words("parole") or colour):
         return None
@@ -207,7 +219,10 @@ def auto(items, base, token, out_dir):
                 if r["colore"] == "nero" and c > (r["soglia"] or 40):
                     continue
             code, photos = code_of(it), []
-            for n in r["slide"]:
+            nums = r["slide"]
+            if nums == "tutte":
+                nums = list(range(1, slide_count(it, base, token) + 1))
+            for n in nums:
                 dest = out_dir / "scelti" / f"{code}-{n}.jpg"
                 if not dest.is_file():
                     try:
