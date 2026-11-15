@@ -1531,6 +1531,32 @@ def block_html(b, p, i):
         return (f'  <section class="bv-seq{edges(b)}">{head if (lab or t or txt) else ""}'
                 f'<ul class="bv-seq-list" style="--cols: {min(len(items), 4)}; --ratio: {ratio}">{cards}</ul>'
                 f'{f"<ul class=\"bv-rules\">{rules}</ul>" if rules else ""}</section>')
+    if kind == "collabora":
+        # "Collabora con noi": an invitation and a few paths (present a project, propose a collaboration...); each
+        # path opens an email already addressed, with its subject and a short outline of what to send.
+        paths = [v for v in b.get("voci") or [] if isinstance(v, dict) and _str(v.get("titolo"))]
+        mail = _str(b.get("email"))
+        lab, t, txt, after = _str(b.get("etichetta")), _str(b.get("titolo")), _str(b.get("testo")), _str(b.get("dopo"))
+        if not (t or paths):
+            return ""
+        from urllib.parse import quote
+        cards = ""
+        for v in paths:
+            vt, vtxt, what = _str(v.get("titolo")), _str(v.get("testo")), _str(v.get("cosa"))
+            cta = ""
+            if re.fullmatch(r"[^@\s]+@[^@\s]+\.[a-z]{2,}", mail):
+                body = "Ciao Bohème,\n\n\n\n" + (f"---\nDa mandare: {what}\n" if what else "")
+                href = f"mailto:{mail}?subject={quote(_str(v.get('oggetto')) or vt)}&body={quote(body)}"
+                cta = f'<a class="bv-collab-cta" href="{html.escape(href)}">{html.escape(_str(b.get("pulsante")) or "Scrivici")} &rarr;</a>'
+            cards += (f'<li><h3>{html.escape(vt)}</h3>{f"<p>{inline(vtxt)}</p>" if vtxt else ""}'
+                      f'{f"<p class=\"bv-collab-what\"><span class=\"label\">Cosa mandare</span>{inline(what)}</p>" if what else ""}{cta}</li>')
+        ig = link_attrs(b.get("instagram"))
+        foot = (f'<p class="bv-collab-after">{inline(after)}'
+                f'{f" Oppure scrivici su <a{ig}>Instagram</a>." if ig else ""}</p>') if (after or ig) else ""
+        return (f'  <section class="bv-collab"><div class="bv-collab-head">'
+                f'{f"<p class=\"label\">{html.escape(lab)}</p>" if lab else ""}{f"<h2>{html.escape(t)}</h2>" if t else ""}'
+                f'{f"<p class=\"bv-collab-text\">{inline(txt)}</p>" if txt else ""}</div>'
+                f'{f"<ul class=\"bv-collab-list\">{cards}</ul>" if cards else ""}{foot}</section>')
     if kind == "focus":
         lab, q, txt = _str(b.get("etichetta")), _str(b.get("citazione")), _str(b.get("testo"))
         a = auto_pick(b.get("automatico"))
@@ -1602,7 +1628,7 @@ def build_free(p, file=None, draft=False):
     parts += [x for x in (block_html(b, p, i) for i, b in enumerate(blocks)) if x]
     over = bool(blocks) and blocks[0].get("tipo") == "foto" and blocks[0].get("piena") and _photo(blocks[0].get("foto"), p["_dir"])
     # pages with the Bohème blocks keep their content centred within a maximum width (assets/style.css)
-    bv = any(b.get("tipo") in ("numeri", "formati", "focus", "griglia", "link", "passi") for b in blocks)
+    bv = any(b.get("tipo") in ("numeri", "formati", "focus", "griglia", "link", "passi", "collabora") for b in blocks)
     # "anteprima": true = a review page: not indexed by search engines
     body = "\n".join(parts)
     if draft:
