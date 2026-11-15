@@ -822,8 +822,8 @@ def event_categories(slug):
         if serate:
             serate[0]["photos"] = flat + serate[0]["photos"]
             serate[0]["videos"] = serate[0]["videos"] + old_videos
-        # each video knows its evening, shown under the DJ in the Video band ("DIE NEUE BRÜKE · Vol. I (26/03/2026)");
-        # a title that already ends with the event ("Novetik - Die Neue Brüke I") keeps only the DJ
+        # each video knows its evening, shown under the DJ in the Video band ("DIE NEUE BRÜCKE · Vol. I (26/03/2026)");
+        # a title that already ends with the event ("Novetik - Die Neue Brücke I") keeps only the DJ
         for se in serate:
             event = se["name"] if se["name"].casefold().startswith(name.casefold()) else " · ".join(x for x in (name, se["name"]) if x)
             for v in se["videos"]:

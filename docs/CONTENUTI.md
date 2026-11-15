@@ -12,7 +12,7 @@ Tono: prima persona, frasi brevi, fatti prima degli aggettivi. Niente "passione"
 
 - **Title home:** Simone Carducci - Editorial, Events & Cultural Projects
 - **Description home (max 155 caratteri):** Progetto e porto al pubblico progetti culturali: ho iniziato da con un magazine sull'arte emergente, un collettivo audiovisivo e con la fotografia su pellicola e non.
-- **Description About:** Chi è Simone Carducci: progetti creativi e culturali editoria, eventi, immagine e strumenti digitali.
+- **Description About:** Chi è Simone Carducci: progetti creativi e culturali, editoria, eventi, immagine e strumenti digitali.
 
 ## Hero (home)
 
@@ -24,7 +24,7 @@ Tono: prima persona, frasi brevi, fatti prima degli aggettivi. Niente "passione"
 
 ## Home secondo i mockup Figma
 
-- **Hero:** i titoli dei progetti culturali con l'anno: Colectivo modì 2025-2026 · Bohème Magazine 2024
+- **Hero:** i titoli dei progetti culturali con l'anno: Colectivo modì 2025-2026 · Bohème Magazine dal 2023
 - **Banda pellicole (tre voci):** Tutte le mie pellicole (→ Lomography) · Tutto il mio archivio (→ archivio) · Tutta la mia vita (→ indice dell'archivio)
 - **Etichetta griglia foto:** Ricerca visiva
 - **Etichetta sezione AI:** Progetti con l'AI
@@ -40,7 +40,7 @@ Le intro di sezione qui sotto restano per meta description e versioni alternativ
 - **Lead:** Un magazine che ho fondato e un collettivo di cui ho curato la direzione creativa.
 
 Card:
-- **Bohème Magazine** · 2024 - in corso - Magazine indipendente sull'arte emergente e sulle opportunità per artisti. 5.022 follower in 26 mesi, partendo da zero.
+- **Bohème Magazine** · dal 2023 - Magazine indipendente sull'arte emergente e sulle opportunità per artisti. 5.022 follower in 26 mesi, partendo da zero.
 - **Colectivo modì** · 2025-2026 - Collettivo audiovisivo: serate, DJ set filmati in 4K e un podcast. Dalla consolle al montaggio, fino alla pubblicazione.
 
 ### Archivio fotografico
@@ -101,16 +101,16 @@ Ho passato più di 4 anni in servizio: a Bologna, in diversi resort Club Med in 
 
 **Quello che faccio oggi**
 
-Nel luglio 2024 ho fondato Bohème Magazine, di cui curo la direzione artistica ed editoriale: un magazine indipendente sull'arte emergente e sulle opportunità per artisti, che in 26 mesi ha raccolto da zero, in organico, oltre 5.000 persone e 1,47 milioni di visualizzazioni, senza utilizzo di reel o TikTok. Per tenerlo aggiornato ho progettato Vedetta, un sistema che legge e verifica i bandi di centinaia di enti culturali, il progetto è tuttora in fase di sviluppo. Tra il 2025 e il 2026 ho curato la direzione creativa del Colectivo Modì, un collettivo indipendente artistico, mi sono occupato della gestione creativa: identità visiva, comunicazione, organizzazione e gestione delle serate, ingaggio degli artisti; produzione di contenuti social come dj set filmati, video pubblicitari e produzione podcast.
+Nel luglio 2024 ho fondato Bohème Magazine, nato come idea nel 2023, di cui curo la direzione artistica ed editoriale: un magazine indipendente sull'arte emergente e sulle opportunità per artisti, che in 26 mesi ha raccolto da zero, in organico, oltre 5.000 persone e 1,47 milioni di visualizzazioni, senza utilizzo di reel o TikTok. Per tenerlo aggiornato ho progettato Vedetta, un sistema che legge e verifica i bandi di centinaia di enti culturali: il progetto è tuttora in fase di sviluppo. Tra il 2025 e il 2026 ho curato la direzione creativa del Colectivo modì, un collettivo artistico indipendente. Mi sono occupato di identità visiva, comunicazione, organizzazione e gestione delle serate, ingaggio degli artisti, e della produzione di contenuti social: DJ set filmati, video pubblicitari e podcast.
 
 **Cosa studio**
 
-Sono al terzo anno di Beni culturali all'Università di Torino, indirizzo storico-artistico, ho effettuato un anno di Erasmus+ all'Universidad de Granada, nel 2026 parteciperò ad un'ulteriore Erasmus+ presso l'Université Paris Cité in cui mi occuperò della ricerca e scrittura della tesi. Nel 2024 ho preso il certificato Google in UX Design.
+Sono al terzo anno di Beni culturali all'Università di Torino, indirizzo storico-artistico. Ho trascorso un anno di Erasmus+ all'Universidad de Granada, e il prossimo Erasmus+ sarà all'Université Paris Cité, dove lavorerò alla ricerca e alla scrittura della tesi. Nel 2024 ho preso il certificato Google in UX Design.
 
 **Il mio sguardo**
 
-Ho più macchine fotografiche di quante ne servano: una Chinon Auto 3001, una Konica Recorder, una Leica CL, una Nikonos III a rullino che va anche sott’acqua, e per il digitale una Sony A7C e una Ricoh GR. Mi interesso soprattutto di arte del Novecento e contemporanea, il modo di osservare me l'hanno insegnato le avanguardie, in fotografia e al cinema.
-Fotografo, sviluppo e scannerizzo pellicole da anni: curo un vasto archivio personale, è il modo in cui guardo le cose prima di raccontarle. Il resto lo trovo fuori: nei libri, nei viaggi, in montagna. È lì che raccolgo il materiale da cui partono i progetti.
+Ho più macchine fotografiche di quante ne servano: una Chinon Auto 3001, una Konica Recorder, una Leica CL, una Nikonos III a rullino che va anche sott’acqua, e per il digitale una Sony A7C e una Ricoh GR. Mi interesso soprattutto di arte del Novecento e contemporanea: il modo di osservare me l'hanno insegnato le avanguardie, in fotografia e al cinema.
+Fotografo, sviluppo e scannerizzo pellicole da anni: curo un vasto archivio personale. È il modo in cui guardo le cose prima di raccontarle. Il resto lo trovo fuori: nei libri, nei viaggi, in montagna. È lì che raccolgo il materiale da cui partono i progetti.
 
 ### Ambiti, competenze, strumenti
 
@@ -161,7 +161,7 @@ Schede complete in [`progetti/`](progetti/).
 
 | Progetto | Sezione | Anno | Scheda |
 | --- | --- | --- | --- |
-| Bohème Magazine | Cultura | 2024 - in corso | [boheme-magazine.md](progetti/boheme-magazine.md) |
+| Bohème Magazine | Cultura | dal 2023 | [boheme-magazine.md](progetti/boheme-magazine.md) |
 | Colectivo modì | Cultura | 2025-2026 | [colectivo-modi.md](progetti/colectivo-modi.md) |
 | Siculo | Fotografia | 2025 | [siculo.md](progetti/siculo.md) |
 | Papà che fanno i papà | Fotografia | 2025 - in corso | [papa-che-fanno-i-papa.md](progetti/papa-che-fanno-i-papa.md) |

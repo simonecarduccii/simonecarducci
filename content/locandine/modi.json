@@ -27,7 +27,7 @@
       ]
     },
     {
-      "nome": "DIE NEUE BRÜKE",
+      "nome": "DIE NEUE BRÜCKE",
       "cartella": "die-neue-bruke",
       "serate": [
         {
@@ -36,11 +36,11 @@
           "video": [
             {
               "url": "https://youtu.be/XwZf_MF1fxM",
-              "testo": "Novetik - Die Neue Brüke I"
+              "testo": "Novetik - Die Neue Brücke I"
             },
             {
               "url": "https://youtu.be/8RPl-Usxi0E",
-              "testo": "Maïwenn B2B Merlin - Die Neue Brüke I"
+              "testo": "Maïwenn B2B Merlin - Die Neue Brücke I"
             }
           ]
         },
@@ -50,19 +50,19 @@
           "video": [
             {
               "url": "https://youtu.be/rBSP5Guy_-c",
-              "testo": "Simo! - Die Neue Brüke II"
+              "testo": "Simo! - Die Neue Brücke II"
             },
             {
               "url": "https://youtu.be/f-L7mEbKdzA",
-              "testo": "Maïwenn - Die Neue Brüke II"
+              "testo": "Maïwenn - Die Neue Brücke II"
             },
             {
               "url": "https://youtu.be/_edxl1Trm_4",
-              "testo": "Merlin - Die Neue Brüke II"
+              "testo": "Merlin - Die Neue Brücke II"
             },
             {
               "url": "https://youtu.be/1vZhwbCFY3s",
-              "testo": "Giulio - Die Neue Brüke II"
+              "testo": "Giulio - Die Neue Brücke II"
             }
           ]
         },
@@ -128,11 +128,11 @@
       "serate": [
         {
           "cartella": "friday-at-modi-i",
-          "nome": "Friday at Modì I",
+          "nome": "Friday at modì I",
           "video": [
             {
               "url": "https://youtu.be/6ktb6A-vUho",
-              "testo": "Panic & Simo! - Friday at Modì I"
+              "testo": "Panic & Simo! - Friday at modì I"
             }
           ]
         }
