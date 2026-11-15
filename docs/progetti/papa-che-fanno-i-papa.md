@@ -12,11 +12,11 @@ Testi segnaposto (lorem ipsum): servono a fissare struttura e lunghezze. Simone 
 
 ## Intro in testata (max 40 parole)
 
-Padri fotografati con i figli, senza posa e senza consenso. Archivio aperto, senza supporto specifico, pellicola e digitale. L'analisi sulla tenerezza che gli uomini non sanno dichiarare.
+Un lavoro sulla paternità fotografato dentro la vita di tutti i giorni, senza pose né messe in scena.
 
 ## Testo in fondo, dopo le foto (80-150 parole)
 
-In una società patriarcale un padre spesso non si mostra debole e non dichiara la cura. Papà cerca il momento in cui questa maschera cade da sola. Le fotografie sono scattate senza posa e senza consenso, perché l’intimità si lascia cogliere solo quando nessuno si sente osservato: sguardi rivolti altrove, mani che sostengono, spalle che diventano sedie, zaini e fasce che trasformano il corpo in rifugio.
+In una società patriarcale un padre spesso non si mostra debole e non dichiara la cura. Papà cerca il momento in cui questa maschera cade da sola. Le fotografie sono scattate senza pose né messe in scena, perché l’intimità si lascia cogliere solo quando nessuno si sente osservato: sguardi rivolti altrove, mani che sostengono, spalle che diventano sedie, zaini e fasce che trasformano il corpo in rifugio.
 
 La forza fisica, quasi bruta, si piega allo sforzo di portare qualcuno e diventa tenerezza senza mai nominarsi. Il lavoro nasce dalla riscoperta dell’amore per il proprio padre, un amore che nessuno aveva insegnato a immaginare possibile, ed è per questo una ricerca che non si chiude: un archivio che continua a crescere nel tempo, tra pellicola e digitale. Sì, il ritratto della paternità, ma anche una raccolta di testimonianze reali di come si ama senza dirlo.
 
