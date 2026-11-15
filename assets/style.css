@@ -792,5 +792,5 @@ a.bv-big-link:hover, a.bv-big-link:focus-visible { text-decoration: underline; t
 .block-text ul li::before { content: "–"; position: absolute; left: 0; color: var(--ink-2); }
 
 /* Home: short presentation under the hero ("presentazione" in content/home.json, edited in /admin) */
-.home-intro { padding: clamp(40px, 4.7vw, 64px) var(--pad-band); background: var(--paper); }
-.home-intro p { max-width: 74ch; margin: 0; font-weight: 400; font-size: var(--fs-band-link); line-height: 1.35; color: var(--ink); text-wrap: pretty; }
+.home-intro { padding: clamp(48px, 5.6vw, 76px) var(--pad); background: var(--paper); text-align: center; }
+.home-intro p { max-width: 64ch; margin: 0 auto; font-weight: 400; font-size: var(--fs-band-link); line-height: 1.35; color: var(--ink); text-wrap: balance; }
