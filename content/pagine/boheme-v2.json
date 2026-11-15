@@ -100,21 +100,56 @@
           "colore": "#151515",
           "testo": "Post neri. Francesca Occhi cura editing, testo e intervista: più di 50 artisti.",
           "foto": "img/boheme/formato-osservatorio.jpg",
-          "link": ""
+          "link": "",
+          "automatico": {
+            "attivo": true,
+            "parole": [
+              "francesca occhi",
+              "@francescaocchi",
+              "osservatorio",
+              "ofo"
+            ],
+            "escludi": [],
+            "colore": "nero",
+            "soglia": 0,
+            "slide": 1
+          }
         },
         {
           "titolo": "Open call",
           "colore": "#cca40b",
           "testo": "Foto dell’opera, etichetta per la disciplina, badge con la scadenza. Due a settimana.",
           "foto": "img/boheme/formato-open-call.jpg",
-          "link": ""
+          "link": "",
+          "automatico": {
+            "attivo": true,
+            "parole": [
+              "#opencall",
+              "open call"
+            ],
+            "escludi": [],
+            "colore": "",
+            "soglia": 0,
+            "slide": 1
+          }
         },
         {
           "titolo": "Progetti",
           "colore": "#ffffff",
           "testo": "Post bianchi, per rispettare il formato originale di ogni fotografia.",
           "foto": "img/boheme/formato-progetti.jpg",
-          "link": ""
+          "link": "",
+          "automatico": {
+            "attivo": true,
+            "parole": [],
+            "escludi": [
+              "#opencall",
+              "open call"
+            ],
+            "colore": "bianco",
+            "soglia": 0,
+            "slide": 1
+          }
         }
       ]
     },
@@ -130,7 +165,23 @@
       "foto": [
         "img/boheme/ofo-01.jpg",
         "img/boheme/ofo-02.jpg"
-      ]
+      ],
+      "automatico": {
+        "attivo": true,
+        "parole": [
+          "francesca occhi",
+          "@francescaocchi",
+          "osservatorio",
+          "ofo"
+        ],
+        "escludi": [],
+        "colore": "nero",
+        "soglia": 0,
+        "slide": [
+          1,
+          2
+        ]
+      }
     },
     {
       "tipo": "griglia",

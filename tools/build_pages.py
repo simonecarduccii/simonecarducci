@@ -14,6 +14,7 @@ import hashlib
 import json
 import html
 import re
+import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -1365,6 +1366,23 @@ def ig_photo(v):
     return f"img/{IG_DIR}/instagram/scelti/{m.group(1)}-{max(1, int(m.group(2) or 1))}.jpg" if m else ""
 
 
+def auto_pick(raw):
+    """Photos and link of the latest post matching an "automatico" rule (tools/instagram_feed.py), or None."""
+    sys.path.insert(0, str(ROOT / "tools"))
+    from instagram_feed import rule_of, rule_key
+    r = rule_of(raw)
+    if not r:
+        return None
+    try:
+        got = __import__("json").loads((ROOT / "content" / "instagram" / f"auto-{IG_DIR}.json").read_text(encoding="utf-8")).get(rule_key(r))
+    except (OSError, ValueError, AttributeError):
+        return None
+    if not isinstance(got, dict):
+        return None
+    photos = [f for f in got.get("foto") or [] if isinstance(f, str) and f.startswith(f"img/{IG_DIR}/instagram/") and exists(f)]
+    return {"foto": photos, "link": _str(got.get("link"))} if photos else None
+
+
 def ph(src, alt, folder, eager=False):
     """Photo of a block, or an empty grey box of the same size when it is not uploaded yet."""
     ig = ig_photo(src)
@@ -1465,8 +1483,10 @@ def block_html(b, p, i):
             t, txt = _str(v.get("titolo")), _str(v.get("testo"))
             col = _str(v.get("colore"))
             dot = f'<i class="dot" style="--dot: {col}" aria-hidden="true"></i>' if re.fullmatch(r"#[0-9a-fA-F]{3,8}", col) else ""
-            media = ph(v.get("foto"), t or p["title"], s)
-            la = link_attrs(v.get("link")) or (link_attrs(v.get("foto")) if ig_photo(v.get("foto")) else "")
+            a = auto_pick(v.get("automatico"))
+            src = a["foto"][0] if a else v.get("foto")
+            media = ph(src, t or p["title"], s) if not a else img(src, t or p["title"])
+            la = link_attrs(v.get("link")) or (link_attrs(a["link"]) if a else link_attrs(v.get("foto")) if ig_photo(v.get("foto")) else "")
             if la:
                 media = f'<a{la}>{media}</a>'
             cards += (f'<li>{media}<h3 class="bv-format-title">{dot}{html.escape(t)}</h3>'
@@ -1474,7 +1494,8 @@ def block_html(b, p, i):
         return f'  <ul class="bv-formats">{cards}</ul>' if cards else ""
     if kind == "focus":
         lab, q, txt = _str(b.get("etichetta")), _str(b.get("citazione")), _str(b.get("testo"))
-        photos = [f for f in b.get("foto") or [] if isinstance(f, str)]
+        a = auto_pick(b.get("automatico"))
+        photos = a["foto"] if a else [f for f in b.get("foto") or [] if isinstance(f, str)]
         if not (q or txt or photos):
             return ""
         slides = "".join(f'<li>{ph(f, lab or p["title"], s)}</li>' for f in photos)
@@ -1499,8 +1520,9 @@ def block_html(b, p, i):
             items = got[:n] or items[:n]
         cells = ""
         for k, v in enumerate(items, 1):
-            media = ph(v.get("foto"), f'{p["title"]}, post {k}', s)
-            la = link_attrs(v.get("link")) or (link_attrs(v.get("foto")) if ig_photo(v.get("foto")) else "")
+            a = auto_pick(v.get("automatico"))
+            media = img(a["foto"][0], f'{p["title"]}, post {k}') if a else ph(v.get("foto"), f'{p["title"]}, post {k}', s)
+            la = link_attrs(v.get("link")) or (link_attrs(a["link"]) if a else link_attrs(v.get("foto")) if ig_photo(v.get("foto")) else "")
             cells += f'<li>{f"<a{la}>{media}</a>" if la else media}</li>'
         if not cells:
             return ""
