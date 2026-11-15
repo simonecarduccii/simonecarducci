@@ -1,0 +1,114 @@
+{
+  "titolo": "Running Coach",
+  "descrizione": "Un coach di corsa che legge i miei dati, scrive il piano della settimana e lo manda all'orologio.",
+  "blocchi": [
+    {
+      "tipo": "foto",
+      "foto": null,
+      "alt": "Running Coach",
+      "piena": true,
+      "id": "coa00"
+    },
+    {
+      "tipo": "titolo",
+      "titolo": "Running Coach",
+      "anno": "2026",
+      "indietro": "ai.html",
+      "id": "coa01"
+    },
+    {
+      "tipo": "scheda",
+      "righe": [
+        [
+          "Anno",
+          "2026 - in sviluppo",
+          ""
+        ],
+        [
+          "Ruolo",
+          "Ideazione, progettazione dell'esperienza, regole di allenamento; sviluppo con Claude Code",
+          ""
+        ],
+        [
+          "Ambito",
+          "Sport, strumenti personali",
+          ""
+        ],
+        [
+          "Tecnologie",
+          "Python (solo libreria standard), HTML/CSS/JS senza librerie, Intervals.icu, Garmin, Apple Salute, OpenStreetMap, Open-Meteo, Claude",
+          ""
+        ],
+        [
+          "Stato",
+          "In uso ogni giorno, in sviluppo",
+          ""
+        ],
+        [
+          "Per",
+          "Uso personale, verso una maratona sotto le 4 ore nella primavera 2027",
+          ""
+        ]
+      ],
+      "id": "coa02"
+    },
+    {
+      "tipo": "testo",
+      "testo": "Un coach di corsa che legge i miei dati, scrive il piano della settimana e lo manda all'orologio.",
+      "id": "coa03"
+    },
+    {
+      "tipo": "testo",
+      "titolo": "Cosa fa (max 10 parole)",
+      "testo": "Prepara e corregge il mio piano di corsa, io approvo.",
+      "id": "coa04"
+    },
+    {
+      "tipo": "testo",
+      "titolo": "Correre, non programmare",
+      "testo": "Mi sto preparando per una maratona sotto le quattro ore. Il tempo che passavo a pianificare gli allenamenti era tempo tolto alla corsa. Ho progettato Running Coach con un obiettivo solo: l'app decide, propone e scrive il piano; io approvo con un tocco e vado a correre.",
+      "id": "coa05"
+    },
+    {
+      "tipo": "testo",
+      "titolo": "Come funziona",
+      "testo": "Ogni mattina legge sonno, recupero e carico degli ultimi giorni, il meteo di Torino e i miei impegni. Se qualcosa non torna propone una modifica motivata con i numeri, e la applica solo se la confermo. Il piano passa a Intervals.icu e da lì all'orologio. Per ogni uscita suggerisce un percorso in piano tra strade nuove della città, con il file GPX pronto.",
+      "id": "coa06"
+    },
+    {
+      "tipo": "testo",
+      "titolo": "Il disegno",
+      "testo": "Un solo file di pagina, nessuna libreria, grafici disegnati a mano in SVG, stile ispirato al design di Apple. Si apre sul Mac e sull'iPhone come app dalla schermata Home. Le sezioni sono cinque: Oggi, Corsa, Mappa, Alimentazione, Profilo. Il calendario del mese si modifica trascinando gli allenamenti.",
+      "id": "coa07"
+    },
+    {
+      "tipo": "testo",
+      "titolo": "Il mio ruolo",
+      "testo": "- Ho definito il problema e le regole del coach: quando una seduta dura diventa facile, cosa fare di un allenamento saltato, quando fermarsi.\n- Ho progettato le schermate e il flusso \"proposta, conferma, orologio\".\n- Ho guidato lo sviluppo con Claude Code, passo dopo passo, con una roadmap di 20 tappe: 14 fatte.\n- Ho scelto cosa non mostrare: chi riceve un link ospite vede le corse, non agenda, salute o tracce GPS.",
+      "id": "coa08"
+    },
+    {
+      "tipo": "testo",
+      "titolo": "Cosa sto imparando",
+      "testo": "Un buon consiglio è breve. Il lavoro non è aggiungere numeri, è scegliere i tre che servono oggi.",
+      "id": "coa09"
+    },
+    {
+      "tipo": "sequenza",
+      "layout": "colonna",
+      "foto": [],
+      "id": "coa10"
+    },
+    {
+      "tipo": "successivo",
+      "pagina": "ai",
+      "testo": "Tutti gli strumenti",
+      "id": "coa11"
+    },
+    {
+      "tipo": "fascia",
+      "variante": "archivio",
+      "id": "coa12"
+    }
+  ]
+}
