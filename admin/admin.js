@@ -337,12 +337,78 @@
       draft = { dirty: false, texts: {}, photos: null, cartella: null, switches: {} };
       const view = await renderElement(node);
       main.replaceChildren(view);
+      folds(main);
       setPreview(node.page);
       main.querySelectorAll("[data-live]").forEach((el) => livePreview(el.dataset.live, el.value));
       linkPreview();
     } catch (e) {
       main.replaceChildren(h("p", { class: "error" }, "Non riesco a caricare: " + e.message));
     }
+  }
+
+  // ---------------------------------------------------------------- folding
+  // Every panel (its h2) and every block (its header) gets a ▾ / ▸ button; "Comprimi tutto" / "Espandi tutto"
+  // at the top folds them all, plus the folds the editors already have (.pc-fold). Remembered in this browser.
+  let FOLDED = {};
+  try { FOLDED = JSON.parse(localStorage.getItem("fold") || "{}") || {}; } catch (e) { FOLDED = {}; }
+  const saveFolds = () => { try { localStorage.setItem("fold", JSON.stringify(FOLDED)); } catch (e) { /* private mode */ } };
+  const FOLDABLE = [[".panel", ":scope > h2"], [".block", ":scope > header"]];
+  const foldLabel = (head) => [...head.childNodes].filter((n) => !(n.classList && n.classList.contains("fold-btn")))
+    .map((n) => n.textContent).join(" ").replace(/\s+/g, " ").trim().slice(0, 60);
+  function setFold(box, folded) {
+    box.classList.toggle("folded", folded);
+    const b = box.querySelector(":scope > h2 > .fold-btn, :scope > header > .fold-btn");
+    if (b) { b.textContent = folded ? "▸" : "▾"; b.title = folded ? "Apri" : "Chiudi"; b.setAttribute("aria-expanded", folded ? "false" : "true"); }
+  }
+  function foldKey(box, head) {
+    const label = box.dataset.foldKey || foldLabel(head);
+    box.dataset.foldLabel = label;
+    // two panels with the same title: the second one is "|1", and so on
+    const before = [...document.querySelectorAll("#main .fold-box")].filter((x) => x !== box && x.dataset.foldLabel === label
+      && (x.compareDocumentPosition(box) & Node.DOCUMENT_POSITION_FOLLOWING)).length;
+    return `${current ? current.id : ""}|${label}|${box.dataset.foldKey ? 0 : before}`;
+  }
+  function addFolds(root) {
+    for (const [sel, headSel] of FOLDABLE) root.querySelectorAll(sel).forEach((box) => {
+      const head = box.querySelector(headSel);
+      if (!head || head.querySelector(":scope > .fold-btn") || box.children.length < 2) return;
+      box.classList.add("fold-box");
+      const key = foldKey(box, head);
+      box.dataset.fold = key;
+      const btn = h("button", { type: "button", class: "fold-btn", onclick: (e) => {
+        e.stopPropagation();
+        const f = !box.classList.contains("folded");
+        if (f) FOLDED[key] = true; else delete FOLDED[key];
+        saveFolds(); setFold(box, f);
+      } });
+      head.prepend(btn);
+      setFold(box, !!FOLDED[key]);
+    });
+    const bar = root.querySelector(".fold-all");
+    if (bar) bar.hidden = root.querySelectorAll(".fold-box").length < 2;
+  }
+  async function foldAll(root, folded) {
+    root.querySelectorAll(".fold-box").forEach((box) => { if (folded) FOLDED[box.dataset.fold] = true; else delete FOLDED[box.dataset.fold]; setFold(box, folded); });
+    saveFolds();
+    // the editors' own folds (evenings, categories, page sections) redraw on click: one at a time
+    for (let k = 0; k < 200; k++) {
+      const b = root.querySelector(`.pc-fold[aria-expanded="${folded ? "true" : "false"}"]`);
+      if (!b) break;
+      b.click();
+      await new Promise((r) => setTimeout(r, 0));
+    }
+  }
+  let foldObserver = null;
+  function folds(main) {
+    const body = main.querySelector(".el-body");
+    if (body) body.prepend(h("div", { class: "fold-all", hidden: "" },
+      h("button", { type: "button", class: "btn small", onclick: () => foldAll(main, true) }, "▸ Comprimi tutto"),
+      h("button", { type: "button", class: "btn small", onclick: () => foldAll(main, false) }, "▾ Espandi tutto")));
+    addFolds(main);
+    if (foldObserver) foldObserver.disconnect();
+    let queued = false;
+    foldObserver = new MutationObserver(() => { if (queued) return; queued = true; requestAnimationFrame(() => { queued = false; addFolds(main); }); });
+    foldObserver.observe(main, { childList: true, subtree: true });
   }
 
   function markDirty() {
@@ -670,7 +736,7 @@ Testo da scrivere.
     { tipo: "numeri", name: "Numeri", note: "cifre grandi con una riga sotto", make: () => ({ voci: [{ numero: "", etichetta: "" }] }) },
     { tipo: "formati", name: "Formati", note: "schede con foto, pallino colorato, titolo e testo", make: () => ({ voci: [{ titolo: "", colore: "#151515", testo: "", foto: null, link: "" }] }) },
     { tipo: "focus", name: "Focus", note: "etichetta, citazione, testo e foto a scorrimento", make: () => ({ etichetta: "", citazione: "", testo: "", foto: [] }) },
-    { tipo: "griglia", name: "Griglia di post", note: "foto quadrate in colonne, ognuna con un link", make: () => ({ colonne: 5, voci: [] }) },
+    { tipo: "griglia", name: "Griglia di post", note: "foto quadrate in colonne, ognuna con un link", make: () => ({ titolo: "", instagram: false, colonne: 5, voci: [] }) },
     { tipo: "link", name: "Link grande", note: "una riga piccola e un link in grande", make: () => ({ etichetta: "", testo: "", link: "" }) },
   ];
   const newId = () => Math.random().toString(36).slice(2, 8);
@@ -862,8 +928,16 @@ Testo da scrivere.
             (() => { const l = h("input", { type: "text", placeholder: "Link (facoltativo)", "aria-label": `Link del post ${i + 1}` }); l.value = v.link || "";
               l.addEventListener("input", () => { v.link = l.value.trim(); changed(); }); return l; })())));
           dropZone(grid, async (files) => { for (const f of files) { const p = isImage(f) && await newPhoto(f, MAX_SIDE); if (p) b.voci.push({ foto: p, link: "" }); } changed(); draw(); });
-          return [select("Colonne", String(b.colonne || 5), [2, 3, 4, 5, 6].map((n) => [String(n), String(n)]), (v) => { b.colonne = Number(v); }),
-            grid, addPhotos((p) => b.voci.push({ foto: p, link: "" }))];
+          const cols = select("Colonne", String(b.colonne || 5), [2, 3, 4, 5, 6].map((n) => [String(n), String(n)]), (v) => { b.colonne = Number(v); });
+          const auto = h("div", { class: "head-switch" }, toggle(!!b.instagram, (v) => { b.instagram = v; if (v && !b.numero) b.numero = 10; changed(); draw(); }),
+            h("span", {}, "Automatica: ogni giorno gli ultimi post da Instagram"));
+          const title = field("Titolo sopra la griglia (facoltativo)", b.titolo, (v) => { b.titolo = v; }, { placeholder: "Feed di Instagram" });
+          if (!b.instagram) return [auto, title, cols, grid, addPhotos((p) => b.voci.push({ foto: p, link: "" }))];
+          const num = select("Quanti post", String(b.numero || 10), Array.from({ length: 24 }, (_, k) => [String(k + 1), String(k + 1)]), (v) => { b.numero = Number(v); });
+          const reserve = h("details", { class: "reserve" }, h("summary", {}, `Foto di riserva (${b.voci.length}): si vedono solo se Instagram non risponde`),
+            grid, addPhotos((p) => b.voci.push({ foto: p, link: "" })));
+          return [auto, title, h("div", { class: "inline-fields" }, num, cols),
+            h("p", { class: "hint" }, "I post e le loro foto si aggiornano da soli ogni giorno: non serve caricarli."), reserve];
         }
         case "link": return [field("Riga in piccolo", b.etichetta, (v) => { b.etichetta = v; }),
           field("Testo grande", b.testo, (v) => { b.testo = v; }, { placeholder: "@bohememag →" }),
@@ -946,7 +1020,7 @@ Testo da scrivere.
       const out = [];
       state.blocchi.forEach((b, i) => {
         const t = BLOCKS.find((x) => x.tipo === b.tipo);
-        out.push(adder(i), h("section", { class: "block" },
+        out.push(adder(i), h("section", { class: "block", "data-fold-key": "blocco-" + b.id },
           h("header", {}, h("b", {}, t.name), h("small", {}, t.note),
             h("span", { class: "tools" },
               h("button", { type: "button", title: "Su", "aria-label": "Sposta su", onclick: () => move(i, i - 1) }, "↑"),
@@ -1001,7 +1075,7 @@ Testo da scrivere.
     const used = new Set(blocchi.flatMap((b) => (b.tipo === "foto" ? [b.foto] : b.tipo === "sequenza" || b.tipo === "focus" ? b.foto
       : b.tipo === "formati" || b.tipo === "griglia" ? b.voci.map((v) => v.foto) : [])).filter(Boolean));
     // photos in the page's own folder that no block uses are removed; a shared folder (cartella) is left alone
-    if (dir === slug) Object.keys(tree).forEach((p) => { if (p.startsWith(`img/${slug}/`) && p.endsWith(".jpg") && !used.has(p) && !(p in out)) out[p] = null; });
+    if (dir === slug) Object.keys(tree).forEach((p) => { if (p.startsWith(`img/${slug}/`) && !p.startsWith(`img/${slug}/instagram/`) && p.endsWith(".jpg") && !used.has(p) && !(p in out)) out[p] = null; });
     const json = asJson({ ...extra, titolo: state.titolo.trim() || slug, descrizione: state.descrizione.trim(), blocchi });
     if (json !== (texts[file] || "")) out[file] = await blobFrom({ text: json });
   }
