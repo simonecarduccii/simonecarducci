@@ -473,3 +473,4 @@ body.no-preview .preview { display: none; }
 /* Instagram posts are 1170x1463 (4:5): show them whole */
 .ig-grid li button, .feed-edit .feed-img, .seq.ig-seq li { aspect-ratio: 1170 / 1463; }
 .block-photo.small { aspect-ratio: 1170 / 1463; }
+.link-pair { flex-wrap: nowrap; } .link-pair .field { flex: 1; min-width: 0; }

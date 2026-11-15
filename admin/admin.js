@@ -975,7 +975,14 @@ Testo da scrivere.
       if (!a || !a.attivo) return h("div", { class: "auto-box off" }, sw);
       a.parole = Array.isArray(a.parole) ? a.parole : []; a.escludi = Array.isArray(a.escludi) ? a.escludi : [];
       const slideIn = h("input", { type: "text", "aria-label": "Slide", placeholder: multiSlide ? "1, 2" : "1" });
-      slideIn.value = Array.isArray(a.slide) ? a.slide.join(", ") : String(a.slide || 1);
+      const all = a.slide === "tutte";
+      slideIn.value = Array.isArray(a.slide) ? a.slide.join(", ") : all ? "" : String(a.slide || 1);
+      slideIn.disabled = all;
+      const allBox = multiSlide ? h("label", { class: "field inline" }, (() => {
+        const c = h("input", { type: "checkbox" }); c.checked = all;
+        c.addEventListener("change", () => { a.slide = c.checked ? "tutte" : [1, 2]; changed(); draw(); });
+        return c;
+      })(), h("span", {}, "tutte le slide (con le frecce)")) : null;
       slideIn.addEventListener("input", () => {
         const ns = slideIn.value.split(/[^0-9]+/).map(Number).filter((n) => n >= 1 && n <= 20);
         a.slide = multiSlide ? (ns.length ? ns : [1]) : ns[0] || 1; changed();
@@ -989,7 +996,7 @@ Testo da scrivere.
         h("div", { class: "inline-fields" },
           select("Bordo della foto", a.colore || "", [["", "qualsiasi"], ["bianco", "bianco"], ["nero", "nero"]], (v) => { a.colore = v; draw(); }),
           a.colore ? h("label", { class: "field inline" }, h("span", {}, "Soglia (vuoto = normale)"), soglia) : null,
-          h("label", { class: "field inline" }, h("span", {}, multiSlide ? "Slide (es. 1, 2)" : "Slide"), slideIn)),
+          h("label", { class: "field inline" }, h("span", {}, multiSlide ? "Slide (es. 1, 2)" : "Slide"), slideIn), allBox),
         h("p", { class: "hint" }, "Sul sito va il post scelto in automatico; la foto qui sotto si usa solo se nessun post corrisponde o se spegni l'automatico."));
     };
 
@@ -1030,6 +1037,9 @@ Testo da scrivere.
           return [field("Etichetta in piccolo", b.etichetta, (v) => { b.etichetta = v; }),
             field("Citazione", b.citazione, (v) => { b.citazione = v; }, { rows: 3 }),
             field("Testo", b.testo, (v) => { b.testo = v; }, { rows: 3 }),
+            h("div", { class: "inline-fields link-pair" },
+              field("Link sotto il testo: scritta (facoltativa)", (b.link || {}).testo, (v) => { b.link = { ...(b.link || {}), testo: v }; }, { placeholder: "Leggi l’Osservatorio su osservatoriofo.com" }),
+              field("Indirizzo", (b.link || {}).url, (v) => { b.link = { ...(b.link || {}), url: v.trim() }; }, { placeholder: "https://…" })),
             autoEditor(b, true), h("p", { class: "hint" }, "Foto a scorrimento:"), grid, addPhotos((p) => b.foto.push(p), true)];
         }
         case "griglia": {
