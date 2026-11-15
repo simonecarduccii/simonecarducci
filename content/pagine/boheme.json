@@ -247,6 +247,37 @@
       "testo": "@bohememag →",
       "link": "https://www.instagram.com/bohememag/",
       "id": "ayb4n9"
+    },
+    {
+      "tipo": "collabora",
+      "id": "collab",
+      "etichetta": "Collabora con Bohème",
+      "titolo": "Hai un’idea? Raccontacela.",
+      "testo": "Bohème cresce con chi la legge. Se hai un progetto da far vedere, un’idea da costruire insieme o un bando da segnalare, scrivici: leggiamo ogni messaggio.",
+      "email": "simone.carducci01@gmail.com",
+      "pulsante": "Scrivici",
+      "voci": [
+        {
+          "titolo": "Presenta il tuo progetto",
+          "testo": "Sei un artista o un fotografo e vuoi che Bohème racconti il tuo lavoro.",
+          "cosa": "Da 5 a 10 immagini, qualche riga sul progetto e i tuoi contatti.",
+          "oggetto": "Progetto per Bohème"
+        },
+        {
+          "titolo": "Proponi una collaborazione",
+          "testo": "Un evento, una mostra, una rubrica, un aiuto per realizzare un’idea: costruiamola insieme.",
+          "cosa": "Chi sei, l’idea in poche righe e di cosa avresti bisogno.",
+          "oggetto": "Collaborazione con Bohème"
+        },
+        {
+          "titolo": "Segnala un’open call",
+          "testo": "Organizzi un bando, una residenza o un premio per artisti e vuoi che lo pubblichiamo.",
+          "cosa": "Il link al bando, la scadenza e un’immagine.",
+          "oggetto": "Open call per Bohème"
+        }
+      ],
+      "dopo": "Leggiamo tutto e ti scriviamo per i prossimi passi.",
+      "instagram": "https://www.instagram.com/bohememag/"
     }
   ]
 }
