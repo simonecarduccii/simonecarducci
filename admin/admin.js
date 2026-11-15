@@ -1022,7 +1022,7 @@ Testo da scrivere.
         }
         case "focus": {
           b.foto = Array.isArray(b.foto) ? b.foto : [];
-          const grid = h("ol", { class: "seq" }, b.foto.map((f, i) => h("li", {},
+          const grid = h("ol", { class: "seq ig-seq" }, b.foto.map((f, i) => h("li", {},
             photoSrc(f) ? h("img", { src: photoSrc(f), alt: "" }) : h("span", { class: "ph" }, typeof f === "string" ? missingLabel(f) : ""),
             igParse(f) ? h("span", { class: "ig-tag" }, "IG") : null,
             h("span", { class: "num" }, String(i + 1).padStart(2, "0")), itemTools(b.foto, i))));
@@ -1081,7 +1081,7 @@ Testo da scrivere.
           b.foto = Array.isArray(b.foto) ? b.foto : [];
           const opts = [...LAYOUTS.map((l) => [l.id, `${l.name} (${l.note})`]), ...MINE.map((l) => [l.id, `${l.name} (salvato)`])];
           if (!opts.some(([v]) => v === b.layout)) b.layout = "griglia";
-          const grid = h("ol", { class: "seq" }, b.foto.map((f, i) => h("li", {},
+          const grid = h("ol", { class: "seq ig-seq" }, b.foto.map((f, i) => h("li", {},
             isVideoRef(f) ? h("span", { class: "ph video-ph", title: typeof f === "string" ? f : f.name }, "▶ " + (videoKind(f) === "file" ? "video" : videoKind(f)))
               : photoSrc(f) ? h("img", { src: photoSrc(f), alt: "" }) : h("span", { class: "ph" }),
             h("span", { class: "num" }, String(i + 1).padStart(2, "0")),
