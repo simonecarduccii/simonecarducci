@@ -20,7 +20,7 @@ Per Bohème cercavo bandi a mano, ente per ente. Le fonti erano decine, ognuna c
 
 Vedetta ha due agenti. **Scout** ogni lunedì cerca sul web enti che pubblicano bandi e non sono ancora seguiti, e me li propone. Il **Motore dei bandi** ogni tre ore legge le fonti attive, solo le pagine cambiate, controlla doppioni e campi mancanti, e prepara i bandi pronti. Io li rivedo da un pannello web prima che escano.
 
-- **75** fonti seguite, **65** con un contatto
+- **centinaia** di fonti seguite
 - un giro ogni **3 ore**, con un tetto di **80** letture al giorno
 - **122** test automatici
 
