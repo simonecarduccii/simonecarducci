@@ -745,8 +745,18 @@ Testo da scrivere.
   async function applyPages() {
     const group = ALL.find((n) => n.pagesList);
     if (!group) return;
+    // a content/pagine/<slug>.json with the slug of a culture page (Bohème) replaces that page: its node in the Hero
+    // opens the block editor; the old project sheet only keeps the short text used by the home cards
+    const culture = ALL.filter((n) => n.facts && n.facts.slug === n.id);
+    culture.forEach((n) => {
+      if (!tree[`${PAGE_DIR}${n.id}.json`]) return;
+      n.freePage = n.id;
+      ["facts", "instagram", "videos", "posters", "photos"].forEach((k) => delete n[k]);
+      n.texts = (n.texts || []).filter((t) => t.section === "## In breve");
+      n.note = "La pagina è fatta a blocchi: aggiungili, riordinali con ↑ ↓, toglili con ×. La foto del primo blocco è anche lo sfondo in home.";
+    });
     const kids = [];
-    for (const slug of pageSlugs()) {
+    for (const slug of pageSlugs().filter((x) => !culture.some((n) => n.id === x))) {
       let title = slug;
       try { title = JSON.parse(await readText(PAGE_DIR + slug + ".json")).titolo || slug; } catch (e) { /* keep the slug */ }
       kids.push({ id: "pg-" + slug, title, page: slug + ".html", freePage: slug,
@@ -831,6 +841,9 @@ Testo da scrivere.
         .map((b) => ({ ...JSON.parse(JSON.stringify(b)), id: b.id || newId() })) };
     draft.builder = { node, state, file, extra: Object.fromEntries(Object.entries(data).filter(([k]) => !["titolo", "descrizione", "blocchi"].includes(k))) };
     const extra = draft.builder.extra;
+    // the page in place of a culture page (e.g. boheme): always public
+    const live = RESERVED.includes(slug);
+    if (live) delete extra.anteprima;
     // "cartella": the page takes its photos from img/<cartella>/ (e.g. a review page next to the live project)
     const dir = /^[a-z0-9][a-z0-9-]*$/.test(extra.cartella || "") ? extra.cartella : slug;
     const changed = () => markDirty();
@@ -1161,7 +1174,7 @@ Testo da scrivere.
       h("section", { class: "panel" }, h("h2", {}, "Pagina"),
         field("Titolo (nella scheda del browser e nell'albero)", state.titolo, (v) => { state.titolo = v; }),
         field("Descrizione per Google (max 155 caratteri)", state.descrizione, (v) => { state.descrizione = v; }, { rows: 2 }),
-        h("div", { class: "head-switch" }, toggle(!!extra.anteprima, (v) => { if (v) extra.anteprima = true; else delete extra.anteprima; changed(); }),
+        live ? null : h("div", { class: "head-switch" }, toggle(!!extra.anteprima, (v) => { if (v) extra.anteprima = true; else delete extra.anteprima; changed(); }),
           h("span", {}, "Pagina di prova (Google non la mostra)")),
         dir !== slug ? h("p", { class: "hint" }, `Le foto di questa pagina stanno in img/${dir}/, insieme a quelle del progetto: togliere una foto qui non la cancella.`) : null),
       h("section", { class: "panel" }, h("h2", {}, "Blocchi", h("small", {}, " dall'alto in basso, come nella pagina")), list));
@@ -1172,11 +1185,15 @@ Testo da scrivere.
     const { state, file, extra, node } = draft.builder;
     const slug = node.freePage;
     const dir = /^[a-z0-9][a-z0-9-]*$/.test(extra.cartella || "") ? extra.cartella : slug;
+    const live = RESERVED.includes(slug);
+    if (live) delete extra.anteprima;
+    // on a page in place of a culture page, a new photo in the first block becomes img/<slug>/cover.jpg (the home hero)
+    const first = state.blocchi[0] && state.blocchi[0].tipo === "foto" ? state.blocchi[0] : null;
     const copies = [];
     const put = async (f, b) => {
       if (isVideoRef(f)) return putVideo(f, slug, out);
       if (!f || typeof f !== "object") return f;
-      if (!f.path) f.path = `img/${dir}/${b.id}-${newId()}.jpg`;
+      if (!f.path) f.path = live && b === first ? `img/${dir}/cover.jpg` : `img/${dir}/${b.id}-${newId()}.jpg`;
       if (f.from) copies.push({ from: f.from, to: f.path });
       if (!f.sha) f.sha = await blobFrom({ blob: f.blob });
       out[f.path] = f.sha;
@@ -1199,7 +1216,7 @@ Testo da scrivere.
     const used = new Set(blocchi.flatMap((b) => (b.tipo === "foto" ? [b.foto] : b.tipo === "sequenza" || b.tipo === "focus" ? b.foto
       : b.tipo === "formati" || b.tipo === "griglia" ? b.voci.map((v) => v.foto) : [])).filter(Boolean));
     // photos in the page's own folder that no block uses are removed; a shared folder (cartella) is left alone
-    if (dir === slug) Object.keys(tree).forEach((p) => { if (p.startsWith(`img/${slug}/`) && !p.startsWith(`img/${slug}/instagram/`) && p.endsWith(".jpg") && !used.has(p) && !(p in out)) out[p] = null; });
+    if (dir === slug && !live) Object.keys(tree).forEach((p) => { if (p.startsWith(`img/${slug}/`) && !p.startsWith(`img/${slug}/instagram/`) && p.endsWith(".jpg") && !used.has(p) && !(p in out)) out[p] = null; });
     const json = asJson({ ...extra, titolo: state.titolo.trim() || slug, descrizione: state.descrizione.trim(), blocchi });
     if (json !== (texts[file] || "")) out[file] = await blobFrom({ text: json });
   }
