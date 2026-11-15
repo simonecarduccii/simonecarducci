@@ -176,7 +176,10 @@
           "foto": "img/boheme/feed-10.jpg",
           "link": ""
         }
-      ]
+      ],
+      "titolo": "Feed di Instagram",
+      "instagram": true,
+      "numero": 10
     },
     {
       "tipo": "link",

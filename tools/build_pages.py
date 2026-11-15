@@ -1471,12 +1471,28 @@ def block_html(b, p, i):
                 f'    {f"<ul class=\"bv-slides\">{slides}</ul>" if slides else ""}\n  </section>')
     if kind == "griglia":
         cols = b.get("colonne") if isinstance(b.get("colonne"), int) and 2 <= b.get("colonne") <= 6 else 5
+        items = [v for v in b.get("voci") or [] if isinstance(v, dict)]
+        # "instagram": true = the latest posts downloaded every day by tools/instagram_feed.py;
+        # the photos chosen by hand stay as the fallback when the feed is not there yet.
+        if b.get("instagram"):
+            n = b.get("numero") if isinstance(b.get("numero"), int) and 1 <= b.get("numero") <= 24 else 10
+            feed = ROOT / "content" / "instagram" / f"feed-{s}.json"
+            try:
+                got = [v for v in __import__("json").loads(feed.read_text(encoding="utf-8")).get("post", [])
+                       if isinstance(v, dict) and _photo(v.get("foto"), s) and exists(v["foto"])]
+            except (OSError, ValueError, AttributeError):
+                got = []
+            items = got[:n] or items[:n]
         cells = ""
-        for k, v in enumerate((v for v in b.get("voci") or [] if isinstance(v, dict)), 1):
+        for k, v in enumerate(items, 1):
             media = ph(v.get("foto"), f'{p["title"]}, post {k}', s)
             la = link_attrs(v.get("link"))
             cells += f'<li>{f"<a{la}>{media}</a>" if la else media}</li>'
-        return f'  <ul class="bv-feed" style="--cols: {cols}">{cells}</ul>' if cells else ""
+        if not cells:
+            return ""
+        t = _str(b.get("titolo"))
+        head = f'<h2 class="bv-feed-title">{html.escape(t)}</h2>' if t else ""
+        return f'  <section class="bv-feed-wrap">{head}<ul class="bv-feed" style="--cols: {cols}">{cells}</ul></section>'
     if kind == "link":
         lab, t, la = _str(b.get("etichetta")), _str(b.get("testo")), link_attrs(b.get("link"))
         if not t:
