@@ -432,3 +432,7 @@ body.no-preview .preview { display: none; }
 .color-row { display: flex; gap: 6px; align-items: center; }
 .color-row input[type=color] { width: 40px; height: 32px; padding: 0; border: 1px solid var(--rule); border-radius: 6px; }
 .color-row input[type=text] { flex: 1; min-width: 0; }
+.block-photo .photo-btns { position: absolute; right: 10px; bottom: 10px; justify-content: flex-end; }
+.block-photo .photo-btns .btn { position: static; }
+.block-photo .photo-btns .lib-btn { margin: 0; }
+.block-photo.small { max-width: 240px; }
