@@ -94,8 +94,13 @@ Il triangolino ▸ / ▾ accanto a un ramo lo apre o lo chiude (il browser se lo
   *+ Nuova pagina* chiede il titolo e la crea (online come `<titolo>.html`). Nella pagina, *+ Aggiungi un blocco qui…* inserisce un blocco
   in quel punto: **Titolo pagina**, **Foto grande** (larga o a tutta pagina), **Testo** (con nota in piccolo), **Citazione**, **Scheda dati**
   (righe etichetta / valore), **Sequenza foto** (con uno dei layout, anche quelli salvati), **Altri progetti** (automatico), **Progetto successivo**
-  (link a un'altra pagina), **Fascia** (Pellicole o Archivio). ↑ ↓ spostano un blocco, × lo toglie. Le foto si caricano dentro il blocco
+  (link a un'altra pagina), **Fascia** (Pellicole o Archivio), **Video**, e i blocchi della nuova pagina Bohème: **Numeri** (cifra + riga sotto),
+  **Formati** (schede con foto, pallino colorato, titolo, testo e link), **Focus** (etichetta, citazione, testo, foto a scorrimento),
+  **Griglia di post** (foto quadrate in 2-6 colonne, ognuna con il suo link), **Link grande**. Il titolo ha anche il link della freccia ←,
+  la foto a tutta pagina le proporzioni (es. `1366:582`). ↑ ↓ spostano un blocco o una voce, × lo toglie. Le foto si caricano dentro il blocco
   (o trascinandole dal Finder) e finiscono in `img/<pagina>/`; quelle che nessun blocco usa più vengono tolte al salvataggio.
+  Una pagina con `"cartella"` (es. la pagina di prova `boheme-v2`, che usa `img/boheme/`) salva le foto nuove lì e non cancella nulla.
+  L'interruttore **Pagina di prova** la nasconde a Google.
   La pagina è in `content/pagine/<pagina>.json`. Per ora non compare nei menu: si raggiunge dal suo indirizzo o da un blocco *Progetto successivo*.
 - **Pagina in costruzione**: ogni elemento con una pagina sua (progetti, Bohème, modì, AI, About, Archivio, Pagine) ha in alto
   l'interruttore *Pagina in costruzione*. Acceso = chi apre la pagina vede solo l'avviso "Pagina in costruzione" (stile della pagina 404,
