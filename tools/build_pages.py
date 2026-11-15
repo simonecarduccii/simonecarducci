@@ -1389,6 +1389,11 @@ def edges(b):
     return " has-edges" if b.get("bordi") else ""
 
 
+def zoom(b):
+    """ "zoom": true on a block = its photos open in the lightbox of the photo projects (assets/main.js .bv-zoom)."""
+    return " bv-zoom" if b.get("zoom") else ""
+
+
 def ph(src, alt, folder, eager=False):
     """Photo of a block, or an empty grey box of the same size when it is not uploaded yet."""
     ig = ig_photo(src)
@@ -1492,12 +1497,14 @@ def block_html(b, p, i):
             a = auto_pick(v.get("automatico"))
             src = a["foto"][0] if a else v.get("foto")
             media = ph(src, t or p["title"], s) if not a else img(src, t or p["title"])
-            la = link_attrs(v.get("link")) or (link_attrs(a["link"]) if a else link_attrs(v.get("foto")) if ig_photo(v.get("foto")) else "")
-            if la:
-                media = f'<a{la}>{media}</a>'
+            url = _str(v.get("link")) or (a["link"] if a else _str(v.get("foto")) if ig_photo(v.get("foto")) else "")
+            if b.get("zoom") and url.startswith("https://"):  # opens in the lightbox, with "Visualizza su Instagram"
+                media = media.replace("<img ", f'<img data-ig="{html.escape(url)}" ', 1)
+            elif link_attrs(url):
+                media = f'<a{link_attrs(url)}>{media}</a>'
             cards += (f'<li>{media}<h3 class="bv-format-title">{dot}{html.escape(t)}</h3>'
                       f'{f"<p>{inline(txt)}</p>" if txt else ""}</li>')
-        return f'  <ul class="bv-formats{edges(b)}">{cards}</ul>' if cards else ""
+        return f'  <ul class="bv-formats{edges(b)}{zoom(b)}">{cards}</ul>' if cards else ""
     if kind == "passi":
         # Numbered steps or formats (Figma "Bohème · Studio identità"): label, title, text, then one card per item.
         # Each card: photo (or a block of its "colore" while the photo is missing), number, title, text.
@@ -1531,6 +1538,32 @@ def block_html(b, p, i):
         return (f'  <section class="bv-seq{edges(b)}">{head if (lab or t or txt) else ""}'
                 f'<ul class="bv-seq-list" style="--cols: {min(len(items), 4)}; --ratio: {ratio}">{cards}</ul>'
                 f'{f"<ul class=\"bv-rules\">{rules}</ul>" if rules else ""}</section>')
+    if kind == "collabora":
+        # "Collabora con noi": an invitation and a few paths (present a project, propose a collaboration...); each
+        # path opens an email already addressed, with its subject and a short outline of what to send.
+        paths = [v for v in b.get("voci") or [] if isinstance(v, dict) and _str(v.get("titolo"))]
+        mail = _str(b.get("email"))
+        lab, t, txt, after = _str(b.get("etichetta")), _str(b.get("titolo")), _str(b.get("testo")), _str(b.get("dopo"))
+        if not (t or paths):
+            return ""
+        from urllib.parse import quote
+        cards = ""
+        for v in paths:
+            vt, vtxt, what = _str(v.get("titolo")), _str(v.get("testo")), _str(v.get("cosa"))
+            cta = ""
+            if re.fullmatch(r"[^@\s]+@[^@\s]+\.[a-z]{2,}", mail):
+                body = "Ciao Bohème,\n\n\n\n" + (f"---\nDa mandare: {what}\n" if what else "")
+                href = f"mailto:{mail}?subject={quote(_str(v.get('oggetto')) or vt)}&body={quote(body)}"
+                cta = f'<a class="bv-collab-cta" href="{html.escape(href)}">{html.escape(_str(b.get("pulsante")) or "Scrivici")} &rarr;</a>'
+            cards += (f'<li><h3>{html.escape(vt)}</h3>{f"<p>{inline(vtxt)}</p>" if vtxt else ""}'
+                      f'{f"<p class=\"bv-collab-what\"><span class=\"label\">Cosa mandare</span>{inline(what)}</p>" if what else ""}{cta}</li>')
+        ig = link_attrs(b.get("instagram"))
+        foot = (f'<p class="bv-collab-after">{inline(after)}'
+                f'{f" Oppure scrivici su <a{ig}>Instagram</a>." if ig else ""}</p>') if (after or ig) else ""
+        return (f'  <section class="bv-collab"><div class="bv-collab-head">'
+                f'{f"<p class=\"label\">{html.escape(lab)}</p>" if lab else ""}{f"<h2>{html.escape(t)}</h2>" if t else ""}'
+                f'{f"<p class=\"bv-collab-text\">{inline(txt)}</p>" if txt else ""}</div>'
+                f'{f"<ul class=\"bv-collab-list\">{cards}</ul>" if cards else ""}{foot}</section>')
     if kind == "focus":
         lab, q, txt = _str(b.get("etichetta")), _str(b.get("citazione")), _str(b.get("testo"))
         a = auto_pick(b.get("automatico"))
@@ -1540,13 +1573,15 @@ def block_html(b, p, i):
         n = len(photos)
         slides = "".join(f'<li>{ph(f, f"{lab or p["title"]}, slide {k} di {n}", s)}</li>'
                          for k, f in enumerate(photos, 1))
+        if b.get("zoom") and a and a["link"].startswith("https://"):
+            slides = slides.replace("<img ", f'<img data-ig="{html.escape(a["link"])}" ')
         # more than two slides: a row that scrolls two at a time with arrows (assets/main.js)
         nav = ('<div class="bv-slides-nav" hidden><button type="button" data-step="-1" aria-label="Slide precedenti">&larr;</button>'
                '<button type="button" data-step="1" aria-label="Slide successive">&rarr;</button></div>') if n > 2 else ""
         fl = b.get("link") if isinstance(b.get("link"), dict) else {}
         fla, flt = link_attrs(fl.get("url")), _str(fl.get("testo"))
         more = f'<p class="bv-focus-more"><a{fla}>{html.escape(flt or _str(fl.get("url")))} &rarr;</a></p>' if fla else ""
-        return (f'  <section class="bv-focus{edges(b)}">\n    <div class="bv-focus-text">'
+        return (f'  <section class="bv-focus{edges(b)}{zoom(b)}">\n    <div class="bv-focus-text">'
                 f'{f"<p class=\"label\">{html.escape(lab)}</p>" if lab else ""}'
                 f'{f"<blockquote><p>{inline(q)}</p></blockquote>" if q else ""}'
                 f'{f"<p class=\"bv-focus-note\">{inline(txt)}</p>" if txt else ""}{more}</div>\n'
@@ -1602,7 +1637,7 @@ def build_free(p, file=None, draft=False):
     parts += [x for x in (block_html(b, p, i) for i, b in enumerate(blocks)) if x]
     over = bool(blocks) and blocks[0].get("tipo") == "foto" and blocks[0].get("piena") and _photo(blocks[0].get("foto"), p["_dir"])
     # pages with the Bohème blocks keep their content centred within a maximum width (assets/style.css)
-    bv = any(b.get("tipo") in ("numeri", "formati", "focus", "griglia", "link", "passi") for b in blocks)
+    bv = any(b.get("tipo") in ("numeri", "formati", "focus", "griglia", "link", "passi", "collabora") for b in blocks)
     # "anteprima": true = a review page: not indexed by search engines
     body = "\n".join(parts)
     if draft:

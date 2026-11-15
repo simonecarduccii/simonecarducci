@@ -156,116 +156,14 @@
         }
       ],
       "id": "dyaqq5",
-      "bordi": true
+      "bordi": true,
+      "zoom": true
     },
     {
       "tipo": "testo",
       "testo": "Bohème nasce come idea concettuale nell'estate del 2023, da un'idea originale di Luca Maria Pescatore. Il progetto approda per la prima volta su instagram, come magazine indipendente, con il primo post pubblicato nel luglio 2024. Racconta gli artisti, l'arte emergente e raccoglie le opportunità che contano per chi vive d'arte: bandi, residenze, premi, open call, mostre. In Italia queste occasioni esistono, ma sono sparse tra decine di siti di enti, fondazioni e festival, e spesso arrivano tardi o incomplete. Bohème le cerca, le verifica e le racconta.\n\nCuro la direzione artistica ed editoriale: la linea curatoriale e il tono, la ricerca e la selezione dei progetti fotografici e artistici, le rubriche e i format, l'editing dei testi, dalle presentazioni alle interviste, e l'immagine complessiva di ogni uscita. In ventisei mesi, partendo da zero, il magazine ha raccolto più di 5.000 follower in organico, pubblicato quasi 600 caroselli e superato 1,5 milioni di visualizzazioni complessive, senza l'ausilio della publicazione di reels, con un pubblico soprattutto italiano tra i 25 e i 44 anni.\n\nCon la crescita del pubblico Bohème è diventato anche uno strumento. Per tenerlo aggiornato ho progettato Vedetta, un sistema che ogni settimana cerca nuove fonti e ogni tre ore legge e verifica i bandi di più di 100 enti verificati, prima che io li riveda e li pubblichi. Il passo successivo sarà un sito pubblico dei bandi su bohememag.it e un'app, tenuti insieme da un'unica identità visiva.\n\nCostruire un pubblico da zero mi ha insegnato a scegliere ogni giorno cosa non pubblicare. La fiducia di chi legge si guadagna con la precisione, uscita dopo uscita.",
       "id": "q5qmre",
       "nota": ""
-    },
-    {
-      "tipo": "passi",
-      "id": "idpass",
-      "affiancato": true,
-      "formato": "308.5:420",
-      "etichetta": "Studio dell’identità visiva",
-      "titolo": "Dal manifesto di Puccini all’identità di Bohème",
-      "testo": "L’identità visiva di Bohème nasce dal manifesto che Adolfo Hohenstein realizzò nel 1896 per la prima della Bohème di Puccini. Non è una copia ma una lettura: quattro passaggi dal titolo dell’opera al logo, e dal logo a tutto quello che Bohème pubblica.",
-      "voci": [
-        {
-          "titolo": "Il manifesto",
-          "testo": "Adolfo Hohenstein, La Bohème, 1896, per Ricordi. Il punto di partenza: un titolo disegnato a mano, crema su rosso.",
-          "foto": "img/boheme/identita-01.jpg",
-          "colore": "#e9e5dc"
-        },
-        {
-          "titolo": "Il lettering",
-          "testo": "Il dettaglio della scritta: lettere larghe e irregolari, una linea di base che si muove, la gamba della E che scende sotto la riga.",
-          "foto": "img/boheme/identita-02.jpg",
-          "colore": "#7d1f1a"
-        },
-        {
-          "titolo": "Il ricalco",
-          "testo": "I contorni ripresi a mano e semplificati. Resta l’energia del disegno, le forme diventano piene e si leggono anche piccole.",
-          "foto": "img/boheme/identita-03.jpg",
-          "colore": "#ffffff"
-        },
-        {
-          "titolo": "Il logo",
-          "testo": "Bohème oggi: lettere bianche su giallo. La È tiene l’accento e la gamba che scende, come nel 1896.",
-          "foto": "img/boheme/identita-04.jpg",
-          "colore": "#c6a538"
-        }
-      ],
-      "bordi": true
-    },
-    {
-      "tipo": "passi",
-      "id": "idform",
-      "formato": "1170:1463",
-      "etichetta": "Dal logo all’identità",
-      "titolo": "Lo stesso segno in ogni formato",
-      "testo": "Il logo è il punto da cui parte tutto il resto. Lettere disegnate, testo che vive sopra l’immagine, un colore pieno per ogni voce: le stesse regole tengono insieme i tre formati che Bohème pubblica ogni settimana su Instagram.",
-      "voci": [
-        {
-          "titolo": "Open call",
-          "testo": "Foto a tutto campo, tag e data sopra l’immagine: il titolo che stava sopra la scena nel manifesto, oggi sta sopra il lavoro dei fotografi.",
-          "colore": "#4f6fd8",
-          "automatico": {
-            "attivo": true,
-            "parole": [
-              "#opencall",
-              "open call"
-            ],
-            "escludi": [],
-            "colore": "",
-            "soglia": 0,
-            "slide": 2
-          }
-        },
-        {
-          "titolo": "Osservatorio · OFO",
-          "testo": "Fondo nero pieno e scritte chiare: la stessa regola del logo, chiaro su colore pieno, per la rubrica settimanale di Francesca Occhi.",
-          "colore": "#0e0d0c",
-          "automatico": {
-            "attivo": true,
-            "parole": [
-              "francesca occhi",
-              "@francescaocchi",
-              "osservatorio",
-              "ofo"
-            ],
-            "escludi": [],
-            "colore": "nero",
-            "soglia": 0,
-            "slide": 1
-          }
-        },
-        {
-          "titolo": "Progetti",
-          "testo": "Fondo bianco e foto al centro: il segno si fa da parte e lascia la scena ai progetti degli artisti.",
-          "colore": "#ffffff",
-          "automatico": {
-            "attivo": true,
-            "parole": [],
-            "escludi": [
-              "#opencall",
-              "open call"
-            ],
-            "colore": "bianco",
-            "soglia": 0,
-            "slide": 1
-          }
-        }
-      ],
-      "regole": [
-        "Lettere disegnate a mano",
-        "Linea di base mossa",
-        "Testo sopra l’immagine",
-        "Un colore pieno per formato"
-      ],
-      "bordi": true
     },
     {
       "tipo": "focus",
@@ -294,7 +192,8 @@
         "url": "https://www.osservatoriofo.com"
       },
       "id": "ufm3p1",
-      "bordi": true
+      "bordi": true,
+      "zoom": true
     },
     {
       "tipo": "griglia",
@@ -353,6 +252,37 @@
       "testo": "@bohememag →",
       "link": "https://www.instagram.com/bohememag/",
       "id": "ayb4n9"
+    },
+    {
+      "tipo": "collabora",
+      "id": "collab",
+      "etichetta": "Collabora con Bohème",
+      "titolo": "Hai un’idea? Raccontacela.",
+      "testo": "Bohème cresce con chi la legge. Se hai un progetto da far vedere, un’idea da costruire insieme o un bando da segnalare, scrivici: leggiamo ogni messaggio.",
+      "email": "simone.carducci01@gmail.com",
+      "pulsante": "Scrivici",
+      "voci": [
+        {
+          "titolo": "Presenta il tuo progetto",
+          "testo": "Sei un artista o un fotografo e vuoi che Bohème racconti il tuo lavoro.",
+          "cosa": "Da 5 a 10 immagini, qualche riga sul progetto e i tuoi contatti.",
+          "oggetto": "Progetto per Bohème"
+        },
+        {
+          "titolo": "Proponi una collaborazione",
+          "testo": "Un evento, una mostra, una rubrica, un aiuto per realizzare un’idea: costruiamola insieme.",
+          "cosa": "Chi sei, l’idea in poche righe e di cosa avresti bisogno.",
+          "oggetto": "Collaborazione con Bohème"
+        },
+        {
+          "titolo": "Segnala un’open call",
+          "testo": "Organizzi un bando, una residenza o un premio per artisti e vuoi che lo pubblichiamo.",
+          "cosa": "Il link al bando, la scadenza e un’immagine.",
+          "oggetto": "Open call per Bohème"
+        }
+      ],
+      "dopo": "Leggiamo tutto e ti scriviamo per i prossimi passi.",
+      "instagram": "https://www.instagram.com/bohememag/"
     }
   ]
 }
