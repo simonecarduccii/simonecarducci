@@ -978,7 +978,7 @@ Testo da scrivere.
       const all = a.slide === "tutte";
       slideIn.value = Array.isArray(a.slide) ? a.slide.join(", ") : all ? "" : String(a.slide || 1);
       slideIn.disabled = all;
-      const allBox = multiSlide ? h("label", { class: "field inline" }, (() => {
+      const allBox = multiSlide ? h("label", { class: "check" }, (() => {
         const c = h("input", { type: "checkbox" }); c.checked = all;
         c.addEventListener("change", () => { a.slide = c.checked ? "tutte" : [1, 2]; changed(); draw(); });
         return c;

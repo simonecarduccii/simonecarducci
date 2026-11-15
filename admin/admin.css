@@ -474,3 +474,5 @@ body.no-preview .preview { display: none; }
 .ig-grid li button, .feed-edit .feed-img, .seq.ig-seq li { aspect-ratio: 1170 / 1463; }
 .block-photo.small { aspect-ratio: 1170 / 1463; }
 .link-pair { flex-wrap: nowrap; } .link-pair .field { flex: 1; min-width: 0; }
+.auto-box .check { display: inline-flex; gap: 6px; align-items: center; font-size: 13px; white-space: nowrap; }
+.auto-box .check input { width: auto; margin: 0; }
