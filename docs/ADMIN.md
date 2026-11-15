@@ -99,7 +99,7 @@ Il triangolino ▸ / ▾ accanto a un ramo lo apre o lo chiude (il browser se lo
   **Griglia di post** (foto quadrate in 2-6 colonne, ognuna con il suo link), **Link grande**. Il titolo ha anche il link della freccia ←,
   la foto a tutta pagina le proporzioni (es. `1366:582`). ↑ ↓ spostano un blocco o una voce, × lo toglie. Le foto si caricano dentro il blocco
   (o trascinandole dal Finder) e finiscono in `img/<pagina>/`; quelle che nessun blocco usa più vengono tolte al salvataggio.
-  Una pagina con `"cartella"` (es. la pagina di prova `boheme-v2`, che usa `img/boheme/`) salva le foto nuove lì e non cancella nulla.
+  Una pagina con `"cartella"` (che usa le foto di un altro progetto, es. `img/boheme/`) salva le foto nuove lì e non cancella nulla.
   L'interruttore **Pagina di prova** la nasconde a Google.
   La pagina è in `content/pagine/<pagina>.json`. Per ora non compare nei menu: si raggiunge dal suo indirizzo o da un blocco *Progetto successivo*.
 - **Pagina in costruzione**: ogni elemento con una pagina sua (progetti, Bohème, modì, AI, About, Archivio, Pagine) ha in alto

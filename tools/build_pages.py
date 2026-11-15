@@ -1589,8 +1589,10 @@ def version_admin():
 def main():
     version_admin()
     build_home()
+    free = {p["slug"] for p in FREE}
     for i, p in enumerate(CULTURE):
-        build_culture(i, p)
+        if p["slug"] not in free:  # content/pagine/<slug>.json replaces the page built from docs/progetti/
+            build_culture(i, p)
     for i, p in enumerate(PHOTO):
         build_photo(i, p)
     build_archive()
@@ -1599,12 +1601,26 @@ def main():
         if p.get("doc"):
             build_ai_detail(p)
     build_about()
-    taken = {"index", "about", "archivio", "ai", "404"} | {p["slug"] for p in PHOTO + CULTURE + AI if p.get("slug")}
+    taken = {"index", "about", "archivio", "ai", "404"} | {p["slug"] for p in PHOTO + AI if p.get("slug")}
     for p in FREE:
         if p["slug"] in taken:
             print("skip page (name already used):", p["slug"])
             continue
         build_free(p)
+    for old, new in MOVED.items():
+        redirect(old, new)
+
+
+# Old addresses that now live elsewhere: a small page that forwards the visitor (and old links keep working).
+MOVED = {"boheme-v2": "boheme"}
+
+
+def redirect(old, new):
+    (ROOT / f"{old}.html").write_text(
+        f'<!doctype html>\n<html lang="it">\n<head>\n<meta charset="utf-8">\n<title>Simone Carducci</title>\n'
+        f'<meta name="robots" content="noindex">\n<link rel="canonical" href="{SITE_URL}{new}.html">\n'
+        f'<meta http-equiv="refresh" content="0; url={new}.html">\n</head>\n'
+        f'<body><p><a href="{new}.html">Vai alla pagina</a></p></body>\n</html>\n', encoding="utf-8")
 
 
 if __name__ == "__main__":

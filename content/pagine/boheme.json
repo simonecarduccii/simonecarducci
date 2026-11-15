@@ -1,8 +1,6 @@
 {
   "titolo": "Bohème Magazine",
   "descrizione": "Bohème racconta l'arte emergente e raccoglie le opportunità che contano per chi la fa: bandi, residenze, premi, open call.",
-  "anteprima": true,
-  "cartella": "boheme",
   "blocchi": [
     {
       "tipo": "foto",
