@@ -2,7 +2,10 @@
 
 Runs every day in the "Update site" Action. It needs the repository secret INSTAGRAM_TOKEN:
 - a token from Meta Business settings (system user, "never expires"), used with graph.facebook.com, or
-- an "Instagram API with Instagram Login" token, used with graph.instagram.com.
+- an "Instagram API with Instagram Login" token (Meta app "Bohème", Genera token di accesso), used with
+  graph.instagram.com. It lasts 60 days: every run renews it and saves the new one back into the secret
+  INSTAGRAM_TOKEN, using the secret GH_SECRETS_PAT (a fine-grained GitHub token limited to this repository,
+  permission "Secrets: read and write"). Without GH_SECRETS_PAT the token is not saved and expires.
 Without the secret it does nothing, and the grid keeps the photos chosen by hand in /admin.
 
 Output: img/<folder>/instagram/<id>.jpg (max 1080 px) and content/instagram/feed-<folder>.json
@@ -13,6 +16,7 @@ import io
 import json
 import os
 import pathlib
+import subprocess
 import sys
 import urllib.parse
 import urllib.request
@@ -50,11 +54,27 @@ def media_instagram(token):
     """Instagram Login token: the account is the token's owner."""
     me = get("https://graph.instagram.com/me", fields="username", access_token=token)
     d = get("https://graph.instagram.com/me/media", fields=FIELDS, limit=LIMIT, access_token=token)
-    try:  # keeps a 60-day token alive while the Action runs every day
-        get("https://graph.instagram.com/refresh_access_token", grant_type="ig_refresh_token", access_token=token)
-    except Exception:
-        pass
+    refresh(token)
     return me.get("username", ""), d.get("data", [])
+
+
+def refresh(token):
+    """Instagram Login tokens last 60 days: renew it and save the new one into the INSTAGRAM_TOKEN secret."""
+    try:
+        d = get("https://graph.instagram.com/refresh_access_token", grant_type="ig_refresh_token", access_token=token)
+    except Exception as e:  # e.g. a token younger than 24 hours: try again tomorrow
+        print("token not refreshed:", e)
+        return
+    new, pat, repo = d.get("access_token"), os.environ.get("GH_SECRETS_PAT", "").strip(), os.environ.get("GITHUB_REPOSITORY", "")
+    if not new:
+        return
+    if not (pat and repo):
+        print("token refreshed but not saved: add the GH_SECRETS_PAT secret, or the token expires in 60 days")
+        return
+    r = subprocess.run(["gh", "secret", "set", "INSTAGRAM_TOKEN", "--repo", repo], input=new, text=True,
+                       capture_output=True, env={**os.environ, "GH_TOKEN": pat})
+    days = int(d.get("expires_in", 0)) // 86400
+    print(f"token refreshed and saved, valid for {days} days" if r.returncode == 0 else "token refreshed but not saved: GH_SECRETS_PAT cannot write secrets")
 
 
 def save_jpg(url, dest):
@@ -72,7 +92,7 @@ def main():
         print("INSTAGRAM_TOKEN not set: Instagram feed not updated")
         return 0
     errors = []
-    for fetch in (media_facebook, media_instagram):
+    for fetch in (media_instagram, media_facebook):
         try:
             account, items = fetch(token)
             break
