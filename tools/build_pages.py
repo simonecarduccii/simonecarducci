@@ -1019,7 +1019,10 @@ def build_photo(i, p):
     lay = layout(s)
     schema = schema_of(lay)
     seq_class = "custom" if schema else (lay.get("layout") if lay.get("layout") in LAYOUTS else "colonna")
-    have = [n for n in range(1, total + 1) if exists(f"img/{s}/{n:02d}.jpg")]
+    # "nascoste": photo numbers hidden on the site but kept in /admin; "dopo" still counts every photo
+    hidden = {n for n in lay.get("nascoste") or [] if isinstance(n, int)}
+    files = [n for n in range(1, total + 1) if exists(f"img/{s}/{n:02d}.jpg")]
+    have = [n for n in files if n not in hidden]
     note = draft_note(inline(notes[0])) if notes else (draft_note() if "DA VERIFICARE" in str(secs) else "")
     credits_html = (f'<div class="credits label">{"".join(f"<span>{t}</span>" for t in tech)}</div>'
                     f'{f"<p class=\"copy label\">{inline(credits)}</p>" if credits else ""}')
@@ -1049,7 +1052,8 @@ def build_photo(i, p):
         if part == "":
             continue
         try:
-            at = max(0, min(len(have), int(t.get("dopo", 0))))
+            at = max(0, min(len(files), int(t.get("dopo", 0))))
+            at = len([n for n in files[:at] if n not in hidden])
         except (TypeError, ValueError):
             continue
         between.setdefault(at, [])
@@ -1488,7 +1492,10 @@ def block_html(b, p, i):
         return (f'  <figure class="block-video{" wide" if b.get("larga") else ""}">{v}'
                 f'{f"<figcaption>{inline(cap)}</figcaption>" if cap else ""}</figure>')
     if kind == "sequenza":
-        photos = [f for f in b.get("foto") or [] if (_photo(f, s) and exists(f)) or (isinstance(f, str) and video_html(f, ""))]
+        # "nascoste": positions (1, 2…) of photos hidden on the site but kept in /admin
+        hidden = {n for n in b.get("nascoste") or [] if isinstance(n, int)}
+        photos = [f for k, f in enumerate(b.get("foto") or [], 1) if k not in hidden
+                  and ((_photo(f, s) and exists(f)) or (isinstance(f, str) and video_html(f, "")))]
         if not photos:
             return ""
         lay = b.get("layout")

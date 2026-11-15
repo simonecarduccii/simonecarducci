@@ -483,3 +483,9 @@ body.no-preview .preview { display: none; }
 .draft-btns a.btn { text-decoration: none; }
 .draft-btns .primary-ish { background: var(--ink); color: #fff; border-color: var(--ink); }
 .draft-btns .danger { color: #a33; }
+
+/* photos hidden on the site (kept in admin) */
+.seq li.is-hidden img, .seq li.is-hidden .ph { opacity: .3; filter: grayscale(1); }
+.seq li.is-hidden { outline: 2px dashed #b00; outline-offset: -2px; }
+.seq .hid-tag { position: absolute; left: 6px; bottom: 6px; background: #b00; color: #fff; font-size: 11px; padding: 1px 6px; border-radius: 4px; pointer-events: none; }
+.seq li .hide-btn[aria-pressed="true"] { background: #b00; color: #fff; }

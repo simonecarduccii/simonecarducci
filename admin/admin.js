@@ -749,6 +749,9 @@ Testo da scrivere.
     { tipo: "galleria", name: "Galleria", note: "foto a caso della pagina e delle serate", make: () => ({ titolo: "" }) },
   ];
   const newId = () => Math.random().toString(36).slice(2, 8);
+  // hide a photo on the site without deleting it: it stays here, dimmed, and comes back with the same button
+  const hideBtn = (it, after) => h("button", { type: "button", class: "hide-btn", title: it.hidden ? "Mostra sul sito" : "Nascondi sul sito (resta qui)",
+    "aria-pressed": it.hidden ? "true" : "false", onclick: () => { it.hidden = !it.hidden; after(); } }, it.hidden ? "◌" : "●");
   const pageSlugs = () => Object.keys(tree).map((p) => (p.match(/^content\/pagine\/([a-z0-9][a-z0-9-]*)\.json$/) || [])[1]).filter(Boolean).sort();
 
   async function applyPages() {
@@ -1174,14 +1177,25 @@ Testo da scrivere.
           b.foto = Array.isArray(b.foto) ? b.foto : [];
           const opts = [...LAYOUTS.map((l) => [l.id, `${l.name} (${l.note})`]), ...MINE.map((l) => [l.id, `${l.name} (salvato)`])];
           if (!opts.some(([v]) => v === b.layout)) b.layout = "griglia";
-          const grid = h("ol", { class: "seq ig-seq" }, b.foto.map((f, i) => h("li", {},
+          // hidden photos: "nascoste" = their positions (1, 2…), moved along with the photos
+          const hid = b.foto.map((_, k) => (b.nascoste || []).includes(k + 1));
+          const mv = (i, j) => {
+            const [f] = b.foto.splice(i, 1), [x] = hid.splice(i, 1);
+            if (j !== null) { b.foto.splice(j, 0, f); hid.splice(j, 0, x); }
+            b.nascoste = hid.map((v, k) => (v ? k + 1 : 0)).filter(Boolean);
+            if (!b.nascoste.length) delete b.nascoste;
+            changed(); draw();
+          };
+          const grid = h("ol", { class: "seq ig-seq" }, b.foto.map((f, i) => h("li", { class: hid[i] ? "is-hidden" : null },
             isVideoRef(f) ? h("span", { class: "ph video-ph", title: typeof f === "string" ? f : f.name }, "▶ " + (videoKind(f) === "file" ? "video" : videoKind(f)))
               : photoSrc(f) ? h("img", { src: photoSrc(f), alt: "" }) : h("span", { class: "ph" }),
             h("span", { class: "num" }, String(i + 1).padStart(2, "0")),
+            hid[i] ? h("span", { class: "hid-tag" }, "nascosta") : null,
             h("div", { class: "tools" },
-              h("button", { type: "button", title: "Prima", onclick: () => { if (i) { b.foto.splice(i - 1, 0, b.foto.splice(i, 1)[0]); changed(); draw(); } } }, "←"),
-              h("button", { type: "button", title: "Dopo", onclick: () => { if (i < b.foto.length - 1) { b.foto.splice(i + 1, 0, b.foto.splice(i, 1)[0]); changed(); draw(); } } }, "→"),
-              h("button", { type: "button", title: "Togli", onclick: () => { b.foto.splice(i, 1); changed(); draw(); } }, "×")))));
+              h("button", { type: "button", title: "Prima", onclick: () => { if (i) mv(i, i - 1); } }, "←"),
+              h("button", { type: "button", title: "Dopo", onclick: () => { if (i < b.foto.length - 1) mv(i, i + 1); } }, "→"),
+              hideBtn({ hidden: hid[i] }, () => { hid[i] = !hid[i]; mv(i, i); }),
+              h("button", { type: "button", title: "Togli", onclick: () => mv(i, null) }, "×")))));
           const add = async (files) => { for (const f of files) { const p = isImage(f) && await newPhoto(f, MAX_SIDE); if (p) b.foto.push(p); } changed(); draw(); };
           dropZone(grid, add);
           return [select("Layout", b.layout, opts, (v) => { b.layout = v; }), grid,
@@ -2149,6 +2163,8 @@ Testo da scrivere.
       src.addEventListener("input", sync); sync();
     });
     panel.append(h("p", { class: "hint" }, "**grassetto**, _corsivo_, [testo del link](https://...). Un rigo vuoto separa i paragrafi. Un campo vuoto (o “-”) non compare sul sito."));
+    // photo projects: every field is in the "Sezioni della pagina" cards, so the panel stays out of sight (it still saves them)
+    if (node.photos && node.photos.layout) { panel.classList.add("is-mirrored"); panel.hidden = true; }
     return panel;
   }
 
@@ -2175,6 +2191,8 @@ Testo da scrivere.
     if (ph.layout) {
       try { layout = JSON.parse(await readText(ph.layout, true) || "{}"); } catch (e) { layout = {}; }
       state.coverBig = layout.copertina !== false;
+      // photos hidden on the site (kept in admin): "nascoste": [photo numbers]
+      (Array.isArray(layout.nascoste) ? layout.nascoste : []).forEach((n) => { const p = state.seq[(parseInt(n, 10) || 0) - 1]; if (p) p.hidden = true; });
       await loadMine();
       state.schema = Array.isArray(layout.schema) ? layout.schema : null;
       const known = LAYOUTS.some((l) => l.id === layout.layout) || MINE.some((l) => l.id === layout.layout) || (layout.layout === "casuale" && state.schema);
@@ -2218,10 +2236,11 @@ Testo da scrivere.
       toggle(state.coverBig, (v) => { state.coverBig = v; markDirty(); }),
       h("span", {}, "Mostra la copertina grande in cima alla pagina"),
       h("small", { class: "hint" }, "(in home resta comunque la foto del progetto)")));
-    if (ph.layout) panel.append(layoutPicker(state));
+    // the layout picker sits inside the first "Foto" section (sectionsEditor); without sections it stays here
+    if (ph.layout && !(ph.kind === "serie")) panel.append(layoutPicker(state));
 
     if (ph.kind === "serie" && ph.layout) {
-      panel.append(h("h3", {}, "Sezioni della pagina", h("small", {}, " in ordine dall'alto: testo, foto, video, testo del progetto, crediti. Le sposti con ↑ ↓")),
+      panel.append(h("h3", {}, "Sezioni della pagina", h("small", {}, " in ordine dall'alto: titolo, testi, foto (con il loro layout), video, crediti. Le sposti con ↑ ↓")),
         sectionsEditor(state));
     } else if (ph.kind === "serie") {
       // With a page layout the sequence is a small preview of the page: the photos sit as they will on the site
@@ -2270,10 +2289,12 @@ Testo da scrivere.
                 h("button", { type: "button", title: "Togli il testo", onclick: () => { state.seq.splice(i, 1); draw(); markDirty(); } }, "×"))));
           }
           const cls = [at.k % 2 ? "alt" : "", at.k % 3 === 0 ? "wide" : ""].filter(Boolean).join(" ");
-          const li = h("li", { draggable: "true", class: cls || null, style: at.pl ? `grid-column: ${at.pl[0]} / span ${at.pl[1]}; grid-row: ${at.row + at.pl[2]}` : null },
+          const li = h("li", { draggable: "true", class: [cls, it.hidden ? "is-hidden" : ""].filter(Boolean).join(" ") || null, style: at.pl ? `grid-column: ${at.pl[0]} / span ${at.pl[1]}; grid-row: ${at.row + at.pl[2]}` : null },
             h("img", { src: it.url, alt: "" }),
             h("span", { class: "num" }, String(at.n).padStart(2, "0")),
+            it.hidden ? h("span", { class: "hid-tag" }, "nascosta") : null,
             h("span", { class: "tools" },
+              ph.layout ? hideBtn(it, () => { draw(); markDirty(); }) : null,
               h("button", { type: "button", title: "Prima", onclick: () => move(i, i - 1) }, "←"),
               h("button", { type: "button", title: "Dopo", onclick: () => move(i, i + 1) }, "→"),
               h("button", { type: "button", title: "Usa come copertina", onclick: () => { state.cover = { ...it }; drawCover(); markDirty(); } }, "★"),
@@ -2384,6 +2405,7 @@ Testo da scrivere.
     let bigView = false;
     try { bigView = localStorage.getItem(VIEW_KEY) === "layout"; } catch (e) { bigView = false; }
     const FEW = 8, allPhotos = new WeakSet();
+    const picker = layoutPicker(state); // one picker, moved into the first photo section at each draw
     const draw = () => {
       normalize();
       const schema = schemaOf(state);
@@ -2392,7 +2414,16 @@ Testo da scrivere.
       const total = state.seq.filter(isPhoto).length;
       const seen = {};
       mirrors = [];
-      box.replaceChildren(...cs.map(([a, b], c) => {
+      // the title and the line under it always open the page: shown first, not movable
+      const tShut = isFolded("titolo");
+      const titleCard = h("div", { class: "sec sec-blocco sec-titolo" },
+        h("div", { class: "sec-head" }, foldBtn("titolo"), h("strong", {}, "Titolo"), h("small", { class: "muted sec-peek" }, ` · ${draft.photos && draft.photos.node ? draft.photos.node.title : ""}`)),
+        ...(tShut ? [] : [
+          h("div", { class: "sec-facts" }, ...[["Luogo", "Luogo"], ["Anno", "Anno"]].filter(([m]) => document.querySelector(`.panel [data-field="${m}"]`))
+            .map(([m, l]) => h("label", {}, h("span", {}, l), mirror(`[data-field="${m}"]`, l)))),
+          h("label", { class: "sec-line" }, h("span", {}, "Testo sotto il titolo (facoltativo)"), mirror('[data-field^="Intro"]', "Testo sotto il titolo", 3)),
+          h("p", { class: "hint" }, "La riga secondaria è “Luogo · Ricerca visiva: Anno” (la scritta “Ricerca visiva” si cambia in Impostazioni). Il titolo si cambia in Home › Ricerca visiva.")]));
+      box.replaceChildren(titleCard, ...cs.map(([a, b], c) => {
         const it = state.seq[a];
         const kind = it.sep ? "foto" : it.blocco ? it.blocco : "video" in it ? "video" : "testo";
         const key = kind + (seen[kind] = (seen[kind] || 0) + 1);
@@ -2412,12 +2443,14 @@ Testo da scrivere.
             ...state.seq.slice(a + 1, short ? a + 1 + FEW : b).map((p, k) => {
               const i = a + 1 + k, pl = places[k];
               const cls = [k % 2 ? "alt" : "", k % 3 === 0 ? "wide" : ""].filter(Boolean).join(" ");
-              const li = h("li", { draggable: "true", class: cls || null, style: pl ? `grid-column: ${pl[0]} / span ${pl[1]}; grid-row: ${pl[2]}` : null },
+              const li = h("li", { draggable: "true", class: [cls, p.hidden ? "is-hidden" : ""].filter(Boolean).join(" ") || null, style: pl ? `grid-column: ${pl[0]} / span ${pl[1]}; grid-row: ${pl[2]}` : null },
                 h("img", { src: p.url, alt: "" }),
                 h("span", { class: "num" }, String(state.seq.slice(0, i + 1).filter(isPhoto).length).padStart(2, "0")),
+                p.hidden ? h("span", { class: "hid-tag" }, "nascosta") : null,
                 h("span", { class: "tools" },
                   h("button", { type: "button", title: "Prima", onclick: () => movePhoto(i, i - 1) }, "←"),
                   h("button", { type: "button", title: "Dopo", onclick: () => movePhoto(i, i + 1) }, "→"),
+                  hideBtn(p, () => { draw(); markDirty(); }),
                   h("button", { type: "button", title: "Usa come copertina", onclick: () => { state.cover = { ...p }; if (state.onCover) state.onCover(); markDirty(); } }, "★"),
                   h("button", { type: "button", title: "Togli", onclick: () => { state.seq.splice(i, 1); draw(); markDirty(); } }, "×")));
               li.addEventListener("dragstart", (e) => { e.dataTransfer.setData("text/x-seq", String(i)); li.classList.add("dragging"); });
@@ -2427,11 +2460,13 @@ Testo da scrivere.
               return li;
             }));
           const card = h("div", { class: "sec sec-foto" },
-            h("div", { class: "sec-head" }, foldBtn(key), h("strong", {}, "Foto"), h("small", { class: "muted" }, n ? ` · ${n} di ${total}` : " · ancora vuota: non compare"),
+            h("div", { class: "sec-head" }, foldBtn(key), h("strong", {}, "Foto"), h("small", { class: "muted" }, n ? ` · ${n} di ${total}` : " · ancora vuota: non compare",
+              (() => { const k = state.seq.slice(a + 1, b).filter((p) => p.hidden).length; return k ? ` · ${k} nascost${k === 1 ? "a" : "e"}` : ""; })()),
               n && !shut ? h("span", { class: "sec-view" },
                 h("button", { type: "button", "aria-pressed": bigView ? "false" : "true", onclick: () => { bigView = false; try { localStorage.setItem(VIEW_KEY, "mini"); } catch (e) { /* */ } draw(); } }, "Miniature"),
                 h("button", { type: "button", "aria-pressed": bigView ? "true" : "false", onclick: () => { bigView = true; try { localStorage.setItem(VIEW_KEY, "layout"); } catch (e) { /* */ } draw(); } }, "Come sul sito")) : null,
               tools(true)),
+            shut ? null : (c === cs.findIndex(([a2]) => state.seq[a2].sep) ? picker : h("p", { class: "hint" }, "Layout: lo stesso della prima sezione Foto.")),
             shut ? null : n ? grid : null,
             shut ? null : h("div", { class: "photo-btns" },
               bigView && n > FEW ? h("button", { type: "button", class: "btn small", onclick: () => { if (allPhotos.has(it)) allPhotos.delete(it); else allPhotos.add(it); draw(); } },
@@ -2819,6 +2854,9 @@ Testo da scrivere.
             }
             dropUnusedMedia(slugOf, new Set(testi.map((t) => t.video).filter(Boolean)), out);
             if (testi.length) page.testi = testi;
+            delete page.nascoste;
+            const hid = seqPhotos.map((it, k) => (it.hidden ? k + 1 : 0)).filter(Boolean);
+            if (hid.length) page.nascoste = hid;
             const json = layoutJson(page);
             if (json !== (texts[n.photos.layout] || "")) out[n.photos.layout] = await blobFrom({ text: json });
             if (state.mineDirty) {
