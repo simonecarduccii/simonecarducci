@@ -27,7 +27,7 @@ const photoProject = (slug, doc, title, folderHint) => ({
     { label: "Pellicola (non compare se il supporto è digitale)", file: P(doc), meta: "Pellicola", hideIf: ["Supporto", /digital/i] },
     { label: "Lente (facoltativa)", file: P(doc), meta: "Lente", optional: true, after: "Pellicola" },
     { label: "Intro in alto (max 40 parole)", file: P(doc), section: "## Intro", rows: 4 },
-    { label: "Testo in fondo, dopo le foto", file: P(doc), section: "## Testo", rows: 10 },
+    { label: "Testo del progetto", file: P(doc), section: "## Testo", rows: 10 },
     { label: "Crediti (vuoto = testo standard di Impostazioni · [ANNO] = anno del progetto · “-” = nessun credito)", file: P(doc), section: "## Crediti", rows: 2 },
   ],
 });
@@ -79,9 +79,19 @@ window.STRUTTURA = [
         children: [ai("vedetta", "ai-boheme-vedetta", "Bohème Vedetta"), ai("coaching", "ai-coaching-corsa", "Running Coach")],
       },
       {
-        id: "banda-archivio", title: "Archivio (banda)", page: "index.html", cartella: "home-archivio",
-        note: "La banda in bianco e nero che porta all'archivio, in fondo a ogni pagina.",
+        id: "banda-archivio", title: "Archivio", page: "index.html", cartella: "home-archivio",
+        note: "La banda in bianco e nero che porta all'archivio, in fondo a ogni pagina. La pagina dell'archivio è qui sotto.",
         photos: { kind: "singola", file: "img/home/archivio.jpg", cover: "Foto della banda" },
+        children: [
+      {
+        id: "archivio", title: "Pagina dell'archivio", page: "archivio.html", cartella: "archivio",
+        photos: { kind: "archivio" },
+        texts: [
+          { label: "Testo sopra la foto", file: C, meta: "Lead", in: "## Archivio (versione precedente)", rows: 2 },
+          { label: "Bottone", file: C, meta: "Bottone", in: "## Archivio (versione precedente)" },
+        ],
+      },
+        ],
       },
     ],
   },
@@ -89,10 +99,6 @@ window.STRUTTURA = [
     id: "pagine", title: "Pagine", group: true, pagesList: true,
     note: "Pagine nuove composte con i blocchi dei componenti Figma (titolo, foto, testo, citazione, scheda, sequenza di foto…).",
     children: [], // filled from content/pagine/ by admin.js
-  },
-  {
-    id: "impostazioni", title: "Impostazioni", page: "index.html", settings: true,
-    note: "Le parti che compaiono in più pagine: contatti e link del footer, titoli e anni dei progetti culturali, le righe dei progetti con l'AI.",
   },
   {
     id: "about", title: "About", page: "about.html", cartella: "about",
@@ -109,11 +115,7 @@ window.STRUTTURA = [
   { id: "libreria", title: "Libreria foto", library: true,
     note: "Tutte le foto del sito: punto di fuoco, ritaglio, e da qui si riusano nelle pagine (bottone “Dalla libreria”)." },
   {
-    id: "archivio", title: "Archivio", page: "archivio.html", cartella: "archivio",
-    photos: { kind: "archivio" },
-    texts: [
-      { label: "Testo sopra la foto", file: C, meta: "Lead", in: "## Archivio (versione precedente)", rows: 2 },
-      { label: "Bottone", file: C, meta: "Bottone", in: "## Archivio (versione precedente)" },
-    ],
+    id: "impostazioni", title: "Impostazioni", page: "index.html", settings: true,
+    note: "Le parti che compaiono in più pagine: contatti e link del footer, titoli e anni dei progetti culturali, le righe dei progetti con l'AI.",
   },
 ];
