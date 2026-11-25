@@ -1,2 +1,6 @@
 __pycache__/
 .DS_Store
+
+# Original photos (synced to the site by tools/mac/sync_cartelle.py)
+information_architecture/
+.claude-tmp/

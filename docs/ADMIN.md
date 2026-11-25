@@ -123,7 +123,7 @@ Le foto vengono rimpicciolite nel browser prima di partire e perdono GPS e dati 
 ## 3. Foto da una cartella del Mac
 
 Ogni elemento con foto ha il campo **Cartella sul Mac**: il percorso dentro
-`~/porfolio/information_architecture`, per esempio `01home/03ricerca_visiva/03faccini`.
+`~/progetti/portfolio/information_architecture`, per esempio `01home/03ricerca_visiva/03faccini`.
 Quando cambi, aggiungi o togli una foto in quella cartella, il Mac la manda al sito da solo.
 
 Nella cartella:
@@ -137,7 +137,7 @@ Vince l'ultima modifica: se carichi una copertina dal pannello e poi cambi il fi
 
 **Installazione (una volta sola)**, sul Mac:
 
-1. Apri la cartella `porfolio/sync-sito` nel Finder.
+1. Apri la cartella `progetti/portfolio/tools/mac` nel Finder.
 2. Doppio clic su **installa-sync.command**. Se macOS dice che non può aprirlo: tasto destro → *Apri* → *Apri*.
 3. Incolla il token del punto 1 e premi Invio (mentre incolli non vedi niente, è normale).
 4. Il Terminale mostra le foto che manderebbe: da quel momento il Mac controlla le cartelle ogni 3 minuti.

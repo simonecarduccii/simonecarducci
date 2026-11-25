@@ -1,4 +1,4 @@
-// Information architecture of the site, as Simone organises it (porfolio/information_architecture).
+// Information architecture of the site, as Simone organises it (portfolio/information_architecture).
 // Each element says which texts (parts of the Markdown files in docs/) and which photos it edits.
 //
 // Text fields:

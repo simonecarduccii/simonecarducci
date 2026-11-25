@@ -2,7 +2,7 @@
 """Mac folder sync: send the photos of the folders chosen in /admin to the site.
 
 In /admin -> Foto, each page can have a "Cartella sul Mac" (e.g. 01home/03ricerca_visiva/03faccini,
-inside ~/porfolio/information_architecture). This script, run every few minutes by macOS
+inside ~/progetti/portfolio/information_architecture). This script, run every few minutes by macOS
 (installed by installa-sync.command), looks at those folders and, when a photo is new or changed,
 commits it to GitHub:
 
@@ -32,7 +32,7 @@ from pathlib import Path
 
 REPO = os.environ.get("PORTFOLIO_REPO", "simonecarduccii/simonecarducci")
 BRANCH = os.environ.get("PORTFOLIO_BRANCH", "main")
-BASE = Path(os.environ.get("PORTFOLIO_FOTO", "~/porfolio/information_architecture")).expanduser()
+BASE = Path(os.environ.get("PORTFOLIO_FOTO", "~/progetti/portfolio/information_architecture")).expanduser()
 HOME_DIR = Path("~/Library/Application Support/portfolio-sync").expanduser()
 STATE_FILE = HOME_DIR / "stato.json"
 LOCK = HOME_DIR / "sync.lock"

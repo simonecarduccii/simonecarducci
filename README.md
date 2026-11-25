@@ -17,7 +17,7 @@ Testi e foto si cambiano dal pannello **https://bohememag.it/portfolio/admin/**:
 ## Struttura del repository
 
 ```
-porfolio/
+portfolio/
 ├── README.md            # Questo file
 ├── CLAUDE.md            # Contesto e regole per lavorare con Claude Code
 └── docs/
