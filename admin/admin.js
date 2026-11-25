@@ -2724,7 +2724,7 @@ Testo da scrivere.
     const input = h("input", { type: "text", placeholder: "es. 01home/03ricerca_visiva/03faccini", value: data.cartella || "" });
     input.addEventListener("input", () => { draft.cartella.value = input.value.trim(); markDirty(); });
     return h("label", { class: "field folder" },
-      h("span", {}, "Cartella sul Mac (dentro porfolio/information_architecture)"), input,
+      h("span", {}, "Cartella sul Mac (dentro portfolio/information_architecture)"), input,
       h("small", {}, "Se cambi una foto in questa cartella, il Mac la manda al sito entro 3 minuti. Vince l'ultima modifica, qui o nella cartella."));
   }
 

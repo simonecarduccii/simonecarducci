@@ -7,7 +7,7 @@ cd "$(dirname "$0")"
 LABEL="it.bohememag.portfolio-sync"
 DIR="$HOME/Library/Application Support/portfolio-sync"
 PLIST="$HOME/Library/LaunchAgents/$LABEL.plist"
-FOTO="$HOME/porfolio/information_architecture"
+FOTO="$HOME/progetti/portfolio/information_architecture"
 LOG="$HOME/Library/Logs/portfolio-sync.log"
 
 echo "== Sincronizzazione foto del portfolio =="
