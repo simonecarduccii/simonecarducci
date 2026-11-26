@@ -1,7 +1,12 @@
 {
   "account": "bohememag",
-  "aggiornato": "2026-11-25",
+  "aggiornato": "2026-11-26",
   "post": [
+    {
+      "foto": "img/boheme/instagram/18053227871813186.jpg",
+      "link": "https://www.instagram.com/p/DgNDlixjXyY/",
+      "data": "2026-11-26T12:00:01+0000"
+    },
     {
       "foto": "img/boheme/instagram/18129384779298936.jpg",
       "link": "https://www.instagram.com/p/DgKiNNiDXK8/",
@@ -116,11 +121,6 @@
       "foto": "img/boheme/instagram/17947122735302311.jpg",
       "link": "https://www.instagram.com/p/DeHDU6sCN_p/",
       "data": "2026-10-05T11:00:16+0000"
-    },
-    {
-      "foto": "img/boheme/instagram/18129805267865171.jpg",
-      "link": "https://www.instagram.com/p/DeB5xunjNtX/",
-      "data": "2026-10-03T11:00:37+0000"
     }
   ]
 }
